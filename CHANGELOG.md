@@ -3,6 +3,62 @@
 All notable changes to this project are documented here. Format based on
 [Keep a Changelog](https://keepachangelog.com/); versions follow semver.
 
+## [3.1.0] - 2026-11-06
+
+### Added
+- **🔴 会话稿件分析**：面板新增「稿件」视图 —— 一键扫描**当前会话工作目录**，
+  自动挑出论文正文文件（唯一明显赢家自动选；多个候选接近时**弹选择框**让用户选），
+  解析后**按段落切分并逐段体检**，产出「摘要/引言/方法/结果/讨论/结论」各自的
+  违规清单、修复建议、出处，以及整篇的去 AI 化得分。
+  - `GET  /api/session/files?sessionId=` —— 会话工作目录内的论文候选与打分。
+  - `POST /api/analyze { path, sessionId, journal? }` —— 分段报告。
+  - `.docx` 由宿主自行解包（ZIP + `word/document.xml`），无新依赖；
+    PDF / `.doc` / `.odt` 会被列出但标灰（需先用 office 技能转 docx）。
+  - 「交给 Agent 深读」按钮把文件路径交给会话里的 Agent，由它逐段写修改意见。
+- **面板 UI 按官方规范重做**（对齐官方 `Plugin Manager` 页面与 `practices.md`）：
+  - **响应式改用 CSS container query**：面板根 `container-type: inline-size` +
+    `@container`（断点 ≤380 / ≤420 / ≥600）。
+    官方理由：右栏宽度 ≠ 视口宽度，**media query 在可拖拽右栏里必然失效**。
+  - **零字面色**：全部 `--dsw-alias-*` 派生（`color-mix`），
+    删掉 `#4176e6` / `#fff` 一类回退；圆角改用 `--dsw-radius-xs/sm/md`。
+  - **官方状态范式**：骨架屏（`--dsw-alias-bg-skeleton` + `1lh` 行高 + 尊重
+    `prefers-reduced-motion`）、`status` / `empty` / `failure` 三件套、
+    统一焦点环、hover 只在 `@media (hover:hover)` 下生效。
+  - **间距/字号刻度**对齐官方 Plugin Manager：2/4/6/8/10/12/14/16/20/24 ·
+    10/11/11.5/12/12.5/13/13.5/14(+18/20)。
+  - **实时 chip 标题**：注册 `sidebar.right.pane.tab.title`，并显式声明
+    `priority: 'extension'`（与官方 sidebar-files 同一套路）。
+- **`scripts/layout-probe.mjs`**：6 视图 × 5 宽度（320/380/460/560/900）的布局体检，
+  检查横向溢出、文本溢出、被挤压的 chrome、被裁的首列、被吞的内容、命中区大小、
+  文本框高度、网格行拉伸。**探针本身经过反向验证**（临时注入固定宽度后确实 exit 1）。
+- **`scripts/measure-view.mjs`** / **`scripts/shot-one.mjs`**：定位布局问题用的
+  盒模型测量与单视图截图（可模拟 401 / 404 / 网络不可达）。
+- **`scripts/extract-host-css.mjs`**：从 `app.asar` 里抽出官方宿主页面的真实 CSS
+  （`node scripts/extract-host-css.mjs plugin-manager preview/host-plugin-manager.css`），
+  作为「抄宿主页面刻度」的参考。
+- **`scripts/sync-skill-index.mjs`**：重新生成技能索引并同步进 `client.js`，
+  消灭「在线索引」与「内置兜底索引」长期漂移的问题。
+
+### Fixed
+- 🔴 **标签栏被裁掉上半截**：`.dapp-head` / `.dapp-tabs` 是列 flex 子项，
+  默认 `flex-shrink:1` 把行高压扁 → 三行 chrome 全部 `flex:0 0 auto`。
+- 🔴 **期刊表第一列被 ellipsis 裁掉**：改为换行 + 去掉写死的 `min-width:520px`。
+- 🔴 **表单标签列在 320px 下吃掉 1/3 宽度**：96px → 72px，≤420px 时标签上堆叠。
+- 🔴 **`repeat(3,1fr)` 这类裸 `1fr`**：官方从不写裸 `1fr`，一律 `minmax(0,1fr)`；
+  flex 子项补 `min-width:0`（官方 `min-width:0` + `overflow:hidden` + `text-overflow:ellipsis` 三件套）。
+- 🔴 **`/` 快捷键聚焦到收起的 `details` 里的隐藏输入框**：聚焦前先展开，且每个视图只有一个「主」搜索框。
+- **「发给会话」猜会话**：`/api/send` 原先在没给 `sessionId` 时取「最近活跃的 agent」，
+  可能发到**错误的会话**。客户端现在一律带上 slot props 里的 `sessionId`。
+- 清单组标题原来是**假按钮**（有 pointer 光标、无行为）→ 真 `<button aria-expanded>`。
+- 清单项的严重度标记与速查/检查不一致 → 统一 `.dapp-sev` 胶囊。
+- 「表格可横向滚动」提示写死 → 改用 ResizeObserver 实测溢出才显示。
+
+### Test
+- 断言 466 → **594**（audit 36 · eval-conformance 171 · host-route 248 · interaction 76 ·
+  layout-probe 30 · 其余为渲染与冒烟）。
+- `preview/` 现在明确只是**布局回归网**，**不是**运行中插件的验证
+  （官方 `references/verification.md`：「A screenshot of a mock page is not verification of the running plugin」）。
+
 ## [3.0.1] - 2026-11-05
 
 ### Fixed

@@ -21,7 +21,7 @@ window.__ModuleLoader__.load({
   factory(require) {
     const React = require('react');
     const h = React.createElement;
-    const { useState, useEffect, useMemo, useRef } = React;
+    const { useState, useEffect, useLayoutEffect, useMemo, useRef } = React;
 
     // ── identity ─────────────────────────────────────────────────────────
 
@@ -39,6 +39,7 @@ window.__ModuleLoader__.load({
       'panel.deai': '去AI',
       'panel.checklist': '清单',
       'panel.manual': '手册',
+      'panel.manuscript': '稿件',
       'panel.collapse': '收起',
       'panel.expand': '展开',
       'panel.copy': '复制',
@@ -53,7 +54,7 @@ window.__ModuleLoader__.load({
       'panel.progress': '进度',
       'type.label': '论文助手',
       'guide.title': '论文助手',
-      'guide.description': '规则速查 · 选刊 · 实时合规检查 · 去 AI 化 · 投稿清单',
+      'guide.description': '规则速查 · 选刊 · 实时合规检查 · 去 AI 化 · 投稿清单 · 稿件分析',
     };
 
     const DICT_EN = {
@@ -64,6 +65,7 @@ window.__ModuleLoader__.load({
       'panel.deai': 'De-AI',
       'panel.checklist': 'Checklist',
       'panel.manual': 'Manual',
+      'panel.manuscript': 'Manuscript',
       'panel.collapse': 'Collapse',
       'panel.expand': 'Expand',
       'panel.copy': 'Copy',
@@ -78,7 +80,7 @@ window.__ModuleLoader__.load({
       'panel.progress': 'Progress',
       'type.label': 'Paper assistant',
       'guide.title': 'Paper assistant',
-      'guide.description': 'Rules, journals, live compliance check, de-AI scan, submission checklist',
+      'guide.description': 'Rules, journals, live compliance check, de-AI scan, submission checklist, manuscript review',
     };
 
     /** Live translator; replaced by the locale service's binding when available. */
@@ -1236,6 +1238,12 @@ window.__ModuleLoader__.load({
         { t: 'path', d: 'M16.4 4.4h-5A2.4 2.4 0 009 6.8v9a1.8 1.8 0 011.8-1.8h5.6z' },
       ],
       close: [{ t: 'path', d: 'M5.5 5.5 14.5 14.5M14.5 5.5 5.5 14.5' }],
+      doc: [
+        { t: 'rect', x: 4.2, y: 2.8, width: 11.6, height: 14.4, rx: 1.6 },
+        { t: 'line', x1: 7, y1: 6.6, x2: 13, y2: 6.6 },
+        { t: 'line', x1: 7, y1: 10, x2: 13, y2: 10 },
+        { t: 'line', x1: 7, y1: 13.4, x2: 10.4, y2: 13.4 },
+      ],
     };
 
     function Icon(props) {
@@ -1297,6 +1305,8 @@ window.__ModuleLoader__.load({
 
     // ── views ────────────────────────────────────────────────────────────
 
+    // The 稿件 view is LAST on purpose: the number-key shortcut follows the
+    // array order, and the six existing views must keep their keys.
     const VIEWS = [
       { id: 'rules', label: '速查', icon: 'reply' },
       { id: 'journals', label: '期刊', icon: 'book' },
@@ -1304,6 +1314,7 @@ window.__ModuleLoader__.load({
       { id: 'deai', label: '去AI', icon: 'deai' },
       { id: 'checklist', label: '清单', icon: 'mark' },
       { id: 'manual', label: '手册', icon: 'search' },
+      { id: 'manuscript', label: '稿件', icon: 'doc' },
     ];
 
     const SEVERITIES = [
@@ -1577,6 +1588,76 @@ window.__ModuleLoader__.load({
       return line ? `${file}:${line}` : file;
     }
 
+    // ── the manuscript view ─────────────────────────────────────────────
+
+    /** The formats the host can LIST but not read: the route answers
+     *  `415 unsupported-format` for them. */
+    const UNSUPPORTED_EXTENSIONS = Object.freeze({
+      '.pdf': 'PDF 需要先用 office 技能转成 docx',
+      '.doc': '旧版 .doc 需要先用 office 技能转成 docx',
+      '.odt': '.odt 需要先用 office 技能转成 docx',
+    });
+
+    /** What the host's scanner looks for — the empty state says it out loud. */
+    const SCAN_HINTS = Object.freeze([
+      '扩展名 .docx .tex .md .rtf .txt .pdf .odt .doc',
+      '文件名含 paper / manuscript / article / draft / thesis / 论文 / 稿件 / 初稿',
+      '正文含 Abstract / 摘要 / Introduction / 引言 / Methods / 方法 / Results / 结果 / Discussion / 讨论 / Conclusion / 结论 标题',
+      '最近 90 天内修改过的文件得分更高',
+    ]);
+
+    /** The section label of a report entry — the title always wins over the
+     *  raw vocabulary key ('document' = a file without recognisable headings). */
+    function sectionTitle(entry) {
+      return str(entry && entry.title, entry && entry.section, '段落');
+    }
+
+    /** The host's own Modal primitive is a Harness package, and the client
+     *  half may not load one. Its BEHAVIOUR is copied instead (see the Modal
+     *  component): `react-dom` is a platform seed word, so the portal itself
+     *  is available. The require is lazy: a panel that never opens a dialog
+     *  must not pull the module in. */
+    let reactDomModule = null;
+    function reactDom() {
+      if (reactDomModule === null) {
+        try {
+          reactDomModule = require('react-dom');
+        } catch {
+          reactDomModule = false;
+        }
+      }
+      return reactDomModule || null;
+    }
+
+    /** How many dialogs are open — the panel's global shortcuts stand down
+     *  while a dialog owns the keyboard. */
+    let modalDepth = 0;
+
+    /** The working directory of the session the panel lives in.
+     *
+     *  The slot hands the panel `sessionId` and the host's own `useSessions`
+     *  hook; the hook is the ONLY sanctioned way to read a session's folder
+     *  (the Harness' Files tab does exactly this). A panel without a session
+     *  (the offline preview) gets `undefined` instead of a guess. */
+    function useSessionCwd(props) {
+      const sessionId = typeof props.sessionId === 'string' ? props.sessionId : '';
+      const useSessions = props.useSessions;
+      const selector = useMemo(
+        () => (sessions) => {
+          if (!sessionId) return undefined;
+          const byId = sessions && sessions.byId;
+          if (!byId) return undefined;
+          const entry = byId[sessionId];
+          return entry ? entry.cwd : undefined;
+        },
+        [sessionId],
+      );
+      // The hook slot must be filled on EVERY render, in the same order: the
+      // fallback keeps the hook count stable when the host offers no hook.
+      const [fallback] = useState(undefined);
+      return typeof useSessions === 'function' ? useSessions(selector) : fallback;
+    }
+
     // ── reactive helpers ────────────────────────────────────────────────
 
     /** Loads a resource and exposes the panel's five states:
@@ -1739,10 +1820,573 @@ window.__ModuleLoader__.load({
       );
     }
 
+    // ── the modal layer ─────────────────────────────────────────────────
+    //
+    // The Harness ships a `Modal` primitive, but it lives in a Harness client
+    // package — and the client half of a plugin may not load one. Its
+    // BEHAVIOUR is copied instead (the reference implementation is kept in
+    // preview/host-reference/Modal.tsx + useModalLayer.ts):
+    //
+    //   · the dialog is portaled to `document.body`,
+    //   · the focus is trapped inside it while it is open,
+    //   · Escape closes it (the topmost layer owns the key),
+    //   · the focus returns to the control that opened it,
+    //   · a click on the backdrop closes it,
+    //   · `role="dialog"` + `aria-modal="true"` + an accessible name,
+    //   · the body scroll is locked while it is open.
+
+    const FOCUSABLE =
+      'button:not(:disabled), input:not(:disabled), textarea:not(:disabled), select:not(:disabled), a[href], [tabindex="0"]';
+
+    /** Give the open dialog the keyboard: Escape closes it, Tab stays in it,
+     *  and the focus goes back to the trigger when it closes.
+     *
+     *  `restoreRef` is the control that opened the dialog. It is not always
+     *  the element that had the focus: a button that is disabled while the
+     *  panel works loses the focus, so the dialog restores to the trigger
+     *  itself instead of to whatever the browser picked. */
+    function useModalLayer(dialogRef, open, onClose, restoreRef) {
+      const closeRef = useRef(onClose);
+      const pendingRestore = useRef(null);
+      closeRef.current = onClose;
+      useLayoutEffect(() => {
+        const element = dialogRef.current;
+        const pending = pendingRestore.current;
+        pendingRestore.current = undefined;
+        // The focus belongs to the control that opened the dialog again — but
+        // only while it is still inside the dialog, so a deliberate focus
+        // change by the panel is not undone.
+        if (
+          !open &&
+          pending &&
+          pending.isConnected &&
+          element &&
+          element.contains(element.ownerDocument.activeElement) &&
+          !pending.closest('[inert], [hidden]')
+        ) {
+          try {
+            pending.focus({ preventScroll: true });
+          } catch {
+            /* the trigger cannot take the focus */
+          }
+        }
+        if (!open || !element) return undefined;
+        const doc = element.ownerDocument;
+        const trigger = restoreRef && restoreRef.current;
+        const previous =
+          trigger instanceof HTMLElement && trigger.isConnected ? trigger : doc.activeElement;
+        const initial =
+          element.querySelector('[data-modal-autofocus]') || element.querySelector(FOCUSABLE) || element;
+        if (!element.contains(doc.activeElement)) {
+          try {
+            initial.focus({ preventScroll: true });
+          } catch {
+            /* the element cannot take the focus */
+          }
+        }
+        const onKeyDown = (event) => {
+          if (event.defaultPrevented || event.ctrlKey || event.altKey || event.metaKey) return;
+          if (event.key === 'Escape' && !event.shiftKey) {
+            event.preventDefault();
+            if (!event.repeat) closeRef.current();
+            return;
+          }
+          if (event.key !== 'Tab') return;
+          const items = [...element.querySelectorAll(FOCUSABLE)].filter(
+            (item) => !item.closest('[inert], [hidden]'),
+          );
+          if (items.length === 0) {
+            event.preventDefault();
+            element.focus();
+            return;
+          }
+          const first = items[0];
+          const last = items[items.length - 1];
+          const active = doc.activeElement;
+          if (event.shiftKey) {
+            if (active === first || !element.contains(active)) {
+              event.preventDefault();
+              last.focus();
+            }
+          } else if (active === last || !element.contains(active)) {
+            event.preventDefault();
+            first.focus();
+          }
+        };
+        doc.addEventListener('keydown', onKeyDown);
+        return () => {
+          doc.removeEventListener('keydown', onKeyDown);
+          // The focus returns to the control that opened the dialog. This
+          // happens while the dialog is being torn down, so the browser never
+          // drops the focus to the document body.
+          const target = previous instanceof HTMLElement && previous.isConnected ? previous : null;
+          if (target) {
+            pendingRestore.current = target;
+            try {
+              target.focus({ preventScroll: true });
+            } catch {
+              /* the trigger is gone */
+            }
+          }
+        };
+      }, [dialogRef, open]);
+    }
+
+    function Modal(props) {
+      const dialogRef = useRef(null);
+      useModalLayer(dialogRef, props.open, props.onClose, props.restoreRef);
+
+      // The panel's own shortcuts stand down while a dialog owns the keys.
+      useEffect(() => {
+        if (!props.open) return undefined;
+        modalDepth += 1;
+        return () => {
+          modalDepth = Math.max(0, modalDepth - 1);
+        };
+      }, [props.open]);
+
+      // The body must not scroll behind the dialog.
+      useEffect(() => {
+        if (!props.open) return undefined;
+        const body = document.body;
+        if (!body) return undefined;
+        const previous = body.style.overflow;
+        body.style.overflow = 'hidden';
+        return () => {
+          body.style.overflow = previous;
+        };
+      }, [props.open]);
+
+      if (!props.open) return null;
+
+      const tree = h(
+        'div',
+        { className: 'dapp-modal-host', role: 'presentation' },
+        h('div', { className: 'dapp-modal-mask', 'aria-hidden': 'true', onClick: props.onClose }),
+        h(
+          'div',
+          {
+            ref: dialogRef,
+            tabIndex: -1,
+            className: 'dapp-modal-dialog',
+            role: 'dialog',
+            'aria-modal': 'true',
+            'aria-label': props.title,
+            onKeyDown: props.onKeyDown,
+          },
+          h(
+            'div',
+            { className: 'dapp-modal-head' },
+            h('h2', { className: 'dapp-modal-title' }, props.title),
+            h(
+              'button',
+              {
+                type: 'button',
+                className: 'dapp-modal-close',
+                'aria-label': '关闭',
+                onClick: props.onClose,
+              },
+              h(Icon, { name: 'close', size: 13 }),
+            ),
+          ),
+          props.description ? h('p', { className: 'dapp-modal-desc' }, props.description) : null,
+          h('div', { className: 'dapp-modal-body' }, props.children),
+          props.footer ? h('div', { className: 'dapp-modal-foot' }, props.footer) : null,
+        ),
+      );
+
+      const dom = reactDom();
+      if (dom && typeof dom.createPortal === 'function' && typeof document !== 'undefined' && document.body) {
+        return dom.createPortal(tree, document.body);
+      }
+      return tree;
+    }
+
+    /** `3.0 KB` — the size of a candidate file. */
+    function formatBytes(bytes) {
+      const value = Number(bytes);
+      if (!Number.isFinite(value) || value <= 0) return '0 B';
+      if (value < 1024) return `${value} B`;
+      if (value < 1024 * 1024) return `${(value / 1024).toFixed(1)} KB`;
+      return `${(value / (1024 * 1024)).toFixed(1)} MB`;
+    }
+
+    /** `2026-11-06 09:12` — the modification time of a candidate file. */
+    function formatStamp(value) {
+      if (!value) return '';
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return String(value);
+      const pad = (number) => String(number).padStart(2, '0');
+      return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
+    }
+
+    /** Why a candidate cannot be analysed (the host answers 415 for it). */
+    function unsupportedReason(file) {
+      const ext = String((file && file.ext) || '').toLowerCase();
+      if (!ext) return '';
+      return UNSUPPORTED_EXTENSIONS[ext] || '';
+    }
+
+    /** The file chooser of the 稿件 view: the host found several equally
+     *  likely manuscripts, so the human picks one. */
+    function FilePicker(props) {
+      const files = Array.isArray(props.files) ? props.files : [];
+      const index = props.index;
+      const onKeyDown = (event) => {
+        if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+          event.preventDefault();
+          const next =
+            event.key === 'ArrowDown'
+              ? Math.min(files.length - 1, index + 1)
+              : Math.max(0, index - 1);
+          props.onMove(next);
+          return;
+        }
+        if (event.key === 'Home') {
+          event.preventDefault();
+          props.onMove(0);
+          return;
+        }
+        if (event.key === 'End') {
+          event.preventDefault();
+          props.onMove(files.length - 1);
+          return;
+        }
+        if (event.key !== 'Enter') return;
+        const file = files[index];
+        if (!file || unsupportedReason(file)) return;
+        event.preventDefault();
+        props.onPick(file);
+      };
+      return h(
+        'div',
+        { className: 'dapp-picker' },
+        h(
+          'div',
+          {
+            className: 'dapp-picker-list',
+            role: 'listbox',
+            'aria-label': '候选稿件',
+            tabIndex: 0,
+            'data-modal-autofocus': true,
+            onKeyDown,
+          },
+          files.map((file, position) => {
+            const blocked = unsupportedReason(file);
+            const reasons = Array.isArray(file.reasons) ? file.reasons : [];
+            return h(
+              'button',
+              {
+                key: str(file.path, file.name, `f${position}`),
+                type: 'button',
+                role: 'option',
+                'aria-selected': position === index ? 'true' : 'false',
+                'aria-disabled': blocked ? 'true' : 'false',
+                className: 'dapp-picker-row',
+                'data-on': position === index ? 'true' : 'false',
+                'data-blocked': blocked ? 'true' : 'false',
+                disabled: Boolean(blocked),
+                onClick: () => props.onPick(file),
+                onMouseEnter: () => props.onMove(position),
+              },
+              h(
+                'span',
+                { className: 'dapp-picker-top' },
+                h('span', { className: 'dapp-picker-name' }, str(file.name, file.path)),
+                h('span', { className: 'dapp-picker-score', 'data-kind': str(file.kind) }, String(num(file.score))),
+              ),
+              h(
+                'span',
+                { className: 'dapp-picker-meta' },
+                `${str(file.ext, '—')} · ${formatBytes(file.bytes)} · ${formatStamp(file.mtime) || '—'}`,
+              ),
+              reasons.length > 0
+                ? h('span', { className: 'dapp-picker-reasons' }, reasons.join(' · '))
+                : null,
+              blocked
+                ? h('span', { className: 'dapp-picker-blocked' }, `需先转换为 docx · ${blocked}`)
+                : null,
+            );
+          }),
+        ),
+        h('div', { className: 'dapp-picker-hint' }, '↑/↓ 选择 · Enter 分析 · Esc 关闭'),
+      );
+    }
+
+    // ── the shared finding components ───────────────────────────────────
+    //
+    // The 速查 / 检查 / 去AI / 稿件 views show the SAME findings, so they
+    // share ONE set of components: a violation card looks the same wherever
+    // it appears, and the 稿件 view never grows a parallel style.
+
+    /** The verdict bar with the hard / soft / info counters. */
+    function SummaryBar(props) {
+      const count = num(props.count);
+      const passed = Boolean(props.passed);
+      const cell = (tone, value, label) =>
+        h(
+          'div',
+          { className: 'dapp-summary-cell' },
+          h('div', { className: 'dapp-summary-num', 'data-tone': tone }, String(value)),
+          h('div', { className: 'dapp-summary-k' }, label),
+        );
+      return h(
+        'div',
+        { className: 'dapp-card' },
+        h(
+          'div',
+          { className: 'dapp-verdictbar', 'data-state': passed ? 'ok' : 'bad' },
+          h('span', { className: 'dapp-verdict-dot' }),
+          h('span', { className: 'dapp-grow' }, passed ? '✓ 未发现违规' : `✗ 发现 ${count} 条违规`),
+        ),
+        h(
+          'div',
+          { className: 'dapp-summary' },
+          cell('bad', num(props.hard), '🔴 hard'),
+          cell('warn', num(props.soft), '🟡 soft'),
+          cell('info', num(props.info), '🔵 info'),
+        ),
+      );
+    }
+
+    /** The text of one finding — what 「复制」 puts on the clipboard and what
+     *  「发给会话」 hands to the agent. */
+    function violationText(violation) {
+      const lines = [];
+      const id = str(violation.ruleId, violation.id);
+      lines.push(id ? `【${id}】${prose(violation.title, violation.ruleTitle)}` : prose(violation.title));
+      const expected = prose(violation.expected, violation.expect);
+      const actual = prose(violation.actual, violation.observed);
+      if (expected) lines.push(`期望：${expected}`);
+      if (actual) lines.push(`实际：${actual}`);
+      const matched = prose(violation.matched);
+      if (matched) lines.push(`命中：${matched}`);
+      const detail = prose(violation.detail, violation.message);
+      if (detail) lines.push(detail);
+      const fix = prose(violation.fix, violation.suggestion);
+      if (fix) lines.push(`修复建议：${fix}`);
+      const location = sourceLabel(violation.source);
+      if (location) lines.push(`出处：${location}`);
+      return lines.filter(Boolean).join('\n');
+    }
+
+    /** One violation: the severity badge, the rule, what was expected and
+     *  what was found, the fix and the provenance. */
+    function ViolationCard(props) {
+      const violation = props.violation || {};
+      const location = sourceLabel(violation.source);
+      const statement = prose(violation.statement);
+      const expected = prose(violation.expected, violation.expect);
+      const actual = prose(violation.actual, violation.observed);
+      const matched = prose(violation.matched);
+      const detail = prose(violation.detail, violation.message);
+      const fix = prose(violation.fix, violation.suggestion);
+      return h(
+        'div',
+        { className: 'dapp-card' },
+        h(
+          'div',
+          { className: 'dapp-card-title' },
+          h(SeverityBadge, { severity: str(violation.severity, 'hard') }),
+          h('span', { className: 'dapp-grow dapp-wrap' }, str(violation.title, violation.ruleTitle, violation.id)),
+        ),
+        h('div', { className: 'dapp-rid' }, str(violation.ruleId, violation.id)),
+        statement ? h('div', { className: 'dapp-rule-body dapp-wrap' }, statement) : null,
+        expected
+          ? h('div', { className: 'dapp-rule-body dapp-wrap' }, h('b', null, '期望：'), expected)
+          : null,
+        actual ? h('div', { className: 'dapp-rule-body dapp-wrap' }, h('b', null, '实际：'), actual) : null,
+        matched
+          ? h(
+              'div',
+              { className: 'dapp-rule-body dapp-wrap' },
+              h('b', null, '命中：'),
+              h('span', { className: 'dapp-match' }, matched),
+            )
+          : null,
+        detail ? h('div', { className: 'dapp-rule-body dapp-wrap' }, detail) : null,
+        fix
+          ? h('div', { className: 'dapp-fix dapp-wrap' }, h('b', null, '修复建议：'), fix)
+          : null,
+        location ? h('div', { className: 'dapp-src' }, location) : null,
+        h(
+          'div',
+          { className: 'dapp-actions' },
+          h(
+            'button',
+            {
+              type: 'button',
+              className: 'dapp-btn',
+              onClick: () => props.onCopy(violationText(violation)),
+            },
+            h(Icon, { name: 'copy', size: 12 }),
+            translate('panel.copy'),
+          ),
+          h(
+            'button',
+            {
+              type: 'button',
+              className: 'dapp-btn dapp-btn-primary',
+              disabled: props.sending,
+              onClick: () => props.onSend(violationText(violation)),
+            },
+            h(Icon, { name: 'send', size: 12 }),
+            translate('panel.send'),
+          ),
+        ),
+      );
+    }
+
+    /** The advice entries — the manual rules that never fail a manuscript but
+     *  still deserve a mention. */
+    function AdviceCard(props) {
+      const advice = Array.isArray(props.advice) ? props.advice : [];
+      return h(
+        'div',
+        { className: 'dapp-card' },
+        h(SectionHead, { label: '建议 advice', meta: `${advice.length} 条` }),
+        h(
+          'ul',
+          { className: 'dapp-list' },
+          advice.map((item, index) =>
+            typeof item === 'string'
+              ? h('li', { key: index }, item)
+              : h(
+                  'li',
+                  { key: index },
+                  h(
+                    'div',
+                    { className: 'dapp-rule-body dapp-wrap' },
+                    str(item.title, item.text, item.message),
+                  ),
+                  item.ruleId || item.id
+                    ? h('div', { className: 'dapp-rid' }, str(item.ruleId, item.id))
+                    : null,
+                  item.statement
+                    ? h('div', { className: 'dapp-rule-body dapp-wrap' }, prose(item.statement))
+                    : null,
+                  item.fix
+                    ? h(
+                        'div',
+                        { className: 'dapp-fix dapp-wrap' },
+                        h('b', null, '修复建议：'),
+                        prose(item.fix, item.suggestion),
+                      )
+                    : null,
+                  sourceLabel(item.source)
+                    ? h('div', { className: 'dapp-src' }, sourceLabel(item.source))
+                    : null,
+                ),
+          ),
+        ),
+      );
+    }
+
+    /** The de-AI score: 0–100, the higher the cleaner. */
+    function ScoreCard(props) {
+      const score = typeof props.score === 'number' ? props.score : null;
+      const hits = Array.isArray(props.hits) ? props.hits : [];
+      return h(
+        'div',
+        { className: 'dapp-card' },
+        h(
+          'div',
+          { className: 'dapp-card-title' },
+          h('span', { className: 'dapp-grow' }, props.label || '去 AI 化得分'),
+          h(
+            'span',
+            {
+              className: 'dapp-score-big',
+              'data-tone': score === null ? 'info' : score >= 80 ? 'ok' : score >= 50 ? 'warn' : 'bad',
+            },
+            score === null ? '—' : String(score),
+          ),
+        ),
+        h(
+          'div',
+          { className: 'dapp-meter' },
+          h('span', {
+            style: {
+              width: `${Math.max(0, Math.min(100, score === null ? 0 : score))}%`,
+              background:
+                score === null
+                  ? 'var(--dapp-faint)'
+                  : score >= 80
+                    ? 'var(--dapp-ok)'
+                    : score >= 50
+                      ? 'var(--dapp-warn)'
+                      : 'var(--dapp-bad)',
+            },
+          }),
+        ),
+        h('div', { className: 'dapp-hintline' }, `命中 ${hits.length} 处 AI 句式（满分 100，越高越干净）`),
+      );
+    }
+
+    /** One AI-style sentence the scanner found. */
+    function HitCard(props) {
+      const hit = props.hit || {};
+      const suggestion = str(hit.suggestion, hit.replacement, hit.fix);
+      return h(
+        'div',
+        { className: 'dapp-card' },
+        h(
+          'div',
+          { className: 'dapp-card-title' },
+          h(SeverityBadge, { severity: str(hit.severity, 'soft') }),
+          h('span', { className: 'dapp-grow dapp-wrap' }, prose(hit.category, hit.type, 'AI 句式')),
+        ),
+        h('div', { className: 'dapp-match' }, prose(hit.matched, hit.match, hit.text, hit.zh, hit.en, hit.pattern)),
+        typeof hit.count === 'number' && hit.count > 1
+          ? h('div', { className: 'dapp-rid' }, `出现 ${hit.count} 次`)
+          : null,
+        hit.why ? h('div', { className: 'dapp-rule-body dapp-wrap' }, `为什么：${prose(hit.why, hit.reason)}`) : null,
+        suggestion
+          ? h(
+              'div',
+              { className: 'dapp-fix dapp-wrap' },
+              h('b', null, '建议替换：'),
+              prose(suggestion),
+            )
+          : null,
+        h(
+          'div',
+          { className: 'dapp-actions' },
+          h(
+            'button',
+            {
+              type: 'button',
+              className: 'dapp-btn',
+              onClick: () => props.onCopy(suggestion),
+            },
+            h(Icon, { name: 'copy', size: 12 }),
+            translate('panel.copy'),
+          ),
+          h(
+            'button',
+            {
+              type: 'button',
+              className: 'dapp-btn dapp-btn-primary',
+              disabled: props.sending,
+              onClick: () => props.onSend(props.sendText(hit)),
+            },
+            h(Icon, { name: 'send', size: 12 }),
+            translate('panel.send'),
+          ),
+        ),
+      );
+    }
+
     // ── the panel ───────────────────────────────────────────────────────
 
     function Panel(props) {
       const t = translate;
+
+      // The session this panel lives in. The slot hands the id over; the
+      // panel never guesses one — every session-scoped call carries it, so a
+      // message can never land in a neighbouring conversation.
+      const sessionId = typeof props.sessionId === 'string' ? props.sessionId : '';
+      const sessionCwd = useSessionCwd(props);
 
       const [expanded, setExpanded] = useState(true);
       const [viewRaw, setView] = useState(readStore('view', 'rules'));
@@ -1775,6 +2419,15 @@ window.__ModuleLoader__.load({
       const [stageId, setStageId] = useState('');
       const [collapsed, setCollapsed] = useState({});
 
+      // 稿件 — the manuscript of THIS session.
+      const [scanState, setScanState] = useState({ status: 'idle', data: null, error: null });
+      const [scanPending, setScanPending] = useState(false);
+      const [analyzeState, setAnalyzeState] = useState({ status: 'idle', data: null, error: null });
+      const [analyzePending, setAnalyzePending] = useState(false);
+      const [pickerOpen, setPickerOpen] = useState(false);
+      const [pickerIndex, setPickerIndex] = useState(0);
+      const [activeSection, setActiveSection] = useState('');
+
       // shared
       const [journalKey, setJournalKey] = useState(readStore('journal', ''));
       const [checked, setChecked] = useState(readStore('checklist', {}));
@@ -1786,6 +2439,9 @@ window.__ModuleLoader__.load({
       const debounceTimer = useRef(null);
       const tableRef = useRef(null);
       const [tableScrolls, setTableScrolls] = useState(false);
+      // The control that opens the file picker — the dialog gives the focus
+      // back to it when it closes.
+      const scanTriggerRef = useRef(null);
 
       useEffect(
         () => () => {
@@ -2097,15 +2753,31 @@ window.__ModuleLoader__.load({
         }
       };
 
+      /** Hand a text to THIS session.
+       *
+       *  The host's /api/send falls back to "the most recently active agent"
+       *  when the body carries no session id — that can post into a
+       *  neighbouring conversation. The panel therefore ALWAYS sends the id
+       *  of the session it lives in, and refuses to send at all when it has
+       *  none (the composer is the only honest target left in that case). */
       const sendToSession = async (text) => {
         if (sending) return false;
+        if (!sessionId) {
+          const inserted = insertIntoComposer(text);
+          if (inserted) {
+            flash('已插入输入框（当前面板未绑定会话）', 'ok');
+            return true;
+          }
+          flash(t('panel.sendNoSession'), 'warn');
+          return false;
+        }
         setSending(true);
         try {
           const response = await fetch('/dsh-academic-paper-polish/api/send', {
             method: 'POST',
             credentials: 'same-origin',
             headers: { 'content-type': 'application/json' },
-            body: JSON.stringify({ text }),
+            body: JSON.stringify({ text, sessionId }),
           });
           await readJson(response);
           setSending(false);
@@ -2150,6 +2822,115 @@ window.__ModuleLoader__.load({
         flash(ok ? t('panel.copied') : '复制失败', ok ? 'ok' : 'bad');
       };
 
+      // ── the manuscript of this session ────────────────────────────────
+
+      /** The candidates the host found in the session's working directory. */
+      const scanFiles = useMemo(() => {
+        const payload = scanState.data;
+        if (!payload) return [];
+        return Array.isArray(payload.files) ? payload.files : [];
+      }, [scanState.data]);
+
+      /** The working directory the HOST resolved for the session. */
+      const hostCwd = str(scanState.data && scanState.data.cwd);
+
+      /** Analyse one manuscript of this session. */
+      const runAnalyze = async (path) => {
+        const target = str(path);
+        if (!target) return false;
+        if (!sessionId) {
+          flash('未绑定会话：无法分析', 'warn');
+          return false;
+        }
+        setAnalyzePending(true);
+        setAnalyzeState({ status: 'loading', data: null, error: null });
+        try {
+          const response = await fetch('/dsh-academic-paper-polish/api/analyze', {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({
+              path: target,
+              sessionId,
+              journal: journalKey || undefined,
+            }),
+          });
+          const data = await readJson(response);
+          setAnalyzeState({ status: 'ok', data, error: null });
+          setActiveSection('');
+          return true;
+        } catch (error) {
+          setAnalyzeState({ status: statusForError(error), data: null, error });
+          return false;
+        } finally {
+          setAnalyzePending(false);
+        }
+      };
+
+      /** Scan the session's folder and pick the manuscript.
+       *
+       *  The host applies the "one clear winner" rule itself: `best` is the
+       *  auto-selected file (score ≥ 140 and ≥ 1.6× the runner-up). When it
+       *  stays empty the human chooses — the picker opens. */
+      const scanSession = async () => {
+        if (!sessionId) {
+          flash('未绑定会话：无法扫描', 'warn');
+          return;
+        }
+        setScanPending(true);
+        setScanState({ status: 'loading', data: null, error: null });
+        try {
+          const response = await fetch(
+            '/dsh-academic-paper-polish/api/session/files' + qs({ sessionId }),
+            { cache: 'no-store', credentials: 'same-origin' },
+          );
+          const data = await readJson(response);
+          setScanState({ status: 'ok', data, error: null });
+          // The scan is over — the analysis that may follow is its own work.
+          setScanPending(false);
+          const files = Array.isArray(data.files) ? data.files : [];
+          const best = typeof data.best === 'string' ? data.best : '';
+          if (best) {
+            await runAnalyze(best);
+            return;
+          }
+          if (files.length > 0) {
+            setPickerIndex(0);
+            setPickerOpen(true);
+          }
+        } catch (error) {
+          setScanState({ status: statusForError(error), data: null, error });
+        } finally {
+          setScanPending(false);
+        }
+      };
+
+      /** The human picked one of the candidates. */
+      const pickFile = (file) => {
+        if (!file || unsupportedReason(file)) return;
+        setPickerOpen(false);
+        runAnalyze(str(file.path));
+      };
+
+      /** Hand the manuscript to the agent for a deep read. */
+      const handToAgent = () => {
+        const data = analyzeState.data || {};
+        const file = data.file || {};
+        const path = str(file.path);
+        if (!path) {
+          flash('还没有可交给智能体的稿件', 'warn');
+          return;
+        }
+        const journal = journalKey
+          ? str((targetJournal && targetJournal.name) || journalKey)
+          : '';
+        const instruction =
+          `请读取 ${path}${journal ? `（${journal}）` : ''}，逐段（摘要/引言/方法/结果/讨论/结论）审阅：` +
+          '先用 paper_check 按段落跑一遍，再用 paper_rules 查每段适用的硬规则，' +
+          '给出按段落组织的修改意见，每条注明规则 id 与出处。';
+        sendToSession(instruction);
+      };
+
       const toggleChecked = (key) => {
         setChecked((state) => {
           const next = { ...state };
@@ -2162,6 +2943,8 @@ window.__ModuleLoader__.load({
       // ── keyboard ──────────────────────────────────────────────────────
       useEffect(() => {
         const onKey = (event) => {
+          // A dialog owns the keyboard while it is open.
+          if (modalDepth > 0) return;
           const target = event.target;
           const inField =
             target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT');
@@ -2847,42 +3630,13 @@ window.__ModuleLoader__.load({
                 'div',
                 { className: 'dapp-span' },
                 h(SectionHead, { label: '检查结果', meta: total > 0 ? `共 ${total} 项检查` : '' }),
-                h(
-                  'div',
-                  { className: 'dapp-card' },
-                  h(
-                    'div',
-                    { className: 'dapp-verdictbar', 'data-state': passed ? 'ok' : 'bad' },
-                    h('span', { className: 'dapp-verdict-dot' }),
-                    h(
-                      'span',
-                      { className: 'dapp-grow' },
-                      passed ? '✓ 未发现违规' : `✗ 发现 ${violations.length} 条违规`,
-                    ),
-                  ),
-                  h(
-                    'div',
-                    { className: 'dapp-summary' },
-                    h(
-                      'div',
-                      { className: 'dapp-summary-cell' },
-                      h('div', { className: 'dapp-summary-num', 'data-tone': 'bad' }, String(hard)),
-                      h('div', { className: 'dapp-summary-k' }, '🔴 hard'),
-                    ),
-                    h(
-                      'div',
-                      { className: 'dapp-summary-cell' },
-                      h('div', { className: 'dapp-summary-num', 'data-tone': 'warn' }, String(soft)),
-                      h('div', { className: 'dapp-summary-k' }, '🟡 soft'),
-                    ),
-                    h(
-                      'div',
-                      { className: 'dapp-summary-cell' },
-                      h('div', { className: 'dapp-summary-num', 'data-tone': 'info' }, String(info)),
-                      h('div', { className: 'dapp-summary-k' }, '🔵 info'),
-                    ),
-                  ),
-                ),
+                h(SummaryBar, {
+                  passed,
+                  count: violations.length,
+                  hard,
+                  soft,
+                  info,
+                }),
               )
             : null,
           state.status === 'ok' && violations.length === 0
@@ -2897,120 +3651,18 @@ window.__ModuleLoader__.load({
               )
             : null,
           violations.map((violation, index) =>
-            h(
-              'div',
-              { key: str(violation.ruleId, violation.id, `v${index}`), className: 'dapp-card' },
-              h(
-                'div',
-                { className: 'dapp-card-title' },
-                h(SeverityBadge, { severity: str(violation.severity, 'hard') }),
-                h('span', { className: 'dapp-grow dapp-wrap' }, str(violation.title, violation.ruleTitle, violation.id)),
-              ),
-              h('div', { className: 'dapp-rid' }, str(violation.ruleId, violation.id)),
-              violation.statement
-                ? h('div', { className: 'dapp-rule-body dapp-wrap' }, prose(violation.statement))
-                : null,
-              violation.expected || violation.expect
-                ? h(
-                    'div',
-                    { className: 'dapp-rule-body dapp-wrap' },
-                    h('b', null, '期望：'),
-                    prose(violation.expected, violation.expect),
-                  )
-                : null,
-              violation.actual || violation.observed
-                ? h(
-                    'div',
-                    { className: 'dapp-rule-body dapp-wrap' },
-                    h('b', null, '实际：'),
-                    prose(violation.actual, violation.observed),
-                  )
-                : null,
-              violation.matched
-                ? h(
-                    'div',
-                    { className: 'dapp-rule-body dapp-wrap' },
-                    h('b', null, '命中：'),
-                    h('span', { className: 'dapp-match' }, prose(violation.matched)),
-                  )
-                : null,
-              violation.detail || violation.message
-                ? h('div', { className: 'dapp-rule-body dapp-wrap' }, prose(violation.detail, violation.message))
-                : null,
-              violation.fix || violation.suggestion
-                ? h(
-                    'div',
-                    { className: 'dapp-fix dapp-wrap' },
-                    h('b', null, '修复建议：'),
-                    prose(violation.fix, violation.suggestion),
-                  )
-                : null,
-              sourceLabel(violation.source) ? h('div', { className: 'dapp-src' }, sourceLabel(violation.source)) : null,
-              h(
-                'div',
-                { className: 'dapp-actions' },
-                h(
-                  'button',
-                  {
-                    type: 'button',
-                    className: 'dapp-btn',
-                    onClick: () => copyText(violationText(violation)),
-                  },
-                  h(Icon, { name: 'copy', size: 12 }),
-                  t('panel.copy'),
-                ),
-                h(
-                  'button',
-                  {
-                    type: 'button',
-                    className: 'dapp-btn dapp-btn-primary',
-                    disabled: sending,
-                    onClick: () => sendToSession(violationText(violation)),
-                  },
-                  h(Icon, { name: 'send', size: 12 }),
-                  t('panel.send'),
-                ),
-              ),
-            ),
+            h(ViolationCard, {
+              key: `${str(violation.ruleId, violation.id, `v${index}`)}#${index}`,
+              violation,
+              sending,
+              onCopy: copyText,
+              onSend: sendToSession,
+            }),
           ),
           state.status === 'ok' && advice.length > 0
-            ? h(
-                'div',
-                { className: 'dapp-span' },
-                h(
-                  'div',
-                  { className: 'dapp-card' },
-                  h(SectionHead, { label: '建议 advice', meta: `${advice.length} 条` }),
-                  h(
-                    'ul',
-                    { className: 'dapp-list' },
-                    advice.map((item, index) =>
-                      h('li', { key: index }, typeof item === 'string' ? item : str(item.text, item.title, item.message)),
-                    ),
-                  ),
-                ),
-              )
+            ? h('div', { className: 'dapp-span' }, h(AdviceCard, { advice }))
             : null,
         );
-      }
-
-      function violationText(violation) {
-        const lines = [];
-        const id = str(violation.ruleId, violation.id);
-        lines.push(id ? `【${id}】${prose(violation.title, violation.ruleTitle)}` : prose(violation.title));
-        const expected = prose(violation.expected, violation.expect);
-        const actual = prose(violation.actual, violation.observed);
-        if (expected) lines.push(`期望：${expected}`);
-        if (actual) lines.push(`实际：${actual}`);
-        const matched = prose(violation.matched);
-        if (matched) lines.push(`命中：${matched}`);
-        const detail = prose(violation.detail, violation.message);
-        if (detail) lines.push(detail);
-        const fix = prose(violation.fix, violation.suggestion);
-        if (fix) lines.push(`修复建议：${fix}`);
-        const location = sourceLabel(violation.source);
-        if (location) lines.push(`出处：${location}`);
-        return lines.filter(Boolean).join('\n');
       }
 
       function renderDeai() {
@@ -3079,34 +3731,7 @@ window.__ModuleLoader__.load({
                 'div',
                 { className: 'dapp-span' },
                 h(SectionHead, { label: '扫描结果', meta: hits.length > 0 ? `${hits.length} 处命中` : '' }),
-                h(
-                  'div',
-                  { className: 'dapp-card' },
-                  h(
-                    'div',
-                    { className: 'dapp-card-title' },
-                    h('span', { className: 'dapp-grow' }, '去 AI 化得分'),
-                    h('span', { className: 'dapp-score-big', 'data-tone': score >= 80 ? 'ok' : score >= 50 ? 'warn' : 'bad' }, score === null ? '—' : String(score)),
-                  ),
-                  h(
-                    'div',
-                    { className: 'dapp-meter' },
-                    h('span', {
-                      style: {
-                        width: `${Math.max(0, Math.min(100, score === null ? 0 : score))}%`,
-                        background:
-                          score === null
-                            ? 'var(--dapp-faint)'
-                            : score >= 80
-                              ? 'var(--dapp-ok)'
-                              : score >= 50
-                                ? 'var(--dapp-warn)'
-                                : 'var(--dapp-bad)',
-                      },
-                    }),
-                  ),
-                  h('div', { className: 'dapp-hintline' }, `命中 ${hits.length} 处 AI 句式（满分 100，越高越干净）`),
-                ),
+                h(ScoreCard, { score, hits }),
               )
             : null,
           state.status === 'ok' && hits.length === 0
@@ -3121,57 +3746,15 @@ window.__ModuleLoader__.load({
               )
             : null,
           hits.map((hit, index) =>
-            h(
-              'div',
-              { key: str(hit.id, `h${index}`), className: 'dapp-card' },
-              h(
-                'div',
-                { className: 'dapp-card-title' },
-                h(SeverityBadge, { severity: str(hit.severity, 'soft') }),
-                h('span', { className: 'dapp-grow dapp-wrap' }, prose(hit.category, hit.type, 'AI 句式')),
-              ),
-              h('div', { className: 'dapp-match' }, prose(hit.matched, hit.match, hit.text, hit.zh, hit.en, hit.pattern)),
-              typeof hit.count === 'number' && hit.count > 1
-                ? h('div', { className: 'dapp-rid' }, `出现 ${hit.count} 次`)
-                : null,
-              hit.why ? h('div', { className: 'dapp-rule-body dapp-wrap' }, `为什么：${prose(hit.why, hit.reason)}`) : null,
-              hit.suggestion || hit.replacement
-                ? h(
-                    'div',
-                    { className: 'dapp-fix dapp-wrap' },
-                    h('b', null, '建议替换：'),
-                    prose(hit.suggestion, hit.replacement, hit.fix),
-                  )
-                : null,
-              h(
-                'div',
-                { className: 'dapp-actions' },
-                h(
-                  'button',
-                  {
-                    type: 'button',
-                    className: 'dapp-btn',
-                    onClick: () => copyText(str(hit.suggestion, hit.replacement, hit.fix)),
-                  },
-                  h(Icon, { name: 'copy', size: 12 }),
-                  t('panel.copy'),
-                ),
-                h(
-                  'button',
-                  {
-                    type: 'button',
-                    className: 'dapp-btn dapp-btn-primary',
-                    disabled: sending,
-                    onClick: () =>
-                      sendToSession(
-                        `请改写下面这句 AI 腔表达：${str(hit.match, hit.text)}\n原因：${str(hit.why, hit.reason)}\n建议：${str(hit.suggestion, hit.replacement)}`,
-                      ),
-                  },
-                  h(Icon, { name: 'send', size: 12 }),
-                  t('panel.send'),
-                ),
-              ),
-            ),
+            h(HitCard, {
+              key: str(hit.id, `h${index}`),
+              hit,
+              sending,
+              onCopy: copyText,
+              onSend: sendToSession,
+              sendText: (item) =>
+                `请改写下面这句 AI 腔表达：${str(item.match, item.text)}\n原因：${str(item.why, item.reason)}\n建议：${str(item.suggestion, item.replacement)}`,
+            }),
           ),
           h(
             'details',
@@ -3376,6 +3959,360 @@ window.__ModuleLoader__.load({
         );
       }
 
+      // ── 稿件 ──────────────────────────────────────────────────────────
+
+      function renderManuscript() {
+        const data = analyzeState.data || {};
+        const report = Array.isArray(data.report) ? data.report : [];
+        const file = data.file || {};
+        const deai = data.deai || {};
+        const hits = Array.isArray(deai.hits) ? deai.hits : [];
+        const score = typeof deai.score === 'number' ? deai.score : null;
+        const summary = data.summary || {};
+        const hard = num(summary.hard);
+        const soft = num(summary.soft);
+        const info = num(summary.info);
+        const total = num(
+          summary.total,
+          report.reduce((sum, entry) => sum + (Array.isArray(entry.violations) ? entry.violations.length : 0), 0),
+        );
+        const activeKey = activeSection || (report[0] ? str(report[0].section) : '');
+        const active = report.find((entry) => str(entry.section) === activeKey) || report[0] || null;
+        const activeViolations = active && Array.isArray(active.violations) ? active.violations : [];
+        const activeAdvice = active && Array.isArray(active.advice) ? active.advice : [];
+        const cwdText = str(sessionCwd);
+        const analyseStatus = analyzeState.status;
+        const analyseError = analyzeState.error;
+        const unsupported = analyseStatus === 'failed' && analyseError && analyseError.status === 415;
+
+        return h(
+          'div',
+          { className: 'dapp-view' },
+          // ── the header block: the session's folder and the one button
+          h(
+            'div',
+            { className: 'dapp-span' },
+            h(
+              'div',
+              { className: 'dapp-card' },
+              h(SectionHead, { label: '会话工作目录', meta: sessionId ? sessionId : '未绑定会话' }),
+              h(
+                'div',
+                { className: 'dapp-path' },
+                h(Icon, { name: 'doc', size: 14 }),
+                h(
+                  'span',
+                  { className: 'dapp-path-text', title: cwdText },
+                  cwdText || '（宿主没有给出这个会话的目录）',
+                ),
+                cwdText
+                  ? h(
+                      'button',
+                      {
+                        type: 'button',
+                        className: 'dapp-icon-btn',
+                        title: '复制路径',
+                        'aria-label': '复制路径',
+                        onClick: () => copyText(cwdText),
+                      },
+                      h(Icon, { name: 'copy', size: 13 }),
+                    )
+                  : null,
+              ),
+              hostCwd && cwdText && hostCwd !== cwdText
+                ? h(
+                    'div',
+                    { className: 'dapp-warnline' },
+                    `宿主为这个会话解析出的目录是 ${hostCwd}，与面板看到的不一致。`,
+                  )
+                : null,
+              hostCwd && !cwdText
+                ? h('div', { className: 'dapp-hintline' }, `宿主解析的目录：${hostCwd}`)
+                : null,
+              h(
+                'div',
+                { className: 'dapp-field' },
+                h('span', { className: 'dapp-k' }, '目标期刊'),
+                h(
+                  'select',
+                  {
+                    className: 'dapp-select',
+                    'aria-label': '目标期刊',
+                    value: journalKey,
+                    onChange: (event) => {
+                      const next = event.target.value;
+                      setJournalKey(next);
+                      writeStore('journal', next);
+                      // The journal decides which rules apply — a changed
+                      // target means the manuscript is checked again.
+                      const current = str((analyzeState.data || {}).file && analyzeState.data.file.path);
+                      if (current) runAnalyze(current);
+                    },
+                  },
+                  h('option', { value: '' }, '不限'),
+                  journalsAll.map((journal) =>
+                    h('option', { key: str(journal.key), value: str(journal.key) }, str(journal.name, journal.key)),
+                  ),
+                ),
+              ),
+              h(
+                'div',
+                { className: 'dapp-actions' },
+                h(
+                  'button',
+                  {
+                    ref: scanTriggerRef,
+                    type: 'button',
+                    className: 'dapp-btn dapp-btn-primary',
+                    disabled: scanPending || analyzePending || !sessionId,
+                    onClick: scanSession,
+                  },
+                  scanPending ? '扫描中…' : '分析会话论文',
+                ),
+                scanState.status === 'ok'
+                  ? h(
+                      'button',
+                      {
+                        type: 'button',
+                        className: 'dapp-btn',
+                        disabled: scanPending,
+                        onClick: scanSession,
+                      },
+                      '重新扫描',
+                    )
+                  : null,
+              ),
+              !sessionId
+                ? h(
+                    'div',
+                    { className: 'dapp-hint' },
+                    '未绑定会话：面板拿不到会话 id，不会去猜一个会话目录。请在右侧栏的会话里打开本面板。',
+                  )
+                : null,
+            ),
+          ),
+          // ── the failure modes of the scan
+          scanState.status === 'unauthorized' ||
+          scanState.status === 'notImplemented' ||
+          scanState.status === 'failed'
+            ? h(
+                'div',
+                { className: 'dapp-span' },
+                h(StateNotice, { status: scanState.status, detail: scanState.error && scanState.error.message }),
+              )
+            : null,
+          scanState.status === 'failed' && scanState.error && scanState.error.status === 409
+            ? h(
+                'div',
+                { className: 'dapp-span' },
+                h(
+                  'div',
+                  { className: 'dapp-state', 'data-tone': 'warn' },
+                  h(
+                    'div',
+                    { className: 'dapp-state-head' },
+                    h('span', { className: 'dapp-state-mark' }, h(Icon, { name: 'close', size: 15 })),
+                    h('span', { className: 'dapp-state-title' }, '宿主无法解析这个会话'),
+                  ),
+                  h('div', { className: 'dapp-state-body' }, '会话 id 没有对应的活动会话，宿主不能读它的目录。'),
+                ),
+              )
+            : null,
+          scanState.status === 'loading'
+            ? h('div', { className: 'dapp-span' }, h(Skeleton, { label: '正在扫描会话目录' }))
+            : null,
+          // ── the empty folder
+          scanState.status === 'ok' && scanFiles.length === 0
+            ? h(
+                'div',
+                { className: 'dapp-span' },
+                h(EmptyState, {
+                  icon: 'doc',
+                  title: '会话目录里没有候选稿件',
+                  hint: '扫描器只在会话的工作目录里找论文（最多三层深）。',
+                }),
+                h(
+                  'div',
+                  { className: 'dapp-card' },
+                  h(SectionHead, { label: '扫描器找什么' }),
+                  h(
+                    'ul',
+                    { className: 'dapp-list' },
+                    SCAN_HINTS.map((hint, index) => h('li', { key: index }, hint)),
+                  ),
+                ),
+                h(
+                  'div',
+                  { className: 'dapp-actions' },
+                  h(
+                    'button',
+                    { type: 'button', className: 'dapp-btn', onClick: scanSession },
+                    '重新扫描',
+                  ),
+                ),
+              )
+            : null,
+          // ── the report
+          analyseStatus === 'loading'
+            ? h('div', { className: 'dapp-span' }, h(Skeleton, { label: '正在分析稿件', rows: 4 }))
+            : null,
+          unsupported
+            ? h(
+                'div',
+                { className: 'dapp-span' },
+                h(
+                  'div',
+                  { className: 'dapp-state', 'data-tone': 'warn' },
+                  h(
+                    'div',
+                    { className: 'dapp-state-head' },
+                    h('span', { className: 'dapp-state-mark' }, h(Icon, { name: 'close', size: 15 })),
+                    h('span', { className: 'dapp-state-title' }, '这个格式还不能直接分析'),
+                  ),
+                  h(
+                    'div',
+                    { className: 'dapp-state-body' },
+                    'PDF / 旧版 .doc / .odt 需要先用 office 技能转成 docx，宿主才能读出正文。',
+                  ),
+                  h('div', { className: 'dapp-rid' }, `HTTP 415 · ${str(analyseError.message)}`),
+                ),
+              )
+            : null,
+          analyseStatus === 'unauthorized' || analyseStatus === 'notImplemented' || analyseStatus === 'failed'
+            ? h(
+                'div',
+                { className: 'dapp-span' },
+                h(StateNotice, { status: analyseStatus, detail: analyseError && analyseError.message }),
+              )
+            : null,
+          analyseStatus === 'ok'
+            ? h(
+                'div',
+                { className: 'dapp-span' },
+                // the analysed file
+                h(
+                  'div',
+                  { className: 'dapp-card' },
+                  h(
+                    SectionHead,
+                    {
+                      label: '稿件',
+                      meta: `${str(file.name, '未命名')} · ${str(file.format, '—')} · ${formatBytes(file.bytes)}`,
+                    },
+                  ),
+                  h('div', { className: 'dapp-file-path' }, str(file.path)),
+                  h(
+                    'div',
+                    { className: 'dapp-actions' },
+                    h(
+                      'button',
+                      {
+                        type: 'button',
+                        className: 'dapp-btn dapp-btn-primary',
+                        disabled: sending || !sessionId,
+                        onClick: handToAgent,
+                      },
+                      h(Icon, { name: 'send', size: 12 }),
+                      '交给 Agent 深读',
+                    ),
+                    h(
+                      'button',
+                      {
+                        type: 'button',
+                        className: 'dapp-btn',
+                        onClick: () => copyText(str(file.path)),
+                      },
+                      h(Icon, { name: 'copy', size: 12 }),
+                      '复制路径',
+                    ),
+                  ),
+                ),
+                // the verdict
+                h(SummaryBar, { passed: hard === 0, count: total, hard, soft, info }),
+                // the section navigator
+                h(SectionHead, { label: '按段落', meta: `${report.length} 段` }),
+                h(
+                  'div',
+                  { className: 'dapp-chiprow dapp-chiprow-scroll' },
+                  report.map((entry, index) => {
+                    const key = str(entry.section, `s${index}`);
+                    const violations = Array.isArray(entry.violations) ? entry.violations : [];
+                    const hardCount = violations.filter(
+                      (violation) => str(violation.severity) === 'hard',
+                    ).length;
+                    return h(
+                      'button',
+                      {
+                        key,
+                        type: 'button',
+                        className: 'dapp-chipbtn dapp-chip-sec',
+                        'data-on': key === activeKey ? 'true' : 'false',
+                        title: `${sectionTitle(entry)} · ${num(entry.words)} 词 · ${violations.length} 条问题`,
+                        onClick: () => setActiveSection(key),
+                      },
+                      h('span', { className: 'dapp-chip-sec-title' }, sectionTitle(entry)),
+                      h('span', { className: 'dapp-chip-sec-words' }, `${num(entry.words)} 词`),
+                      hardCount > 0
+                        ? h(
+                            'span',
+                            { className: 'dapp-chip-sec-hard', title: `${hardCount} 条硬性问题` },
+                            h('span', { className: 'dapp-dot', 'data-tone': 'bad' }),
+                            String(hardCount),
+                          )
+                        : null,
+                    );
+                  }),
+                ),
+                // the findings of the selected section
+                active
+                  ? h(
+                      SectionHead,
+                      {
+                        label: sectionTitle(active),
+                        meta: `${num(active.words)} 词 · ${activeViolations.length} 条问题 · ${activeAdvice.length} 条建议`,
+                      },
+                    )
+                  : null,
+                activeViolations.map((violation, index) =>
+                  h(ViolationCard, {
+                    key: `${str(violation.ruleId, violation.id, `v${index}`)}#${index}`,
+                    violation,
+                    sending,
+                    onCopy: copyText,
+                    onSend: sendToSession,
+                  }),
+                ),
+                activeViolations.length === 0 && active
+                  ? h(
+                      'div',
+                      { className: 'dapp-span' },
+                      h(EmptyState, {
+                        icon: 'check',
+                        title: '这一段没有发现问题',
+                        hint: '规则库里的自动检查全部通过；下面的建议仍值得一读。',
+                      }),
+                    )
+                  : null,
+                activeAdvice.length > 0 ? h(AdviceCard, { advice: activeAdvice }) : null,
+                // the de-AI card
+                h(SectionHead, { label: '去 AI 化', meta: hits.length > 0 ? `${hits.length} 处命中` : '' }),
+                h(ScoreCard, { score, hits }),
+                hits.map((hit, index) =>
+                  h(HitCard, {
+                    key: str(hit.id, `h${index}`),
+                    hit,
+                    sending,
+                    onCopy: copyText,
+                    onSend: sendToSession,
+                    sendText: (item) =>
+                      `请改写下面这句 AI 腔表达：${str(item.matched, item.match, item.text)}\n原因：${str(item.why, item.reason)}\n建议：${str(item.suggestion, item.replacement)}`,
+                  }),
+                ),
+              )
+            : null,
+        );
+      }
+
       function renderManual() {
         const stateNote =
           liveIndexState === 'live'
@@ -3559,10 +4496,57 @@ window.__ModuleLoader__.load({
       else if (view === 'check') content = renderCheck();
       else if (view === 'deai') content = renderDeai();
       else if (view === 'checklist') content = renderChecklist();
+      else if (view === 'manuscript') content = renderManuscript();
       else content = renderManual();
 
       const toastNode = toast
         ? h('div', { className: 'dapp-toast', 'data-tone': toast.kind }, toast.text)
+        : null;
+
+      // The file chooser: the host found several equally likely manuscripts,
+      // so the human picks one. The dialog is portaled to the document body.
+      const pickerNode = pickerOpen
+        ? h(
+            Modal,
+            {
+              open: true,
+              onClose: () => setPickerOpen(false),
+              restoreRef: scanTriggerRef,
+              title: '选择要分析的稿件',
+              description: `会话目录里有 ${scanFiles.length} 个候选文件，宿主无法确定哪一个是论文。`,
+              footer: [
+                h(
+                  'button',
+                  {
+                    key: 'rescan',
+                    type: 'button',
+                    className: 'dapp-btn',
+                    onClick: () => {
+                      setPickerOpen(false);
+                      scanSession();
+                    },
+                  },
+                  '重新扫描',
+                ),
+                h(
+                  'button',
+                  {
+                    key: 'cancel',
+                    type: 'button',
+                    className: 'dapp-btn dapp-btn-primary',
+                    onClick: () => setPickerOpen(false),
+                  },
+                  '取消',
+                ),
+              ],
+            },
+            h(FilePicker, {
+              files: scanFiles,
+              index: pickerIndex,
+              onMove: setPickerIndex,
+              onPick: pickFile,
+            }),
+          )
         : null;
 
       return h(
@@ -3582,6 +4566,7 @@ window.__ModuleLoader__.load({
             )
           : null,
         toastNode,
+        pickerNode,
       );
     }
 
@@ -3595,7 +4580,10 @@ window.__ModuleLoader__.load({
    999 px (pill). Every colour comes from a --dsw-alias-* theme token, so
    the panel follows the host theme in light and dark mode.
    ══════════════════════════════════════════════════════════════════════ */
-.dapp{
+/* The token block is shared by the panel and by the portaled dialog: the
+   dialog lives in the document body, outside the panel's own root, so it
+   needs the same scale. */
+.dapp,.dapp-modal-host{
   /* colour — theme tokens only, no literal colours */
   --dapp-accent: var(--dsw-alias-state-business-primary);
   --dapp-on-accent: var(--dsw-alias-label-primary-foreground);
@@ -3649,6 +4637,8 @@ window.__ModuleLoader__.load({
   --dapp-r-pill: 999px;
   /* elevation — floating surfaces only */
   --dapp-elev: var(--dsw-elevation-prominent);
+}
+.dapp{
   /* the panel is a resizable track: the layout must react to the PANEL
      width, never to the viewport width — that is what a container query is
      for (the host's own pages do exactly this). */
@@ -3659,12 +4649,17 @@ window.__ModuleLoader__.load({
   font-family: inherit;
   color: var(--dapp-text);
 }
+.dapp-modal-host{font-family:inherit;color:var(--dapp-text)}
 .dapp *,.dapp *::before,.dapp *::after{box-sizing:border-box}
 .dapp button{font-family:inherit;color:inherit}
 .dapp-grow{flex:1 1 auto;min-width:0}
 .dapp-wrap{overflow-wrap:anywhere}
 .dapp :focus-visible{outline:var(--dsw-focus-ring-width) solid var(--dsw-alias-state-business-primary);outline-offset:2px}
 .dapp :focus:not(:focus-visible){outline:none}
+.dapp-modal-host *,.dapp-modal-host *::before,.dapp-modal-host *::after{box-sizing:border-box}
+.dapp-modal-host button{font-family:inherit;color:inherit}
+.dapp-modal-host :focus-visible{outline:var(--dsw-focus-ring-width) solid var(--dsw-alias-state-business-primary);outline-offset:2px}
+.dapp-modal-host :focus:not(:focus-visible){outline:none}
 /* hover only where a pointer really is — a sticky hover on touch is a bug */
 @media (hover:hover){
   .dapp-btn:hover{background:var(--dapp-hover)}
@@ -3917,6 +4912,55 @@ window.__ModuleLoader__.load({
 .dapp-jtable tbody tr{cursor:pointer;transition:background .13s ease}
 .dapp-jtable tbody tr[data-on=true]{background:var(--dapp-accent-soft)}
 .dapp-jtable tbody tr:last-child td{border-bottom:0}
+
+/* ── the modal layer ────────────────────────────────────────────────── */
+/* The behaviour is the Harness' own Modal primitive (the reference copy is
+   kept in preview/host-reference/Modal.tsx + useModalLayer.ts): portaled to
+   the document body, the focus trapped while it is open, Escape closes it,
+   the focus returns to the trigger, a backdrop click closes it,
+   role="dialog" + aria-modal + an accessible name, the body scroll locked. */
+.dapp-modal-host{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;padding:var(--dapp-s10);pointer-events:auto}
+.dapp-modal-mask{position:absolute;inset:0;background:var(--dsw-alias-bg-mask-1);backdrop-filter:var(--dsw-mask-blur)}
+.dapp-modal-dialog{position:relative;z-index:1;display:flex;flex-direction:column;gap:var(--dapp-s6);width:min(560px,100%);max-width:100%;min-width:0;max-height:100%;border:.5px solid var(--dapp-line);border-radius:var(--dapp-r-lg);background:var(--dapp-surface-2);box-shadow:var(--dapp-elev);overflow:hidden}
+.dapp-modal-head{display:flex;align-items:center;justify-content:space-between;gap:var(--dapp-s4);padding:var(--dapp-s6) var(--dapp-s6) 0}
+.dapp-modal-title{margin:0;font-size:var(--dapp-t-head);font-weight:500;line-height:20px;overflow-wrap:anywhere}
+.dapp-modal-close{flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;padding:6px;border-radius:var(--dapp-r);border:0;background:transparent;color:var(--dapp-muted);cursor:pointer;transition:background .13s ease,color .13s ease}
+.dapp-modal-desc{margin:0;padding:0 var(--dapp-s6);font-size:var(--dapp-t-meta);line-height:18px;color:var(--dapp-muted);overflow-wrap:anywhere}
+.dapp-modal-body{display:flex;flex-direction:column;gap:var(--dapp-s4);min-width:0;padding:var(--dapp-s6);overflow-y:auto}
+.dapp-modal-foot{display:flex;align-items:center;justify-content:flex-end;gap:var(--dapp-s4);padding:0 var(--dapp-s6) var(--dapp-s6)}
+@media (hover:hover){
+  .dapp-modal-close:hover{background:var(--dapp-hover);color:var(--dapp-text)}
+  .dapp-picker-row:hover{background:var(--dapp-hover)}
+  .dapp-picker-row[data-on=true]:hover{background:var(--dapp-accent-soft)}
+}
+
+/* ── the file picker ─────────────────────────────────────────────────── */
+.dapp-picker{display:grid;gap:var(--dapp-s4);min-width:0}
+.dapp-picker-list{display:grid;gap:var(--dapp-s3);min-width:0;max-height:min(52vh,420px);overflow-y:auto;overflow-x:hidden;padding:var(--dapp-s1)}
+.dapp-picker-row{display:grid;gap:var(--dapp-s2);width:100%;padding:var(--dapp-s5);border:.5px solid var(--dapp-line);border-radius:var(--dapp-r);background:var(--dapp-surface);text-align:left;cursor:pointer;transition:background .13s ease,border-color .13s ease;min-width:0}
+.dapp-picker-row[data-on=true]{border-color:var(--dapp-accent);background:var(--dapp-accent-soft)}
+.dapp-picker-row[data-blocked=true]{opacity:.65;cursor:not-allowed}
+.dapp-picker-top{display:flex;align-items:center;gap:var(--dapp-s3);min-width:0}
+.dapp-picker-name{flex:1 1 auto;min-width:0;font-size:var(--dapp-t-item);font-weight:500;line-height:20px;overflow-wrap:anywhere}
+.dapp-picker-score{flex:0 0 auto;display:inline-flex;align-items:center;height:18px;padding:0 7px;font-size:var(--dapp-t-tag);line-height:16px;font-variant-numeric:tabular-nums;color:var(--dapp-faint);border:.5px solid var(--dapp-line-strong);border-radius:var(--dapp-r-pill)}
+.dapp-picker-score[data-kind=manuscript]{color:var(--dapp-accent);border-color:var(--dapp-accent-line);background:var(--dapp-accent-soft)}
+.dapp-picker-meta{font-size:var(--dapp-t-id);line-height:16px;color:var(--dapp-faint);font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.dapp-picker-reasons{font-size:var(--dapp-t-meta);line-height:18px;color:var(--dapp-muted);overflow-wrap:anywhere}
+.dapp-picker-blocked{font-size:var(--dapp-t-cap);line-height:16px;color:var(--dapp-warn);overflow-wrap:anywhere}
+.dapp-picker-hint{font-size:var(--dapp-t-cap);line-height:16px;color:var(--dapp-faint);text-align:center}
+
+/* ── the manuscript view ─────────────────────────────────────────────── */
+.dapp-path{display:flex;align-items:center;gap:var(--dapp-s3);min-width:0;color:var(--dapp-muted)}
+.dapp-path-text{flex:1 1 auto;min-width:0;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:var(--dapp-t-id);line-height:16px;color:var(--dapp-text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dapp-warnline{font-size:var(--dapp-t-cap);line-height:16px;color:var(--dapp-warn);overflow-wrap:anywhere}
+.dapp-chip-sec{gap:var(--dapp-s3)}
+.dapp-chip-sec-title{font-weight:500}
+.dapp-chip-sec-words{font-size:var(--dapp-t-cap);color:var(--dapp-faint);font-variant-numeric:tabular-nums}
+.dapp-chip-sec-hard{display:inline-flex;align-items:center;gap:var(--dapp-s2);font-size:var(--dapp-t-cap);line-height:16px;color:var(--dapp-bad);font-variant-numeric:tabular-nums}
+.dapp-dot{width:6px;height:6px;border-radius:var(--dapp-r-pill);background:var(--dapp-muted);flex:0 0 auto}
+.dapp-dot[data-tone=bad]{background:var(--dapp-bad)}
+.dapp-dot[data-tone=warn]{background:var(--dapp-warn)}
+.dapp-dot[data-tone=info]{background:var(--dapp-info)}
 
 /* ── loading / error ────────────────────────────────────────────────── */
 /* the host's loading visual: a skeleton bar on the real line height */

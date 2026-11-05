@@ -17,7 +17,7 @@ import { join, resolve } from 'node:path';
 const CHROME =
   process.env.DSH_CHROME ||
   'C:/Users/Administrator/AppData/Local/ms-playwright/chromium-1252/chrome-win64/chrome.exe';
-const views = ['rules', 'journals', 'check', 'deai', 'checklist', 'manual'];
+const views = ['rules', 'journals', 'check', 'deai', 'checklist', 'manual', 'manuscript'];
 const dark = process.argv.includes('dark');
 const sweep = process.argv.includes('--sweep');
 const widthArg = process.argv.find((arg) => arg.startsWith('--width='));
@@ -33,17 +33,20 @@ mkdirSync(outDir, { recursive: true });
 const html = join(outDir, 'panel.html');
 const url = `file:///${html.replace(/\\/g, '/')}`;
 
-// The check and de-AI views need a click to show their results, so they are
-// driven with ?demo=1.
-const DEMO = new Set(['check', 'deai']);
+// The check, de-AI and manuscript views need a click to show their results,
+// so they are driven with ?demo=1.
+const DEMO = new Set(['check', 'deai', 'manuscript']);
 
-// the two views whose layout is hardest to eyeball
-const SWEEP_VIEWS = ['check', 'journals'];
+// the views whose layout is hardest to eyeball
+const SWEEP_VIEWS = ['check', 'journals', 'manuscript'];
 const SWEEP_WIDTHS = [320, 560, 900];
 
-function shoot({ view, width, out, demo }) {
+function shoot({ view, width, out, demo, extra }) {
   const profile = join(outDir, `.profile-${view}-${width}-${dark ? 'dark' : 'light'}`);
-  const query = `?view=${view}&w=${width}${demo ? '&demo=1' : ''}${dark ? '&dark=1' : ''}${api ? `&api=${api}` : ''}`;
+  // A stale profile would serve a CACHED client.js — the profile name is
+  // deterministic, so the directory is cleared before the run as well.
+  rmSync(profile, { recursive: true, force: true });
+  const query = `?view=${view}&w=${width}${demo ? '&demo=1' : ''}${dark ? '&dark=1' : ''}${api ? `&api=${api}` : ''}${extra ? `&${extra}` : ''}`;
   try {
     execFileSync(
       CHROME,
@@ -80,6 +83,38 @@ for (const view of views) {
     out: join(outDir, `v3-${view}${suffix}.png`),
   });
 }
+
+// The file picker of the 稿件 view: the host found two equally likely
+// manuscripts, so the human has to choose one.
+//
+// The dialog is portaled to the DOCUMENT BODY, so it is centred in the whole
+// browser window — not in the sidebar. Chrome on Windows refuses a window
+// narrower than 500px, so the shot uses that width: a narrower one would
+// crop the dialog instead of the sidebar.
+shoot({
+  view: 'manuscript',
+  width: 500,
+  demo: true,
+  extra: 'fixture=ambiguous',
+  out: join(outDir, `v3-manuscript-picker${dark ? '-dark' : ''}${api ? `-state-${api}` : ''}.png`),
+});
+
+// The two states of the 稿件 view that are not a report: a folder without a
+// candidate manuscript, and a panel without a session.
+shoot({
+  view: 'manuscript',
+  width: defaultWidth,
+  demo: true,
+  extra: 'fixture=empty',
+  out: join(outDir, `v3-manuscript-empty${dark ? '-dark' : ''}${api ? `-state-${api}` : ''}.png`),
+});
+shoot({
+  view: 'manuscript',
+  width: defaultWidth,
+  demo: false,
+  extra: 'nosession=1',
+  out: join(outDir, `v3-manuscript-nosession${dark ? '-dark' : ''}${api ? `-state-${api}` : ''}.png`),
+});
 
 if (sweep) {
   for (const view of SWEEP_VIEWS) {

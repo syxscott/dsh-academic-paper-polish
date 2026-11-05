@@ -30,8 +30,8 @@ const CHROME =
   process.env.DSH_CHROME ||
   'C:/Users/Administrator/AppData/Local/ms-playwright/chromium-1252/chrome-win64/chrome.exe';
 const PORT = Number(process.env.DSH_CDP_PORT || 9337);
-const VIEWS = ['rules', 'journals', 'check', 'deai', 'checklist', 'manual'];
-const DEMO = new Set(['check', 'deai']);
+const VIEWS = ['rules', 'journals', 'check', 'deai', 'checklist', 'manual', 'manuscript'];
+const DEMO = new Set(['check', 'deai', 'manuscript']);
 const widths = process.argv.slice(2).map(Number).filter(Boolean);
 const SIZES = widths.length > 0 ? widths : [320, 380, 460, 560, 900];
 

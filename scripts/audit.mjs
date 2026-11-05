@@ -37,11 +37,27 @@ const htmlInjections = [...client.matchAll(/dangerouslySetInnerHTML/g)].length;
 if (htmlInjections !== 1) fail(`dangerouslySetInnerHTML count is ${htmlInjections}, allowlist expects exactly 1 (the panel CSS <style>)`);
 else ok('innerHTML surface within allowlist (1: panel CSS only)');
 
-// 4. z-index invariant: the panel must never fight host chrome
-const zIndexUses = [...client.matchAll(/z-index\s*:\s*(\d+)/g)].map((m) => Number(m[1]));
-const tooHigh = zIndexUses.filter((v) => v > 10);
-if (tooHigh.length > 0) fail(`z-index above 10 (${tooHigh.join(', ')}) — floating above host chrome is forbidden`);
-else ok(zIndexUses.length ? `z-index contained (${zIndexUses.join(', ')} — in-container layering only)` : 'no z-index anywhere');
+// 4. z-index invariant: the panel's CONTENT must never fight host chrome,
+//    but a real overlay layer (a modal) must be able to cover the page — the
+//    host's own Modal sits at 1000. The overlay layer is recognised by being
+//    a fixed, full-viewport box; everything else stays in-container.
+const zIndexUses = [...client.matchAll(/([^{}]*)\{([^}]*z-index\s*:\s*\d+[^}]*)\}/g)].map((m) => ({
+  selector: m[1].trim().split('\n').pop().trim(),
+  block: m[2],
+  value: Number(/z-index\s*:\s*(\d+)/.exec(m[2])?.[1] ?? 0),
+}));
+const isOverlay = (entry) => /position\s*:\s*fixed/.test(entry.block) && /inset\s*:\s*0/.test(entry.block);
+const tooHigh = zIndexUses.filter((u) => !isOverlay(u) && u.value > 10);
+const tooLow = zIndexUses.filter((u) => isOverlay(u) && u.value < 1000);
+if (tooHigh.length > 0) {
+  fail(`z-index above 10 outside an overlay layer (${tooHigh.map((u) => `${u.selector}=${u.value}`).join(', ')}) — floating above host chrome is forbidden`);
+} else if (tooLow.length > 0) {
+  fail(`overlay layer below 1000 (${tooLow.map((u) => `${u.selector}=${u.value}`).join(', ')}) — it cannot cover the host chrome`);
+} else {
+  ok(zIndexUses.length
+    ? `z-index contained (${zIndexUses.map((u) => `${u.value}`).join(', ')} — content ≤ 10, overlay ≥ 1000)`
+    : 'no z-index anywhere');
+}
 
 // 5. no external URLs: no CDN, no telemetry
 //    `http://localhost` is only a URL-parsing base (the official DSH routes use

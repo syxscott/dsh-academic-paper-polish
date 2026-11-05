@@ -1,0 +1,1 @@
+This folder has no manuscript candidate: the scanner only looks at .docx .tex .md .rtf .txt .pdf .odt .doc files.

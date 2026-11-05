@@ -63,14 +63,20 @@
       };
     </script>
     <script src="./preview-data.js"></script>
+    <script src="./fixtures/responses.js"></script>
     <script>
       // ── stub of the host route ─────────────────────────────────────────────
       // The preview has no host process, so the host API is answered here from
       // the REAL data and the REAL engine output (scripts/build-preview-data.mjs
       // produces this file). A screenshot of the preview is therefore a
       // screenshot of the production data.
+      //
+      // The 稿件 view is answered from preview/fixtures/responses.js: the REAL
+      // output of lib/session.mjs (the discovery) and lib/analyze.mjs (the
+      // analysis) over the fixture manuscripts under preview/fixtures/.
       (() => {
         const DATA = window.__PREVIEW_DATA__;
+        const MANUSCRIPT = window.__PREVIEW_MANUSCRIPT__;
         if (!DATA) return;
         const json = (body) =>
           new Response(JSON.stringify(body), {
@@ -155,7 +161,34 @@
           }
           if (path.endsWith('/api/deai')) return json(DATA.demo.deai);
           if (path.endsWith('/api/outline')) return json(DATA.demo.outline);
-          if (path.endsWith('/api/send')) return json({ ok: true, sessionId: 'preview', mode: 'followup' });
+          if (path.endsWith('/api/send')) return json({ ok: true, sessionId: 'preview-session', mode: 'followup' });
+          // ── the manuscript of the session ────────────────────────────────
+          if (path.endsWith('/api/session/files')) {
+            if (!MANUSCRIPT) return new Response('not found', { status: 404 });
+            const name = new URLSearchParams(location.search).get('fixture') || 'single';
+            const fixture = MANUSCRIPT.fixtures[name] || MANUSCRIPT.fixtures.single;
+            return json(fixture.files);
+          }
+          if (path.endsWith('/api/analyze')) {
+            if (!MANUSCRIPT) return new Response('not found', { status: 404 });
+            let body = {};
+            try {
+              body = JSON.parse(init.body || '{}');
+            } catch (error) {
+              body = {};
+            }
+            const name = new URLSearchParams(location.search).get('fixture') || 'single';
+            const fixture = MANUSCRIPT.fixtures[name] || MANUSCRIPT.fixtures.single;
+            const id = fixture.map[String(body.path || '').replace(/\\/g, '/')];
+            const analysis = id ? MANUSCRIPT.analyses[id] : null;
+            if (!analysis) {
+              return new Response(
+                JSON.stringify({ error: 'file-not-found', message: `预览没有这个稿件的答案：${body.path}` }),
+                { status: 404, headers: { 'content-type': 'application/json' } },
+              );
+            }
+            return json(analysis);
+          }
           if (path.endsWith('/skill-index')) {
             // The real route answers with a BARE ARRAY of index entries.
             const needle = text(query.get('q'));
@@ -170,10 +203,13 @@
         };
       })();
     </script>
-    <script src="../client.js"></script>
+    <script src="../client.js?v=20261106"></script>
     <script>
       const plugin = window.__definition.factory((name) => {
         if (name === 'react') return React;
+        // `react-dom` is a platform seed word: the 稿件 view portals its file
+        // picker to the document body, exactly like the host's own Modal.
+        if (name === 'react-dom') return ReactDOM;
         throw new Error('unknown module ' + name);
       });
       let registered = null;
@@ -193,8 +229,33 @@
         inject(_deps, cb) { cb(ctx); },
       };
       plugin.apply(ctx);
+      // The panel is mounted in a SESSION: the slot hands it the session id
+      // and the host's own `useSessions` hook, and the panel reads the
+      // session's working directory through that hook.
+      // ?nosession=1 mounts it WITHOUT a session — the state the panel shows
+      // when it may not guess one.
+      const MANUSCRIPT = window.__PREVIEW_MANUSCRIPT__;
+      const noSession = new URLSearchParams(location.search).get('nosession') === '1';
+      const fixtureName = new URLSearchParams(location.search).get('fixture') || 'single';
+      const fixture = MANUSCRIPT && MANUSCRIPT.fixtures[fixtureName];
+      const sessionId = 'preview-session';
+      const sessionCwd = fixture ? fixture.cwd : 'D:/preview';
+      try {
+        // The target journal of the preview: the analysis payload was produced
+        // for this journal, so the panel and the payload agree.
+        localStorage.setItem('dsh-academic-paper-polish.journal', JSON.stringify('palaeontology'));
+      } catch (error) {
+        /* file:// may block storage */
+      }
       ReactDOM.createRoot(document.getElementById('root')).render(
-        React.createElement(registered, { ctx }),
+        React.createElement(registered, {
+          ctx,
+          sessionId: noSession ? '' : sessionId,
+          useSessions: noSession
+            ? undefined
+            : (selector) =>
+                selector({ byId: { [sessionId]: { id: sessionId, cwd: sessionCwd } } }),
+        }),
       );
       // ?demo=1 fills the textarea and presses the button, so a screenshot can
       // show the RESULT of a check instead of the empty input state.
@@ -212,7 +273,7 @@
           }
           setTimeout(() => {
             const button = [...document.querySelectorAll('button')].find((node) =>
-              /开始检查|开始扫描/.test(node.textContent || ''),
+              /开始检查|开始扫描|分析会话论文/.test(node.textContent || ''),
             );
             if (button) button.click();
           }, 200);

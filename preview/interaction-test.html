@@ -375,14 +375,16 @@
           const callsTo = (fragment) => window.__apiCalls.filter((call) => call.url.includes(fragment));
 
           // ── 1. initial render ──────────────────────────────────────────
-          render({});
+          // The panel always lives inside a session, so the harness mounts it
+          // with a session id: the panel must never guess one.
+          render({ sessionId: 'session-1' });
           await sleep(600);
           check('panel mounts', !!q('.dapp'));
           check('header shows the title', text().includes('论文助手'));
-          check('six tabs render', qa('.dapp-tab').length === 6, `${qa('.dapp-tab').length} tabs`);
+          check('seven tabs render', qa('.dapp-tab').length === 7, `${qa('.dapp-tab').length} tabs`);
           check(
             'the capability tabs are the ones the user asked for',
-            ['速查', '期刊', '检查', '去AI', '清单', '手册'].every((label) => !!tabByLabel(label)),
+            ['速查', '期刊', '检查', '去AI', '清单', '手册', '稿件'].every((label) => !!tabByLabel(label)),
             qa('.dapp-tab').map((tab) => tab.textContent).join('/'),
           );
           check('the rules view is the default', tabByLabel('速查')?.getAttribute('data-active') === 'true');
@@ -626,7 +628,7 @@
             if (box) setInput(box, `probe${probeTurn}`);
             await sleep(800);
             const shown = text().includes(expected);
-            const chrome = qa('.dapp-tab').length === 6 && text().includes('论文助手');
+            const chrome = qa('.dapp-tab').length === 7 && text().includes('论文助手');
             return { shown, chrome };
           };
           const unauthorized = await errorProbe('401', '未授权：宿主拒绝了请求');
