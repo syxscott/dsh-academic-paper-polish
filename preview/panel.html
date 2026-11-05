@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <title>DSH 论文助手面板预览</title>
+    <link rel="stylesheet" href="./tokens.css" />
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        background: var(--dsw-alias-bg-base);
+        font-family: -apple-system, 'Segoe UI', 'Microsoft YaHei', system-ui, sans-serif;
+        color: var(--dsw-alias-label-primary);
+      }
+      #frame {
+        width: 380px;
+        height: 100vh;
+        border-right: 1px solid var(--dsw-alias-border-l1);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+      }
+      #root {
+        flex: 1 1 auto;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="frame"><div id="root"></div></div>
+    <script src="file:///C:/Users/Administrator/.dsh/profiles/web/node_modules/react/umd/react.production.min.js"></script>
+    <script src="file:///C:/Users/Administrator/.dsh/profiles/web/node_modules/react-dom/umd/react-dom.production.min.js"></script>
+    <script>
+      // pick the view from ?view=matrix (before the panel reads localStorage)
+      const view = new URLSearchParams(location.search).get('view') || 'journal';
+      const dark = new URLSearchParams(location.search).get('dark') === '1';
+      try {
+        localStorage.setItem('dsh-academic-paper-polish.view', JSON.stringify(view));
+        localStorage.removeItem('dsh-academic-paper-polish.checklist.v1');
+      } catch (error) {
+        /* file:// may block storage */
+      }
+      if (dark) document.body.setAttribute('data-ds-dark-theme', '');
+      window.__probe = {
+        dark,
+        search: location.search,
+        bodyExists: Boolean(document.body),
+        attr: document.body ? document.body.getAttribute('data-ds-dark-theme') : '(no body)',
+        attrs: document.body ? [...document.body.attributes].map((a) => a.name) : [],
+      };
+      // the DSH client module loader shim
+      window.__ModuleLoader__ = {
+        load(definition) { window.__definition = definition; },
+      };
+    </script>
+    <script src="../client.js"></script>
+    <script>
+      const plugin = window.__definition.factory((name) => {
+        if (name === 'react') return React;
+        throw new Error('unknown module ' + name);
+      });
+      let registered = null;
+      const ctx = {
+        locale: {
+          register: () => () => {},
+          bind: () => (key) => key,
+          getLocale: () => ({ id: 'zh' }),
+        },
+        slots: {
+          inject(_name, cb) { cb(); },
+          register(_def, Comp) { registered = Comp; return () => {}; },
+        },
+        sidebarRightTabs: { register: () => () => {} },
+        sidebarRight: { openTab: () => {} },
+        effect(fn) { fn(); return () => {}; },
+        inject(_deps, cb) { cb(ctx); },
+      };
+      plugin.apply(ctx);
+      ReactDOM.createRoot(document.getElementById('root')).render(
+        React.createElement(registered, { ctx }),
+      );
+      if (new URLSearchParams(location.search).get('diag') === '1') {
+        setTimeout(() => {
+          const el = document.querySelector('.dapp-dim');
+          const sheets = [...document.styleSheets];
+          const info = sheets.map((sheet, index) => {
+            let rules = [];
+            try {
+              rules = [...sheet.cssRules];
+            } catch (error) {
+              rules = [];
+            }
+            return {
+              index,
+              href: sheet.href ? sheet.href.split('/').pop() : 'inline',
+              owner: sheet.ownerNode ? sheet.ownerNode.tagName + ':' + (sheet.ownerNode.className || '-') : '-',
+              count: rules.length,
+              hasDim: rules.some((rule) => rule.selectorText === '.dapp-dim'),
+              last: rules.slice(-2).map((rule) => rule.selectorText || rule.cssText.slice(0, 40)),
+            };
+          });
+          document.title = JSON.stringify({
+            dimFound: Boolean(el),
+            fontSize: el ? getComputedStyle(el).fontSize : null,
+            styleTags: [...document.querySelectorAll('style')].map((node) => node.textContent.length),
+            darkAttr: document.body.getAttribute('data-ds-dark-theme'),
+            probe: window.__probe,
+            bodyBg: getComputedStyle(document.body).backgroundColor,
+            rootToken: getComputedStyle(document.documentElement).getPropertyValue('--dsw-alias-bg-layer-1').trim(),
+            bodyToken: getComputedStyle(document.body).getPropertyValue('--dsw-alias-bg-layer-1').trim(),
+            panelBg: (() => {
+              const panel = document.querySelector('.dapp');
+              return panel ? getComputedStyle(panel).backgroundColor : null;
+            })(),
+            info,
+          });
+        }, 800);
+      }
+    </script>
+  </body>
+</html>

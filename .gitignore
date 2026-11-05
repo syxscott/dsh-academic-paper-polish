@@ -1,0 +1,9 @@
+# local junk
+.dsh-shot-profile/
+.v2.part.js
+*.log
+node_modules/
+
+# OS / editor
+Thumbs.db
+.DS_Store

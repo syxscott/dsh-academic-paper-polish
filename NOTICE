@@ -1,0 +1,12 @@
+dsh-academic-paper-polish
+Copyright (c) 2026 Syxscott
+
+This DeepSeek Harness plugin bundles the `academic-paper-polish` Agent Skill,
+adapted from https://github.com/syxscott/academic-paper-polish (MIT).
+
+The skill content under `skill/` is distributed under the upstream MIT
+license — see `LICENSE.upstream`. The plugin code itself (`index.js`,
+`client.js`, `scripts/`, `preview/`) is MIT — see `LICENSE`.
+
+Third-party runtime dependencies: none. The panel uses only the DeepSeek
+Harness client module table (React and theme tokens provided by the host).

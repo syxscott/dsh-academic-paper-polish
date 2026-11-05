@@ -1,0 +1,393 @@
+# 期刊结构硬约束速查
+
+> **写作前必须先确定目标期刊 —— 结构要求因刊而异，这是硬约束不是建议。**
+
+## 对照表
+
+| 期刊 | Results/Discussion | 独立结论段 | 篇幅/格式硬约束 | 收录边界 |
+|---|---|---|---|---|
+| **GCA**<br>Geochimica et Cosmochimica Acta | **必须分离**，各自独立编号 | 允许 | — | ❌ 不收纯方法学/技术/模型类论文（须有 broader geochemical significance）<br>❌ 不收 regional case studies |
+| **ES&T**<br>Environmental Science & Technology | **合并**为 *Results and Discussion* | ❌ *A separate conclusion is not to be used*，concluding statements 并入 R&D | Research Article **7,000 词**；栏目制；需 Abbreviations、Formulae and Equations 板块 | 聚焦环境科学与技术 |
+| **Water Research** | — | — | 开放获取，IWA 合作刊 | 聚焦 anthropogenic water cycle / water quality |
+| **Earth-Science Reviews** | — | — | 地学综述老牌顶刊（**IF 11.3**，2026-11 官方刊页）；**无字数上限**，>20,000 词须先与编辑沟通 | 只发综述；🔴 拒 bibliometric studies（只能放 SI） |
+| **Annual Review of Earth and Planetary Sciences** | — | — | 每年一卷，仅约 20 篇 | **需邀请** |
+| **National Science Review** | — | — | Science Press / OUP | 中国 Science 系列，刊发综述 |
+| **J. Micropalaeontology**<br>★ 微体古生物（Copernicus 平台） | — | — | 图 **300 dpi**、**单图 <5 MB / 全文件 <30 MB**、**图宽 ≥8 cm**、**1 栏**（版心 177 mm） | 🔴 **图例必须画在图里**；🔴 复合图合并成单文件；🔴 须过 Coblis 色觉模拟器 |
+
+---
+
+## J. Micropalaeontology（JM）/ Copernicus 平台口径
+
+**排版**：`copernicus.cls`，**单栏**，版心 **177.0 mm**（实测该刊已刊论文 PDF）。
+**期刊定位**：英国微体古生物学会主办，Copernicus 出版；微体古生物方法学的对口刊。
+
+### 图件硬参数
+
+| 项 | 要求 |
+|---|---|
+| 格式 | pdf / ps / eps / jpg / png / tif；🔴 **矢量优先**（eps / pdf），**字体须嵌入** |
+| 分辨率 | **300 dpi**（位图） |
+| 单图 / 全部文件 | 🔴 **<5 MB / <30 MB**（supplement ≤50 MB） |
+| 最小图宽 | **≥8 cm** |
+| 复合图 | 🔴 **多面板必须合并成单文件**再提交 |
+| 命名 | `fig01`、`fig02` |
+| 稿件 | **1 栏** + **行号** + **页码**；图与图注插在正文首次提及处 |
+
+### 🔴 两条平台独有条款
+
+- **图例必须画在图里**：虚线、空心圆、颜色、形状**都要在图内出现并在图内解释**，
+  图注**不许**再靠 "the dashed line means …" 定义符号
+- **色觉无障碍是硬要求**：官方点名 **Coblis 色觉模拟器**，须自查后再改配色；
+  红/绿并置必须配第二重线索（形状 / 线型 / 直接标注）
+
+⚠️ **JM 专属的字数、篇幅、摘要长度、Keywords 数以官网 Author guidelines 为准**，本节不复述。
+详见 `references/multi-journal-style-guides.md` 第十章。
+
+## GCA 的 Results / Discussion 要求（GCA 原文要点）
+
+**Results**：
+- 只提供数据与观测（observations）
+- **不讨论**机制解释
+- 尽量简洁（concise）
+
+**Discussion**：
+- 把新结果**置于前人工作中**考察（placing the new results in the context of published work）
+- 给出更广的**地学意义与启示**（broader geochemical significance and implications）
+- 每个小节末尾点出其意义
+
+---
+
+## ES&T 的 Results and Discussion 要求（GCA 原文要点）
+
+- **Be complete but concise**（完整但简洁）
+- 数据与解释合并写
+- **不使用独立结论段**：concluding statements 并入 R&D
+- **避免无数据支撑的推测**（avoid unsupported speculations）
+- **避免冗长讨论**（avoid long-winded discussion）
+
+---
+
+## 定刊时的四查
+
+1. **内容契合度** — 研究内容是否符合该刊要求
+2. **时效性** — 初审、外审、录用的时间（决定时间预算）
+3. **结构框架与写作要求** — 结果与讨论是否分开；有无独立结论段
+4. **其他格式要求** — 篇幅上限、板块顺序、是否要 Highlights/Graphical Abstract
+
+---
+
+## GCA Cover Letter 硬性要求
+
+1. 所有稿件**必须**附 Cover Letter
+2. 说明本文如何契合刊旨：
+   > *to present studies of fundamental significance and broad relevance for understanding geochemical systems, mechanisms, and processes, and of interest to a broad and diverse audience of geochemists*
+3. 披露编辑应知晓的**潜在利益冲突（conflicts of interest）**
+4. 可提出回避特定审稿人/编辑的人选，但 **在 GCA 此要求仅为建议性质（purely advisory），不具约束力**
+5. ⚠️ **必须提供 3 位 Associate Editors 的姓名**（具备评估该稿件专长的副主编）
+   名单：`https://www.journals.elsevier.com/geochimica-et-cosmochimica-acta/editorial-board`
+
+---
+
+## 常用配图配色（可直接抄）
+
+| 名称 | RGB | HEX |
+|---|---|---|
+| 灰 | 173,175,177 | `#ADAFB1` |
+| 浅灰 | 216,217,218 | `#D8D9DA` |
+| 橙 | 236,184,132 | `#ECB884` |
+| 黄 | 228,223,95 | `#E4DF5F` |
+| 深蓝 | 71,88,162 | `#4758A2` |
+| 粉红 | 224,141,139 | `#E08D8B` |
+| 紫 | 175,140,187 | `#AF8CBB` |
+
+来源：微信公众号「观科研」→「科研配色」。另有示范："七图组合"排版密度（时序曲线 + 拟合 + 分组柱状 + 散点同图）。
+
+---
+
+# ★ Paleobiology（*Paleobiology*, Cambridge）
+
+**化石 / 古生物学方向专用，规则最细的一份。** 图件规范见 `paleobiology-journal.md`。
+
+ScholarOne 投稿，paleobiology@cambridge.org。遵循《芝加哥格式手册》+ ICS 年代表。
+
+## 图件要求（送审 vs 终稿**完全不同**）
+
+| | **送审 Figures for Review** | **终稿 Figures for Production** |
+|---|---|---|
+| DPI | 无要求，但须可供审阅 | **线条图 1200 / 半调图 600 / 组合图 800** |
+| 格式 | 任意 | 任意，**❌ 不收 .doc** |
+| 大小 | 🔴 **<40 兆像素**（宽×高）才能进 PDF proof | 任意，不需进 proof |
+| 文件名 | 至少含图号 `Figure_1.tif` | 图号 + 栏宽 `Fig1_2col.tif` |
+
+## 版面与图内规范
+
+| 项 | 要求 |
+|---|---|
+| 单栏 / 双栏 | **9 cm / 18 cm** 宽，最大高 **24 cm** |
+| 线条下限 | 🔴 **0.3 pt（0.11 mm）**；突出线条 0.75–1.0 pt |
+| 字号下限 | 🔴 **8 pt**（终版） |
+| 子图标签 | **大写字母**，左上或右上角 |
+| 字体 | 无衬线；大小写混排；**不用粗体**；🔴 **须嵌入字体** |
+| 色彩避坑 | 🔴 避免 **红/蓝、红/绿、蓝/绿、蓝/黄** 对 |
+
+## 🔴 标本照相（化石形态学论文核心）
+
+- 🔴 **照片不得改动**，除色调、对比度、加标注/轮廓线
+- **左上斜向照射**（原位拍摄除外）
+- 按分类群标准惯例摆放
+- 🔴 **关键特征必须清晰可见**
+- 🔴 **标本照片必须带比例尺**，须给数值说明
+- 🔴 **不可用 ×40 等放大倍数代替比例尺**（终版可能缩放）
+- 地图 / 地层柱状图须有尺度感（比例尺或经纬度）
+
+## 🔴 地质年代（Ga/Ma/ka vs Gyr/Myr/kyr）
+
+| | 表示 | 例 |
+|---|---|---|
+| **Ga / Ma / ka** | 🔴 **年代（dates）** | 距今十亿/百万/千年 |
+| **Gyr / Myr / kyr** | 🔴 **时间跨度（duration）** | — |
+
+- **upper / middle / lower** → 岩石或时间地层单位
+- **early / late** → 时间单位；**仅正式 ICS 时间单元**大写
+- 界线用 **/** ，时间范围用 **–**（en-dash）
+
+## 🔴 Paleobiology 特有要求
+
+- 🔴 **必须提供 Non-technical Summary + Abstract，各自 ≤300 词**；非技术摘要要让非专业读者读懂
+- 全稿 **12 号 Times New Roman + 双倍行距**；**US Letter**；四边 1 英寸；**不用两端对齐**；**不在右边界断词**
+- 🔴 **从标题页开始编连续行号**
+- 正文引用：**作者与年份间不加逗号**；(Darwin 1859)；3+ 作者用 et al.
+- **Figure** 正文大写拼写、括号缩写 `(Fig. 2)`；**Table / Appendix 不缩写**
+- 🔴 **不用图注排位（no figure call outs）**
+- Competing Interests **所有作者必写**；无则写 "the author/authors declare none"
+- Author Contributions 参考 **CRediT**（credit.niso.org）
+- 数据与代码遵循 **FAIR**；Dryad / Zenodo **Paleobiology 全额付费**，Morphobank 始终免费
+- 🔴 **DOI 必须是最终 DOI**，审稿专用私有链接不可
+- 🔴 **Supplementary Material 的文献不计入主 Literature Cited**
+- Literature Cited：**严格字母序**（含 Mac/Mc）；作者名**粗体**；期刊名**斜体不缩写**；**卷号粗体**；**Hanging Indent**；**不用 Cite-While-You-Write**
+- 表题置于**表格正上方**且同页；**不用竖排标题或竖边框**
+- 🔴 **图不要嵌入正文**，作为独立文件提交
+
+详见 `paleobiology-journal.md`。
+
+---
+
+# ★ 多期刊官方 Style Guide 汇总
+
+**已取得官方原文的 10 份规范**，见 [`multi-journal-style-guides.md`](multi-journal-style-guides.md)：
+
+| 期刊 | 出版社 | 对你研究的价值 |
+|---|---|---|
+| **Earth-Science Reviews** | Elsevier | ⭐⭐⭐ 综述顶刊；只发综述，拒 bibliometric studies；摘要 ≤250 词；Highlights 3–5 条 × ≤85 字符（鼓励提供） |
+| **Nature** | Springer Nature | ⭐⭐ summary paragraph 四步结构；主文 ≤50 refs |
+| **PNAS** | NAS | ⭐⭐ 🔴 Significance Statement ≤120 词（独有） |
+| **CVPR / ICCV / 3DV** | CVF | ⭐⭐⭐ 放射虫图像方向；🔴 色盲友好要求 |
+| **Palaeoworld** | Elsevier | ⭐⭐⭐ Systematic palaeontology 完整规范；无版面费 |
+| **Paleobiology** | Cambridge | ⭐⭐⭐ 化石标本照相（见 [`paleobiology-journal.md`](paleobiology-journal.md)） |
+| **Acta Palaeontologica Polonica** | 波兰科学院 | ⭐⭐⭐ 图件参数最精确；🔴 ZooBank 强制 |
+| **Palaeontologia Electronica** | OA | ⭐⭐ 无页限无版面费；ISO 9660 文件命名 |
+| **PalZ** | Springer | ⭐⭐⭐ Systematic Palaeontology 格式范例 |
+| **Elsevier 微体古生物系**<br>Revue de Micro / Marine Micro / Geobios | Elsevier | ⭐⭐⭐ 放射虫直接对口 |
+| **J. Micropalaeontology** | Copernicus | ⭐⭐⭐ 微体古生物方法学；🔴 图例必须入图 + Coblis 色觉检查 |
+
+**横向对比与选刊建议见该文档第十一、十二章**，含：
+- 各刊摘要上限与双摘要差异（Nature / PNAS / Paleobiology / PE 各不相同）
+- 图表 dpi / 栏宽 / 字号对比 —— **同是化石照片，Paleobiology 要 600 dpi、APP 要 400、PNAS 要 300**
+- Systematic palaeontology 格式换刊差异 —— **PalZ 要粗体名称 + authority 加逗号 + 隔行缩进；Paleobiology/APP 系要斜体 + 不加逗号**
+- 12 条全刊通用红线
+
+---
+
+# 格式与体裁规范（2025-09-08）
+
+## 体裁与篇幅（以 PPP 为例）
+
+| 体裁 | 篇幅 | 备注 |
+|---|---|---|
+| Articles | **5000–7000 词** | 4–8 个图 |
+| Reviews | **8000–10000 词** | |
+| Short Communications | **4000 词** | **<3 图表** |
+| Comment / Reply | — | |
+
+### 必备信息
+通讯作者及邮箱 · 通信地址 · Keywords / Figures / Tables / Citations
+其他事项：语言拼写、参考文献齐全、**授权许可**
+
+---
+
+## 地学标准骨架（ P6）
+
+```
+题目          → 准确、信息充足、避免缩写
+作者及单位
+通讯作者及邮箱
+Highlights     → <5 条，每条 85 个字符（含空格）
+Abstract       → 300 词，避免缩写与参考文献
+Article header → 每句首字母大写（而非所有单词首字母大写）
+Keywords       → <6 个，避免与题目中的词重复
+────────────────────────────────────────
+Abstract → Introduction → Geological Background（Geological settings）
+→ Materials and Methods → Results → Discussion → Conclusions
+→ References → Acknowledgements → Tables → Figure Captions → Figures
+────────────────────────────────────────
+Line numbers（行号，连续行号）    ← 送审必查项
+```
+
+**标题分级**：2 级 `1.1` / 3 级 `1.1.1`，**不推荐过多分级**。
+
+---
+
+## ★ 各部分的引文密度要求（ P13，最实用的一张表）
+
+| 章节 | 引文要求 |
+|---|---|
+| **Introduction** | 除了**问题和过渡句**，其他都**要有参考文献** |
+| **Results** | **几乎没有**参考文献 |
+| **Discussion** | **每段 5–8 句** = topic sentence + **有文献标注的 3–4 句** + **有自己数据支撑的 2–3 句** |
+
+### 常见明显错误（自查清单）
+| 章节 | 错误 |
+|---|---|
+| Discussion | 整段**无任何参考文献**（是 results 的重复？） |
+| Discussion | 整段**无自己数据实验**、全是参考内容（写成 review 了？） |
+| Results | 夹杂太多**已发表的（带文献的）数据**（应放 Discussion） |
+| Abstract / Conclusion | 里有**不少文献**（不应出现） |
+| Introduction | **缺少参考文献**（常识性科普？）+ **没提出明确问题**（科学意义不明确） |
+| Materials and Methods | 缺少参考文献和标准流程（自创？没认可度）+ 缺少细节（**别人无法重复**） |
+
+---
+
+## 段落结构（ P7）
+
+- **Topic sentence 开头**，总—分结构
+- 🔴 **1–2 句话的段落是非常差的结构**；**5–8 句最合理**
+- **换了对象主体就分段论述** —— 一段集中讲清楚一个问题/对象
+
+---
+
+## 地学常见坑（ P7，v2 审计补全 PPP 原文）
+
+### 时间单位
+| 单位 | 用法 |
+|---|---|
+| **Ma / ka / Ga** | 绝对年龄（"...years **ago**"，距今） |
+| **Myr / kyr / Gyr** | 持续时长（**duration**） |
+| **m.y.** | 年龄 >2500 Ma 时用 'm.y.' |
+| **ka B.P.** | 🔴 冗余（ka 已含"距今"）；'k.y. B.P.' 可用 |
+| **cal. B.P.** | 近 50,000 年内日期必须用校正年龄 cal. B.P. |
+
+### Early/Late vs Lower/Upper
+- **Early/Late = 时间**（年代单位）；**Lower/Upper = 岩石**（地层单位）
+- 'subsidence during the **Late** Cretaceous'（时间）vs 'δ¹³C trend through the **Upper** Cretaceous'（地层）
+- 形容词小写（'early Miocene'），正式年代单位大写（'Early Miocene'）
+- ⚠️ **"Middle Cretaceous" 不规范** —— 规范用 *Upper/Lower Cretaceous*，或作形容词时 *mid-Cretaceous*
+
+### 正文引用格式（PPP 原文）
+- 括注：**(Smith, 2011)** / **(Smith and Johnson, 2002)** / **(Smith et al., 2003)**
+- 同一作者多篇：年份后 a/b/c，正文与文献清单都要
+- 同姓同年不同第一作者：加首字母区分 **(Wang C.- et al., 2010) vs (Wang H.-Y. et al., 2010)**
+- 不同作者括注内**按字母序、分号分隔**
+
+### 结构与行号
+- **行号连续编号**：从 title page 贯穿正文 → 文献清单 → 图注，**不要每页重起**
+- 🔴 Introduction/Discussion **禁四级标题、禁切得过碎**（破坏论证连贯）
+- 交叉引用写 "see Section 2.3.2"
+- **关键词 ≤6 个**、分号分隔、避免缩写与复数、**可检索性优先**（"trace metal" 不写 "metals"）
+- **Graphical Abstract** 可选（见 figure-specs）
+- 研究点位给**国际经纬度坐标**，不能只写地名；≤10 个写正文，>10 个列表
+
+---
+
+## 结论与参考文献（ P10，v2 补全 PPP 原文）
+
+**结论**：推荐 **1–2 个段落**；PPP 原文上限——**一段（最多两段），总长 ≤30 行**。
+
+**参考文献清单需涵盖**：期刊文章、书和专著、网页、数据库
+
+**排序规则（PPP 原文的完整算法）**：
+- 按**字母排序**；同姓不同名按名排序（Smith, A. 全部排在 Smith, B. 前）
+- 同一第一作者三层排序：
+  1. **单作者**最先，按出版年从旧到新
+  2. **双作者**随后，按第二作者姓氏字母序
+  3. **多作者**最后，按出版年
+  > 理由：读者检索时按**年份**找（正文括注没有第二作者名）
+- 🔴 **严禁直接粘贴复制已发表的图**（除非 Open Access 或获许可）；修改后必须标注来源
+
+### ★ 学位论文评分表（某高校硕士同行评议， P25，v2 补）
+| 项目 | 满分 |
+|---|---|
+| A1 论文选题 | 15 |
+| A2 论文综述 | 5 |
+| A3 论文水平 | 45 |
+| A4 实验方法与运算能力 | 25 |
+| 🔴 **A5 论文写作能力与文风** | **10** |
+| **论文规范性**（引文规范/学风/结构逻辑/表述准确/书写格式及图表规范） | **20**（单列） |
+
+> **写作 10 分 + 规范性 20 分 = 30 分取决于"写"而非"做"**；A2 综述单独计 5 分——综述写不好在送审环节直接扣分。
+> 参考文献标注执行 **GB/T 7714-2015**（学位论文）。
+
+---
+
+## ★ 送审流程（ P24）
+
+| 体裁 | 流程 |
+|---|---|
+| **SCI 论文** | 技术检查（格式等）→ **学术编辑（和期刊的符合度）** → 审稿人 |
+| **学位论文** | 组内导师（内容格式）→ **校外评审** → 校内评审 |
+
+🔴 **格式不过关，直接拒稿（走不到第二步、第三步）！**
+→ P41 再次强调：**格式不过关，直接拒稿（没有被看到内容的机会）！**
+
+## ★ 为什么格式这么重要（ P26）
+
+虽然格式占分少，但实际评审过程中：
+1. **格式细节是第一印象**
+2. **格式细节是基本的学术素养**
+3. **论文评审是挑错的过程**
+4. **格式细节上的意见往往比内容上的多**
+
+---
+
+## ★ 时间预算：分解目标（ P33）
+
+一篇期刊文章 = 4–8 个图 + 5000–7000 词
+```
+每周做 1–2 个图              → 3–4 周完成图
+每天写 2–3 句（一句约 15 词）  → 20–30 天完成正文
+                          一共 6–8 周
+```
+> **两个月写一篇文章 = 每 3 天做一个图，每天写 3 句话**
+
+**方法论**：
+1. **寻找好的参考案例文章，从仿写一句话开始**
+   🔴 **连续 5 个字相同 = 抄袭；不标注引用 = 抄袭嫌疑**
+2. 完成初稿后修改把关 —— **导师之外，多找组内年轻老师、学长帮忙**
+
+---
+
+## 综述性期刊（ P34，带 IF）
+
+| 期刊 | IF |
+|---|---|
+| **Nature Reviews** 系列 | 子刊 46–123（Nat Rev Mol Cell Biol 81.4 / Nat Rev Drug Discov 122.8 / Nat Rev Cancer 237 / Nat Rev Methods Primers 50.1） |
+| **Trends in / Current Opinion in** 系列 | — |
+| **Earth-Science Reviews** | **IF 11.3**（2026-11 官方刊页） |
+| **Biological Reviews** | **IF > 14** |
+| **Annual Reviews** 系列 | — |
+| **Chemical Reviews** | **IF > 50** |
+
+---
+
+## 游戏比喻（ P39–40）
+
+> **搞科研和打游戏本质上是一样的！**
+> 按规则（游戏规则）→ 细节｜方法得当（参考范例）｜持续投入（练习、练习、练习）→ **最强王者**
+
+**上不了王者的四个原因**：
+
+| 问题 | 科研对应 |
+|---|---|
+| 自己乱打 | 不按规则来 |
+| 操作随意 | 细节把握不到位 |
+| 缺乏练习 | 时间精力投入不够 |
+| 效率低下 | 方法不对，参考范例没找好 |

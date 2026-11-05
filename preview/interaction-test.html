@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <title>interaction test</title>
+    <link rel="stylesheet" href="./tokens.css" />
+    <style>
+      html, body { margin: 0; background: var(--dsw-alias-bg-base); font-family: -apple-system, 'Segoe UI', 'Microsoft YaHei', system-ui, sans-serif; }
+      #frame { width: 380px; height: 100vh; border-right: 1px solid var(--dsw-alias-border-l1); overflow: hidden; display: flex; flex-direction: column; }
+      #root { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
+      #report { position: fixed; right: 0; top: 0; width: 380px; background: #111; color: #0f0; font: 12px monospace; padding: 8px; white-space: pre-wrap; z-index: 9999; max-height: 100vh; overflow: auto; }
+    </style>
+  </head>
+  <body>
+    <div id="frame"><div id="root"></div></div>
+    <pre id="report">running…</pre>
+    <script src="file:///C:/Users/Administrator/.dsh/profiles/web/node_modules/react/umd/react.production.min.js"></script>
+    <script src="file:///C:/Users/Administrator/.dsh/profiles/web/node_modules/react-dom/umd/react-dom.production.min.js"></script>
+    <script>
+      const results = [];
+      const check = (name, condition, detail = '') =>
+        results.push(`${condition ? '✓' : '✗'} ${name}${detail ? ' — ' + detail : ''}`);
+      const q = (sel) => document.querySelector(sel);
+      const qa = (sel) => [...document.querySelectorAll(sel)];
+      const text = () => document.body.innerText;
+      const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+      const click = (el) => el.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      const setInput = (el, value) => {
+        const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
+        setter.call(el, value);
+        el.dispatchEvent(new Event('input', { bubbles: true }));
+      };
+
+      window.__errors = [];
+      window.addEventListener('error', (e) => window.__errors.push(`${e.message} @ ${e.filename}:${e.lineno}:${e.colno}`));
+      const origError = console.error;
+      console.error = (...args) => { window.__errors.push(args.map(String).join(' ')); origError(...args); };
+      const report = (t) => { document.getElementById('report').textContent = t; };
+
+      window.__ModuleLoader__ = { load(def) { window.__definition = def; } };
+      // The panel persists its view, journal and filter state, so every run
+      // starts from a clean profile — otherwise the previous run's state leaks
+      // into the assertions.
+      try {
+        for (const key of Object.keys(window.localStorage)) {
+          if (key.startsWith('dsh-academic-paper-polish.')) window.localStorage.removeItem(key);
+        }
+      } catch (e) {}
+
+      // ── stub of the host route ─────────────────────────────────────────
+      // The preview page is a file:// document and cannot reach the plugin's
+      // same-origin route, so the host answers are faked here: the index
+      // request succeeds (which switches the panel to its 🟢 live state) and
+      // the `?q=` request answers with a full-text hit that only exists in the
+      // body of a file — exactly the case the local filter cannot solve.
+      window.__indexFetched = false;
+      window.__searchQueries = [];
+      const FIXTURE = [
+        {
+          path: 'references/micropaleo-paper-patterns.md',
+          kind: 'reference',
+          title: '微体古生物与系统描述类论文规范',
+          subtitle: '分类命名、模式标本、登记号与系统发育描述的写法',
+          keywords: ['系统发育', '模式标本'],
+          headings: ['命名与登记'],
+          bytes: 61439,
+        },
+      ];
+      window.fetch = async (url) => {
+        const target = String(url);
+        if (target.includes('skill-index?q=')) {
+          const query = decodeURIComponent(target.split('q=')[1] || '');
+          window.__searchQueries.push(query);
+          const hits = query.toLowerCase().includes('zoobank')
+            ? [{ ...FIXTURE[0], snippet: '新分类单元必须登记 ZooBank 并给出解析号（LSID）。', line: 128 }]
+            : [];
+          return { ok: true, status: 200, json: async () => hits };
+        }
+        if (target.includes('skill-index')) {
+          window.__indexFetched = true;
+          return { ok: true, status: 200, json: async () => FIXTURE };
+        }
+        return { ok: false, status: 404, json: async () => null };
+      };
+    </script>
+    <script src="../client.js?v=20261105"></script>
+    <script>
+      (async () => {
+        try {
+          const plugin = window.__definition.factory((name) => {
+            if (name === 'react') return React;
+            throw new Error('unknown module ' + name);
+          });
+          const registrations = [];
+          const ctx = {
+            locale: { register: () => () => {}, bind: () => (key) => key, getLocale: () => ({ id: 'zh' }) },
+            skills: { registerProvider: () => () => {} },
+            slots: {
+              inject(_n, cb) { cb(); },
+              register(_def, Comp) { registrations.push({ def: _def, Comp }); return () => {}; },
+            },
+            sidebarRightTabs: { register: () => () => {} },
+            sidebarRight: { openTab: () => {} },
+            effect: (fn) => fn(),
+            inject: (deps, cb) => { cb(ctx); return { dispose() {} }; },
+          };
+          plugin.apply(ctx);
+          check('the panel registers only in the right sidebar', registrations.length === 1, `${registrations.length} registrations`);
+          check(
+            'no composer-dock registration',
+            !registrations.some((item) => item.def && item.def.name === 'conversation.composer.dock'),
+          );
+          const Panel = registrations[registrations.length - 1].Comp;
+          const root = ReactDOM.createRoot(document.getElementById('root'));
+          const render = (props) => root.render(React.createElement(Panel, { ctx, variant: 'sidebar', ...props }));
+
+          // ── 1. initial render ──────────────────────────────────────────
+          render({});
+          await sleep(500);
+          check('panel mounts', !!q('.dapp'));
+          check('header shows the title', text().includes('论文助手'));
+          check('eight tabs render', qa('.dapp-tab').length === 8, `${qa('.dapp-tab').length} tabs`);
+          check('journal view is the default', text().includes('前置要素'));
+
+          // ── 2. journal: switch journal via the select ───────────────────
+          const select = q('.dapp-select');
+          check('journal selector present', !!select);
+          if (select) {
+            const setter = Object.getOwnPropertyDescriptor(window.HTMLSelectElement.prototype, 'value').set;
+            setter.call(select, 'gca');
+            select.dispatchEvent(new Event('change', { bubbles: true }));
+            await sleep(300);
+            check('selecting another journal updates the dossier', text().includes('Geochimica') || text().includes('GCA'));
+          }
+
+          // ── 3. module view: clicking a module produces feedback ─────────
+          const tabButtons = qa('.dapp-tab');
+          const modulesTab = tabButtons.find((b) => b.textContent.includes('模块'));
+          click(modulesTab);
+          await sleep(300);
+          check('modules view renders cards', qa('.dapp-mod').length > 0, `${qa('.dapp-mod').length} cards`);
+          const mod = q('.dapp-mod');
+          click(mod);
+          await sleep(350);
+          check('clicking a module gives feedback', /插入|复制/.test(text()), text().slice(-140));
+
+          // ── 4. search filters the index ──────────────────────────────────
+          const search = q('.dapp-search input');
+          check('search box present', !!search);
+          check('the live index was fetched from the host route', window.__indexFetched === true);
+          if (search) {
+            setInput(search, 'ZooBank');
+            await sleep(500);
+            const hits = qa('.dapp-file').length;
+            check('a body-only term still finds its file', hits === 1, `${hits} hits for ZooBank`);
+            check('the query was sent to the host route', window.__searchQueries.includes('ZooBank'), JSON.stringify(window.__searchQueries));
+            const snippet = q('.dapp-file-snip');
+            check('the hit shows the matched snippet', !!snippet && snippet.textContent.includes('ZooBank'), snippet ? snippet.textContent.slice(0, 60) : '(none)');
+            check('the hit shows the file path', /references\//.test(text()));
+            setInput(search, 'zzzznotfound');
+            await sleep(500);
+            check('search shows an empty state', text().includes('没有命中'));
+            setInput(search, '');
+            await sleep(250);
+          }
+
+          // ── 5. checklist: ticking an item updates the progress ───────────
+          const listTab = tabButtons.find((b) => b.textContent.includes('清单'));
+          click(listTab);
+          await sleep(300);
+          check('checklist view renders groups', qa('.dapp-group').length > 0, `${qa('.dapp-group').length} groups`);
+          check('checkboxes are visible', qa('.dapp-box').length > 0, `${qa('.dapp-box').length} boxes`);
+          const before = text().match(/进度 (\d+)\/(\d+)/);
+          const item = q('.dapp-item');
+          check('checklist items render', !!item);
+          if (item) {
+            click(item);
+            await sleep(350);
+            const after = text().match(/进度 (\d+)\/(\d+)/);
+            check('ticking an item advances the progress', !!(before && after && Number(after[1]) === Number(before[1]) + 1), `${before && before[1]} -> ${after && after[1]}`);
+            check('ticked item is marked', !!q('.dapp-item[data-checked=true]'));
+            const saved = JSON.parse(localStorage.getItem('dsh-academic-paper-polish.checklist.v1') || '{}');
+            check('tick persists to localStorage', Object.keys(saved).length === 1, JSON.stringify(saved));
+          }
+
+          // ── 6. figure view: verdicts react to input ──────────────────────
+          const figTab = tabButtons.find((b) => b.textContent.includes('图件'));
+          click(figTab);
+          await sleep(300);
+          const verdicts = qa('.dapp-verdict');
+          check('figure view produces verdicts', verdicts.length > 0, `${verdicts.length} verdicts`);
+          const dpiInput = q('.dapp-field input');
+          check('figure inputs present', !!dpiInput);
+          if (dpiInput) {
+            setInput(dpiInput, '100');
+            await sleep(350);
+            const bad = qa('.dapp-verdict[data-state=bad]').length;
+            check('low dpi is flagged as bad', bad > 0, `${bad} bad verdicts`);
+            const okCount = qa('.dapp-verdict[data-state=ok]').length;
+            check('passing checks are marked ok', okCount > 0, `${okCount} ok verdicts`);
+          }
+
+          // ── 7. colour view: contrast + CVD simulation ────────────────────
+          const colorTab = tabButtons.find((b) => b.textContent.includes('配色'));
+          click(colorTab);
+          await sleep(300);
+          const palette = q('.dapp-search input');
+          check('palette input present', !!palette);
+          if (palette) {
+            setInput(palette, '#D30203 #75489A');
+            await sleep(400);
+            const swatches = qa('.dapp-swatch-card').length;
+            check('palette renders one card per colour', swatches === 2, `${swatches} cards`);
+            const strips = qa('.dapp-swatch-strip span').length;
+            check('CVD simulation strips rendered', strips === 8, `${strips} strips (2 colours × 4 views)`);
+          }
+
+          // ── 8. match view: picking a condition re-ranks ─────────────────
+          const matchTab = tabButtons.find((b) => b.textContent.includes('匹配'));
+          click(matchTab);
+          await sleep(300);
+          const chips = qa('.dapp-dim');
+          check('match view renders condition chips', chips.length >= 6, `${chips.length} chips`);
+          const orderBefore = qa('.dapp-score').map((n) => n.textContent.slice(0, 12));
+          const reviewChip = chips.find((c) => c.textContent.includes('综述'));
+          click(reviewChip);
+          await sleep(350);
+          const orderAfter = qa('.dapp-score').map((n) => n.textContent.slice(0, 12));
+          check('picking a condition changes the ranking', JSON.stringify(orderBefore) !== JSON.stringify(orderAfter));
+          check('selected chip is highlighted', q('.dapp-dim[data-on=true]') !== null);
+          check('a score is shown once conditions exist', /[0-9]+/.test(qa('.dapp-score-num')[0]?.textContent || ''));
+
+          // ── 9. comparison matrix ────────────────────────────────────────
+          const cmpTab = tabButtons.find((b) => b.textContent.includes('对比'));
+          click(cmpTab);
+          await sleep(300);
+          const dims = qa('.dapp-dim');
+          check('matrix renders dimension chips', dims.length >= 10, `${dims.length} dims`);
+          const rows = qa('.dapp-compare-row');
+          check('matrix lists every journal', rows.length > 0, `${rows.length} rows`);
+          const firstDim = dims[0];
+          const textBefore = q('.dapp-compare-row')?.textContent || '';
+          const otherDim = dims.find((d) => d !== firstDim);
+          click(otherDim);
+          await sleep(350);
+          const textAfter = q('.dapp-compare-row')?.textContent || '';
+          check('switching dimension changes the values', textBefore !== textAfter);
+          click(q('.dapp-compare-row'));
+          await sleep(350);
+          check('clicking a row jumps to that journal', text().includes('前置要素'), 'journal dossier opened');
+
+          // ── 10. keyboard shortcut ───────────────────────────────────────
+          window.dispatchEvent(new KeyboardEvent('keydown', { key: '7', bubbles: true }));
+          await sleep(350);
+          const activeTab = q('.dapp-tab[data-active=true]')?.textContent || '';
+          check('number key switches views', activeTab.includes('清单'), `active tab: ${activeTab}`);
+
+          // ── 11. persistence of the view state ──────────────────────────
+          const storedView = JSON.parse(localStorage.getItem('dsh-academic-paper-polish.view') || 'null');
+          check('the active view is persisted', storedView === 'checklist', `stored view: ${storedView}`);
+
+          // ── 12. no console errors ───────────────────────────────────────
+          check('no uncaught errors during the run', window.__errors.length === 0, window.__errors.join(' | '));
+        } catch (error) {
+          results.push(`✗ harness crashed: ${error && error.message}`);
+          results.push(`stack: ${String((error && error.stack) || '').split('\n').slice(0, 4).join(' | ')}`);
+        } finally {
+          const failed = results.filter((r) => r.startsWith('✗')).length;
+          report(`${results.length - failed}/${results.length} passed\n\n${results.join('\n')}`);
+          document.title = `DONE:${failed}`;
+        }
+      })();
+    </script>
+  </body>
+</html>

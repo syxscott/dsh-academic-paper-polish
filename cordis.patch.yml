@@ -1,0 +1,25 @@
+# dsh-academic-paper-polish bundle patch: inserts the Host plugin row into the
+# profile roster. The plugin registers the `academic-paper-polish` Agent Skill
+# into the skill registry, so every agent in this profile can load it.
+#
+# Applied as a profile bundle layer (the `dsh.bundle.patch` manifest field in
+# package.json). The row is a bare plugin by package name: the node half
+# (exports "." → index.js) runs in the host process. No browser half is mounted.
+#
+# Optional per-deployment config (put it here or in the profile's manual
+# cordis.patch.yml override). Defaults live in index.js:
+#
+#   - insert:
+#       - id: skill-academic-paper-polish
+#         name: 'dsh-academic-paper-polish'
+#         config:
+#           assetRoot: ''   # '' → <package>/skill ; absolute directory that contains
+#                            #     the `academic-paper-polish/` skill folder
+#
+# Aggregate double-mount guard: if another enabled entry already mounts
+# `dsh-academic-paper-polish`, back this row off (the loader evaluates the !!js
+# when this row is processed; only rows before this one are visible).
+- insert:
+    - id: skill-academic-paper-polish
+      name: 'dsh-academic-paper-polish'
+      disabled: !!js "[...ctx.loader.entries()].some((e) => e.options.name === 'dsh-academic-paper-polish' && e.options.id !== 'skill-academic-paper-polish' && !e.disabled)"

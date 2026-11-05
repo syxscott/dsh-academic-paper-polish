@@ -1,0 +1,995 @@
+[
+  {
+    "path": "SKILL.md",
+    "kind": "skill",
+    "title": "学术论文写作与润色全流程",
+    "subtitle": "渐进披露：先读本文件建立框架 → 按用户意图只读需要的模块 →",
+    "headings": [
+      "何时使用",
+      "🔴 铁律 0：先定期刊，再动笔",
+      "模块索引",
+      "快速调用",
+      "🔴 八条硬规则（跨模块通用）",
+      "1. 引言 = 倒金字塔，且 opening 必须与 resolution 对齐",
+      "2. 引文密度（最易自查的一张表）",
+      "3. 段落：5–8 句最合理",
+      "4. 讨论必须走完六步（含\"局限性\"）",
+      "5. 结论要含\"局限性 + 未来方向\""
+    ],
+    "keywords": [
+      "局限性",
+      "结论",
+      "讨论",
+      "引言",
+      "硬规则",
+      "模板",
+      "图注",
+      "倒金字塔"
+    ],
+    "bytes": 30879
+  },
+  {
+    "path": "prompts/01-abstract.md",
+    "kind": "prompt",
+    "title": "模块 1 · 摘要润色（Abstract）",
+    "subtitle": "适用：写完 / 改完正文后回头写摘要，或按目标期刊要求压缩摘要。",
+    "headings": [
+      "评审维度速查",
+      "地学 / SCI 期刊补充约束"
+    ],
+    "keywords": [
+      "摘要",
+      "维度",
+      "结果",
+      "结论",
+      "方法类论文",
+      "双语关键词",
+      "参考文献",
+      "目标期刊"
+    ],
+    "bytes": 3000
+  },
+  {
+    "path": "prompts/02-introduction.md",
+    "kind": "prompt",
+    "title": "模块 2 · 引言润色（Introduction）",
+    "subtitle": "适用：建立研究动机、评述关键文献、引出缺口。",
+    "headings": [
+      "评审维度速查",
+      "🔴 硬规则：opening 必须与 resolution 对齐",
+      "🔴 引文密度要求",
+      "🔴 措辞分寸",
+      "引出不足的句式库"
+    ],
+    "keywords": [
+      "引言",
+      "措辞分寸",
+      "引文密度",
+      "句式库",
+      "硬规则",
+      "维度",
+      "参考文献",
+      "章节导航句"
+    ],
+    "bytes": 5184
+  },
+  {
+    "path": "prompts/03-literature-review.md",
+    "kind": "prompt",
+    "title": "模块 3 · 文献综述润色（Literature Review）",
+    "subtitle": "综述型论文的引言 = \"前编回顾 + 本编范围 + 双角色框架\"；",
+    "headings": [
+      "🔴 综述论文（Review Article）的结构",
+      "三类文体对比",
+      "引言三段式（综述版）",
+      "🔴 小标题的六种组织标准",
+      "🔴 综述准备的 18 个步骤",
+      "🔴 参考文献要求"
+    ],
+    "keywords": [
+      "引言",
+      "文献综述",
+      "参考文献",
+      "误区",
+      "摘要",
+      "收录标准",
+      "学位论文",
+      "综述口吻"
+    ],
+    "bytes": 5862
+  },
+  {
+    "path": "prompts/04-methods.md",
+    "kind": "prompt",
+    "title": "模块 4 · 研究方法润色（Methods）",
+    "subtitle": "本领域没有\"必须写满 Methods\"的规则",
+    "headings": [
+      "🔴 地学 / 实验科学补充",
+      "四段式模式",
+      "自查（缺任一项即不合格）",
+      "常见错误",
+      "引文密度",
+      "数据与代码可用性声明（多数期刊要求）",
+      "v2.16.1 - 数据集交代的三种主流写法（实测口径）"
+    ],
+    "keywords": [
+      "代码可用性",
+      "数据集交代",
+      "常见错误",
+      "期刊要求",
+      "研究方法",
+      "引文密度",
+      "实验设计",
+      "公式"
+    ],
+    "bytes": 4598
+  },
+  {
+    "path": "prompts/05-results.md",
+    "kind": "prompt",
+    "title": "模块 5 · 结果润色（Results）",
+    "subtitle": "适用：结果章节 + 图表规范检查。",
+    "headings": [
+      "🔴 Results vs Discussion 的组织差异",
+      "期刊差异（动笔前必须确认）",
+      "🔴 引文密度：Results 几乎没有参考文献",
+      "🔴 图表硬参数（技术检查卡口）",
+      "🔴🔴 Word 缩放铁律",
+      "🔴 版权红线",
+      "构图",
+      "v2.16.1 - 方法类图件的真实频率（合并 8 分片 31 篇）"
+    ],
+    "keywords": [
+      "结果",
+      "构图",
+      "图表硬参数",
+      "参考文献",
+      "引文密度",
+      "版权",
+      "铁律",
+      "混淆矩阵"
+    ],
+    "bytes": 5657
+  },
+  {
+    "path": "prompts/06-discussion.md",
+    "kind": "prompt",
+    "title": "模块 6 · 讨论润色（Discussion）",
+    "subtitle": "适用：讨论章节。 核心：结果 ↔ 文献 ↔ 理论 ↔ 实践",
+    "headings": [
+      "🔴 讨论的六步框架（缺一不可）",
+      "🔴 引文密度：Discussion 每段 5–8 句",
+      "局限性 + 未来方向句式（可直接套用）",
+      "讨论常用动词",
+      "环境 / 地学意义（地学论文常见末节）",
+      "v2.16.1 - 局限自陈的七种句式（实测，可直接套用）"
+    ],
+    "keywords": [
+      "讨论",
+      "局限性",
+      "未来方向",
+      "引文密度",
+      "结论",
+      "结果",
+      "方法类论文",
+      "参考文献"
+    ],
+    "bytes": 6089
+  },
+  {
+    "path": "prompts/07-conclusion.md",
+    "kind": "prompt",
+    "title": "模块 7 · 结论润色（Conclusion）",
+    "subtitle": "适用：结论章节。 核心：总结 + 亮点 + 局限性 + 未来方向，不引入新信息。",
+    "headings": [
+      "🔴 Do / Don't",
+      "🔴 两条要点",
+      "🔴 期刊差异：结论段可能不独立存在",
+      "篇幅"
+    ],
+    "keywords": [
+      "结论",
+      "要点",
+      "局限性",
+      "方法类论文",
+      "描述类论文",
+      "目标期刊",
+      "未来方向"
+    ],
+    "bytes": 3181
+  },
+  {
+    "path": "prompts/08-deai-polish.md",
+    "kind": "prompt",
+    "title": "模块 8 · 降低 AI 率（终稿通篇润色）",
+    "subtitle": "本领域摘要口径 = 现在时 95% + 被动 87% + \"we\" 仅",
+    "headings": [
+      "AI 高频词黑名单",
+      "🔴 去 AI 化不能违反学术规范",
+      "🔴 参考文献区不做去 AI 化",
+      "⚠️ 判定标准"
+    ],
+    "keywords": [
+      "参考文献",
+      "结论",
+      "目标期刊",
+      "期刊要求",
+      "时态",
+      "语态",
+      "摘要"
+    ],
+    "bytes": 3770
+  },
+  {
+    "path": "prompts/09-journal-submission.md",
+    "kind": "prompt",
+    "title": "模块 9 · 期刊匹配与投稿（Journal Matching & Submission）",
+    "subtitle": "图注前缀也是多语种的（Fig./Рис./Таблица/图/图版/Abb.）。",
+    "headings": [
+      "🔴 期刊结构硬约束速查",
+      "🔴 ES&T 的 R&D 写法（原文要点）",
+      "🔴 GCA 的 Results / Discussion 分工",
+      "🔴 送审流程与\"格式即生死\"",
+      "🔴 常用前置部分规范",
+      "🔴 Cover Letter",
+      "🔴 投稿后 6 个状态",
+      "🔴 结局概率（提前知道期望值）",
+      "v2.16.1 - 声明块的两种口径（机器层 vs 人工层）"
+    ],
+    "keywords": [
+      "投稿",
+      "声明块",
+      "要点",
+      "期刊结构",
+      "期刊匹配",
+      "送审流程",
+      "比例尺",
+      "结论"
+    ],
+    "bytes": 8084
+  },
+  {
+    "path": "prompts/10-reviewer-response.md",
+    "kind": "prompt",
+    "title": "模块 10 · 审稿意见回复（Responding to Reviewers）",
+    "subtitle": "适用：收到 Decision letter 后逐条回复。",
+    "headings": [
+      "🔴 回复四要素（范例）",
+      "🔴 六条纪律（逐条检查）",
+      "🔴 审稿人关注什么（反向自查 8 项）",
+      "🔴 ELSEVIER「ACCEPTANCE」十点",
+      "🔴 找审稿人的途径",
+      "大修 vs 小修"
+    ],
+    "keywords": [
+      "大修",
+      "小修",
+      "参考文献",
+      "讨论",
+      "返修",
+      "结果",
+      "结论"
+    ],
+    "bytes": 4752
+  },
+  {
+    "path": "prompts-en/01-abstract.md",
+    "kind": "prompt-en",
+    "title": "Module 1 · Abstract Polish",
+    "subtitle": "No other file in this repository is required.",
+    "headings": [
+      "Review dimensions",
+      "Journal constraints to apply",
+      "The four-part Nature summary paragraph",
+      "v2.16.0 - Abstract in METHOD-CLASS papers"
+    ],
+    "keywords": [
+      "abstract",
+      "nature",
+      "results",
+      "pnas",
+      "citation",
+      "methods"
+    ],
+    "bytes": 4333
+  },
+  {
+    "path": "prompts-en/02-introduction.md",
+    "kind": "prompt-en",
+    "title": "Module 2 · Introduction Polish",
+    "subtitle": "Self-contained — no other file needed.",
+    "headings": [
+      "Review dimensions",
+      "🔴 The hardest rule: opening must match resolution",
+      "🔴 Citation density",
+      "🔴 Wording discipline",
+      "Sentence bank — signalling the gap",
+      "Five ways to foreground your own contribution",
+      "v2.16.0 - Introduction in METHOD-CLASS papers",
+      "The four fixed steps",
+      "Four shapes of the contribution statement",
+      "Section-navigation sentences (common in method-class papers,"
+    ],
+    "keywords": [
+      "citation",
+      "methods",
+      "results"
+    ],
+    "bytes": 6484
+  },
+  {
+    "path": "prompts-en/03-literature-review.md",
+    "kind": "prompt-en",
+    "title": "Module 3 · Literature Review Polish",
+    "subtitle": "Review article structure；Six ways to organise subheadings",
+    "headings": [
+      "Review article structure",
+      "Three genres compared",
+      "Three-part introduction (review version)",
+      "Six ways to organise subheadings",
+      "🔴 The 18-step review workflow",
+      "🔴 Reference requirements",
+      "🔴 *Earth-Science Reviews* scope note"
+    ],
+    "keywords": [
+      "citation",
+      "abstract",
+      "methods",
+      "title",
+      "results",
+      "layout"
+    ],
+    "bytes": 6174
+  },
+  {
+    "path": "prompts-en/04-methods.md",
+    "kind": "prompt-en",
+    "title": "Module 4 · Methods Polish",
+    "subtitle": "Earth-science / experimental-science additions；Citation density",
+    "headings": [
+      "Earth-science / experimental-science additions",
+      "Four-part pattern",
+      "Self-check (any omission is a fail)",
+      "Common errors",
+      "Citation density",
+      "Data and code availability (required by most journals)",
+      "v2.16.0 - Evidence-based additions for METHOD-CLASS (AI / da",
+      "The six mandatory dataset items",
+      "Data magnitudes in this field (state them, or the work looks",
+      "Environment versions (most often omitted, most often asked f"
+    ],
+    "keywords": [
+      "dataset",
+      "methods",
+      "citation",
+      "results",
+      "baseline",
+      "pnas"
+    ],
+    "bytes": 7151
+  },
+  {
+    "path": "prompts-en/05-results.md",
+    "kind": "prompt-en",
+    "title": "Module 5 · Results Polish",
+    "subtitle": "Results vs Discussion: different axes；Citation density: Results carries almost none",
+    "headings": [
+      "🔴 Results vs Discussion: different axes",
+      "Journal differences (confirm before drafting)",
+      "🔴 Citation density: Results carries almost none",
+      "🔴 Figure hard limits (the technical-check gate)",
+      "🔴🔴 The Word scaling rule",
+      "🔴 Copyright red lines",
+      "Composition",
+      "Colour",
+      "Specimen photography (palaeontology-specific)",
+      "Journal-specific dpi (same photo, different requirements)"
+    ],
+    "keywords": [
+      "results",
+      "dpi",
+      "colour",
+      "citation",
+      "dataset",
+      "title",
+      "pnas"
+    ],
+    "bytes": 7950
+  },
+  {
+    "path": "prompts-en/06-discussion.md",
+    "kind": "prompt-en",
+    "title": "Module 6 · Discussion Polish",
+    "subtitle": "The six-step discussion (all six are mandatory)",
+    "headings": [
+      "🔴 The six-step discussion (all six are mandatory)",
+      "🔴 Citation density: 5–8 sentences per paragraph",
+      "Limitations + future directions (ready to use)",
+      "Verbs by function",
+      "Environmental / geological significance (common final subsec",
+      "v2.16.0 - Discussion in METHOD-CLASS papers",
+      "Three observed shapes",
+      "Attribute errors to the fossils, not to the model",
+      "v2.16.1 - Seven sentence patterns for stating limitations (m"
+    ],
+    "keywords": [
+      "citation",
+      "results",
+      "methods"
+    ],
+    "bytes": 6979
+  },
+  {
+    "path": "prompts-en/07-conclusion.md",
+    "kind": "prompt-en",
+    "title": "Module 7 · Conclusion Polish",
+    "subtitle": "Do / Don't；Two things the conclusion must carry",
+    "headings": [
+      "🔴 Do / Don't",
+      "🔴 Two things the conclusion must carry",
+      "🔴 Journal difference: the conclusion section may not exist",
+      "Length",
+      "v2.16.0 - Conclusions in METHOD-CLASS papers",
+      "A method-class conclusion must state its boundary of validit",
+      "Skeletons are not interchangeable (descriptive vs method-cla"
+    ],
+    "keywords": [
+      "results"
+    ],
+    "bytes": 4280
+  },
+  {
+    "path": "prompts-en/08-deai-polish.md",
+    "kind": "prompt-en",
+    "title": "Module 8 · De-AI Polish (final whole-manuscript pass)",
+    "subtitle": "Use only after Modules 1–7 are finalised. This is the last step and is applied to the",
+    "headings": [
+      "AI high-frequency word blacklist",
+      "🔴 What de-AI polish must never do",
+      "⚠️ Do not de-AI the reference list"
+    ],
+    "keywords": [
+      "modules"
+    ],
+    "bytes": 3988
+  },
+  {
+    "path": "prompts-en/09-journal-submission.md",
+    "kind": "prompt-en",
+    "title": "Module 9 · Journal Matching & Submission",
+    "subtitle": "Pick the journal before you write. This determines every structural decision downstream.",
+    "headings": [
+      "🔴 Journal structural constraints",
+      "Submission review pipeline",
+      "Front-matter conventions",
+      "Cover letter",
+      "Post-submission states",
+      "Outcome probabilities (know the expectations in advance)",
+      "v2.16.0 - Declaration blocks: measured frequency and verbati",
+      "Measured rates (denominators stated)",
+      "Five observed Data availability formulations (verbatim)",
+      "Three tiers of code release"
+    ],
+    "keywords": [
+      "title",
+      "abstract",
+      "editors",
+      "baseline",
+      "keywords",
+      "methods",
+      "results",
+      "pnas"
+    ],
+    "bytes": 10171
+  },
+  {
+    "path": "prompts-en/10-reviewer-response.md",
+    "kind": "prompt-en",
+    "title": "Module 10 · Responding to Reviewers",
+    "subtitle": "The four elements (worked example)；Six disciplines (check each)",
+    "headings": [
+      "🔴 The four elements (worked example)",
+      "🔴 Six disciplines (check each)",
+      "🔴 What reviewers check (reverse self-audit)",
+      "Elsevier's \"ACCEPTANCE\" checklist",
+      "Finding reviewers",
+      "Major vs minor revision"
+    ],
+    "keywords": [
+      "editors"
+    ],
+    "bytes": 4838
+  },
+  {
+    "path": "references/ai-ml-paper-patterns.md",
+    "kind": "reference",
+    "title": "AI/ML 方法类地学论文的写作实证（v2.16.0 新增）",
+    "subtitle": "本文件补上这个空白：把「AI 方法类地学论文实际怎么写」逐条取证。",
+    "headings": [
+      "一、阅读口径与分层（先说清楚能兑现什么）",
+      "1.1 分层判据（机器执行，可复现）",
+      "1.2 这批语料的三个已知缺陷（必须随结论一起声明）",
+      "二、范式对照：描述类 vs 方法类（机器统计，同口径）",
+      "三、声明块：现代地学/古生物论文必写的六块",
+      "3.1 出现频率（分母 = 该层篇数）",
+      "3.2 Data availability 的五种实际写法（逐字原文）",
+      "3.3 Code availability 的实际写法",
+      "四、数据集、模型与评估：方法类论文的实际写法",
+      "4.1 数据集怎么交代（必备六件）"
+    ],
+    "keywords": [
+      "方法类论文",
+      "声明块",
+      "结论",
+      "语料",
+      "逐字原文",
+      "分母",
+      "古生物",
+      "描述类论文"
+    ],
+    "bytes": 52362
+  },
+  {
+    "path": "references/checklist.md",
+    "kind": "reference",
+    "title": "投稿前自查清单（打印 / 逐项过版）",
+    "subtitle": "A. 写作前（不满足则不要动笔）；B. 题目 · 署名 · 摘要",
+    "headings": [
+      "A. 写作前（不满足则不要动笔）",
+      "B. 题目 · 署名 · 摘要",
+      "C. 引言",
+      "D. 材料与方法",
+      "E. 结果与讨论",
+      "F. 结论",
+      "G. 参考文献",
+      "H. 致谢",
+      "I. 投稿",
+      "J. 综述专项"
+    ],
+    "keywords": [
+      "投稿",
+      "参考文献",
+      "自查清单",
+      "结果",
+      "结论",
+      "署名",
+      "讨论",
+      "题目"
+    ],
+    "bytes": 8433
+  },
+  {
+    "path": "references/color-system.md",
+    "kind": "reference",
+    "title": "配色系统与视觉编码（Color System & Visual Encoding）",
+    "subtitle": "本文件给的是配色决策逻辑 —— 面对一张新图",
+    "headings": [
+      "🔴 铁律：配色是语义系统，不是审美选择",
+      "一、🔴 第一原则：色相必须在全图可追溯",
+      "「对照冷色 / 处理暖色」是常见约定，不是规则",
+      "多组时的分配原则",
+      "阴性对照 / 无效组：用「空心」而非第三种颜色",
+      "二、色相选择的具体锚点（可直接抄）",
+      "2.1 两组对比（最常用）",
+      "2.2 三组及以上（遗传学三态）",
+      "2.3 四组（干预矩阵）",
+      "三、🔴 一个通道只能承载一个变量"
+    ],
+    "keywords": [
+      "配色",
+      "原则",
+      "色阶",
+      "铁律",
+      "图例",
+      "顶刊",
+      "背景色",
+      "灰度"
+    ],
+    "bytes": 16673
+  },
+  {
+    "path": "references/figure-conventions-evidence.md",
+    "kind": "reference",
+    "title": "图件制图实证（v2.15.0 新增）",
+    "subtitle": "本文件的证据来自「实际打开渲染出的 PNG 看图」，不是只看图注文字。",
+    "headings": [
+      "一、核心结论：制图惯例按「刊」分，不存在全领域统一规则",
+      "1.1 比例尺 vs 放大倍数（最强的按刊分界）",
+      "1.2 图注前缀的多语种词汇表（实测 4035 条图注）",
+      "1.3 图注位置分两派（按刊）",
+      "1.4 图例（Legend）放哪：三选一，按刊分",
+      "1.5 中文刊的图注格式（固定七要素）",
+      "1.6 中文对比表用「√」标记共同种",
+      "二、子图标号体系（逐字实测）",
+      "三、图版（Plate）说明的四种制式",
+      "3.1 罗马数字图版号 + 放大倍数（Geologica Carpathica / QJGS / 成都地矿所刊）"
+    ],
+    "keywords": [
+      "图注",
+      "图版",
+      "放大倍数",
+      "比例尺",
+      "制图",
+      "中文刊",
+      "结论",
+      "图例"
+    ],
+    "bytes": 9562
+  },
+  {
+    "path": "references/figure-design-system.md",
+    "kind": "reference",
+    "title": "图件设计体系（Figure Design System）",
+    "subtitle": "本文件给的是第三层、也是最常被跳过的一层",
+    "headings": [
+      "零、为什么以这篇为蓝本",
+      "🔖 蓝本原文锚点（verbatim，逐句引用）",
+      "一、🔴 铁律：图序即论证顺序",
+      "14 张图的骨架（可复用到任何一篇论文）",
+      "二、五种图件原型（archetype）",
+      "A. 流程图（Fig 1、Fig 14）",
+      "B. 图像对照版（Fig 2、Fig 3、Fig 5）",
+      "C. 性能矩阵（Fig 4）",
+      "D. 成对比较面板（Fig 6、Fig 9、Fig 10a、Fig 11）",
+      "E. 回归与排序图（Fig 7、Fig 8、Fig 10b、Fig 12、Fig 13）"
+    ],
+    "keywords": [
+      "铁律",
+      "图注",
+      "图件设计",
+      "图件原型",
+      "图序",
+      "色阶",
+      "图例",
+      "语义色"
+    ],
+    "bytes": 20351
+  },
+  {
+    "path": "references/figure-specs.md",
+    "kind": "reference",
+    "title": "图表硬参数速查",
+    "subtitle": "图表与排版的可直接执行硬参数。",
+    "headings": [
+      "一、图件硬参数",
+      "Copernicus / J. Micropalaeontology 口径（🔴 与上表不同）",
+      "图内规范细节（PPP 原文，v2 补）",
+      "少数情况",
+      "二、🔴 Word 缩放铁律（最易犯错）",
+      "三、页面设置",
+      "四、制图尺寸与字号",
+      "五、构图原则",
+      "黄金比例（三分之二原则）",
+      "对称 vs 不对称"
+    ],
+    "keywords": [
+      "原则",
+      "构图",
+      "图注",
+      "字号",
+      "图表硬参数",
+      "黄金比例",
+      "页面设置",
+      "制图尺寸"
+    ],
+    "bytes": 8356
+  },
+  {
+    "path": "references/fulltext-reading-evidence.md",
+    "kind": "reference",
+    "title": "全文逐字精读实证（v2.15.0 新增）",
+    "subtitle": "本文件的每一条结论都来自「逐字读完整个正文文件」，不是关键词命中率",
+    "headings": [
+      "一、阅读口径与可兑现范围（先说清楚）",
+      "二、章节链实测：没有统一模板",
+      "2.1 完整 IMRaD + 声明块（高标准地学刊）",
+      "2.2 分类学体系论文（无 Discussion、无 Methods）",
+      "2.3 短篇发现报告（3–10 页，无独立 Discussion）",
+      "2.4 区域生物地层学（无独立 Methods，方法只有一句）",
+      "2.5 系统描述类（讨论不在 Discussion 段）",
+      "三、中间部分（Methods / Results）的真实写法",
+      "3.1 Methods 的三种详略档次",
+      "3.2 Results 的两条硬要求"
+    ],
+    "keywords": [
+      "模板",
+      "讨论",
+      "章节链",
+      "系统描述",
+      "分类学",
+      "声明块",
+      "逐字精读",
+      "地层学"
+    ],
+    "bytes": 47991
+  },
+  {
+    "path": "references/journal-constraints.md",
+    "kind": "reference",
+    "title": "期刊结构硬约束速查",
+    "subtitle": "写作前必须先确定目标期刊 —— 结构要求因刊而异，这是硬约束不是建议。",
+    "headings": [
+      "对照表",
+      "J. Micropalaeontology（JM）/ Copernicus 平台口径",
+      "图件硬参数",
+      "🔴 两条平台独有条款",
+      "GCA 的 Results / Discussion 要求（GCA 原文要点）",
+      "ES&T 的 Results and Discussion 要求（GCA 原文要点）",
+      "定刊时的四查",
+      "GCA Cover Letter 硬性要求",
+      "常用配图配色（可直接抄）",
+      "图件要求（送审 vs 终稿**完全不同**）"
+    ],
+    "keywords": [
+      "要点",
+      "配色",
+      "期刊结构",
+      "参考文献",
+      "古生物",
+      "结论",
+      "摘要",
+      "缩写"
+    ],
+    "bytes": 19388
+  },
+  {
+    "path": "references/literature-search.md",
+    "kind": "reference",
+    "title": "文献检索与素材积累实操",
+    "subtitle": "来自文献检索部分(2025-09-08) +",
+    "headings": [
+      "一、检索工具清单",
+      "关键词查询的四种变体（ P19–21，v2 补具体查询串）",
+      "二、🔴 关键词的尺度选择（ P25，最容易做错的一步）",
+      "三、检索策略实例（ P29，可直接复用）",
+      "四、🔴 困难文献的获取途径（ P23）",
+      "五、自动追踪最新文献（ P24）",
+      "六、★ 三个核心积累方法（ P30–32）",
+      "1. 积累自己的素材库",
+      "2. 积累自己的写作技巧参考库（ P31，v2 补具体形式）",
+      "3. 辨证思维训练（ P35，v2 补批注全文示例）"
+    ],
+    "keywords": [
+      "辨证思维",
+      "检索策略",
+      "检索工具",
+      "素材库",
+      "谷歌学术",
+      "模板",
+      "知网",
+      "课程作业"
+    ],
+    "bytes": 8444
+  },
+  {
+    "path": "references/micropaleo-paper-patterns.md",
+    "kind": "reference",
+    "title": "微体古生物 / 放射虫论文的写作与制图模式",
+    "subtitle": "本文件讲第三件事：这个领域（微体古生物 / 放射虫）的论文实际长什么样 ——",
+    "headings": [
+      "一、🔴 四种主题的论文骨架",
+      "🔴 A 类（系统描述）的关键结构特征",
+      "二、🔴 图件范式：Fig. 制 vs 图版（Plate）制",
+      "2.1 图注前缀的实际分布（1139 条图注，逐字统计）",
+      "2.2 面板字母体系（语料原句逐字）",
+      "2.3 🔴 图注里的来源声明（本领域特有）",
+      "三、🔴 色彩风格：灰度优先，形状承担分组",
+      "3.1 彩色出现在哪里",
+      "3.2 彩色系统树的三个可抄细节（Biard et al. 2022, *Environ Microbiol*）",
+      "四、🔴 地图与地质图：灰度花纹 + 插图 + 比例尺"
+    ],
+    "keywords": [
+      "图注",
+      "灰度",
+      "系统描述",
+      "图版",
+      "语料",
+      "放射虫",
+      "比例尺",
+      "微体古生物"
+    ],
+    "bytes": 61439
+  },
+  {
+    "path": "references/multi-journal-style-guides.md",
+    "kind": "reference",
+    "title": "多期刊官方 Style Guide 汇总（地学 / 古生物 / CV）",
+    "subtitle": "ESR / Nature / PNAS / CVPR / Palaeoworld",
+    "headings": [
+      "目录",
+      "1.1 收录边界（🔴 最容易被 desk-reject 的地方）",
+      "1.2 文章类型与字数（🔴 官方体裁口径）",
+      "1.3 前置要素（🔴 Abstract 必填 / Highlights 是\"鼓励\"不是\"必须\"）",
+      "1.4 文件格式与行号",
+      "1.5 结构",
+      "1.6 图表（🔴 官方原表，逐字照录）",
+      "1.7 其他",
+      "1.8 🔴 参考文献（官方原文，author-date 制）",
+      "2.1 Article 篇幅（🔴 按\"印刷页\"算，不按字数）"
+    ],
+    "keywords": [
+      "参考文献",
+      "官方原文",
+      "古生物",
+      "收录边界",
+      "复核",
+      "目录",
+      "缩写",
+      "投稿"
+    ],
+    "bytes": 81736
+  },
+  {
+    "path": "references/paleobiology-journal.md",
+    "kind": "reference",
+    "title": "Paleobiology 期刊投稿规范（图件 + 文体）",
+    "subtitle": "一、图件规范（Electronic Figure Guidelines）",
+    "headings": [
+      "一、图件规范（Electronic Figure Guidelines）",
+      "1.1 两套要求：送审 vs 出版",
+      "1.2 图件尺寸（Cambridge 生产规范）",
+      "1.3 🔴 DPI 硬性要求（按图件类型分）",
+      "1.4 🔴 大图拆分（Split Figures）",
+      "1.5 🔴 大文件压缩",
+      "1.6 🔴 标本照相要求（★ 化石形态学论文直接适用）",
+      "1.7 图内标注、字体、色彩",
+      "1.8 🔴 色彩避坑",
+      "1.9 🔴 图注（Caption）"
+    ],
+    "keywords": [
+      "图注",
+      "字体",
+      "缩写",
+      "化石形态学",
+      "标本照相",
+      "投稿",
+      "比例尺",
+      "表格"
+    ],
+    "bytes": 21564
+  },
+  {
+    "path": "references/sentence-bank.md",
+    "kind": "reference",
+    "title": "句式库",
+    "subtitle": "全部来自本技能方法库。 按用途分组，可直接套用。",
+    "headings": [
+      "一、引言：引出研究不足（用 However 引导）",
+      "强调自己研究重要性的 5 种切入",
+      "二、引言：措辞正反例",
+      "三、摘要：分层指示词",
+      "四、讨论：常用动词",
+      "五、结论：局限性与未来方向（★可直接套用）",
+      "六、研究展望：用问句作小标题",
+      "七、综述引言：三段式",
+      "八、回复审稿人：四要素范式",
+      "九、编辑拒稿话术（识别用，不必回复）"
+    ],
+    "keywords": [
+      "引言",
+      "讨论",
+      "未来方向",
+      "局限性",
+      "句式库",
+      "结论",
+      "摘要",
+      "结果"
+    ],
+    "bytes": 8380
+  },
+  {
+    "path": "references/格式硬参数与文献检索实操.md",
+    "kind": "reference",
+    "title": "格式硬参数与文献检索实操",
+    "subtitle": "地学 SCI 投稿的格式硬参数、引文密度、送审流程与时间预算；",
+    "headings": [
+      "〇、★ Guide for Authors 的三种入口★",
+      "一、体裁与篇幅",
+      "必备信息",
+      "其他事项",
+      "★ Submission checklist",
+      "二、文章结构与分级",
+      "标题分级",
+      "前置部分（顺序固定）",
+      "正文结构（★地学标准骨架）",
+      "★ Graphical Abstract"
+    ],
+    "keywords": [
+      "参考文献",
+      "学位论文",
+      "图注",
+      "配色",
+      "版式",
+      "文献综述",
+      "放射虫",
+      "分辨率"
+    ],
+    "bytes": 38761
+  },
+  {
+    "path": "references/论文写作方法论骨架.md",
+    "kind": "reference",
+    "title": "论文写作方法论骨架",
+    "subtitle": "面向地学 SCI 论文与学位论文的写作与投稿方法论。",
+    "headings": [
+      "一、总纲：论文写作前的四项准备",
+      "1.3 制图要求",
+      "1.4 实例对照：读刊的 Aims & Scope 与稿约",
+      "二、写作姿态",
+      "三、SCI 论文结构",
+      "四、题目",
+      "五、署名",
+      "六、摘要",
+      "七、引言★核心",
+      "7.1 四大内容"
+    ],
+    "keywords": [
+      "引言",
+      "摘要",
+      "题目",
+      "署名",
+      "结果",
+      "结论",
+      "讨论",
+      "论文写作方法论"
+    ],
+    "bytes": 40053
+  },
+  {
+    "path": "docs/COMPATIBILITY.md",
+    "kind": "doc",
+    "title": "AI 工具兼容性矩阵",
+    "subtitle": "各工具随时可能改默认值，尤其开关类。",
+    "headings": [
+      "一、结论先行",
+      "二、兼容性矩阵",
+      "三、安装路径",
+      "作为 Skill（推荐：获得完整的 10 模块 + 渐进披露）",
+      "作为项目规则（仓库级）",
+      "直接当 Prompt 用（零安装）",
+      "四、Claude Code 的版本差异（重要）",
+      "Claude Code 规则未加载的排查",
+      "五、Codex 的 32 KiB 限制",
+      "5.5 英文用户（English users）"
+    ],
+    "keywords": [
+      "兼容性矩阵",
+      "结论",
+      "目录",
+      "安装路径",
+      "工具兼容",
+      "硬规则",
+      "表格"
+    ],
+    "bytes": 7253
+  },
+  {
+    "path": "docs/PROMPTS-EN.md",
+    "kind": "doc",
+    "title": "Academic Paper Polish — English",
+    "subtitle": "This is the English entry point.",
+    "headings": [
+      "How to use (no installation required)",
+      "The 10 modules",
+      "What this repository is",
+      "The eight hard rules",
+      "1. Pick the journal before you write",
+      "2. Inverted pyramid, and opening must match resolution",
+      "3. Citation density",
+      "4. Paragraphs: 5–8 sentences",
+      "5. The six-step discussion",
+      "6. Conclusions must carry limitations + future directions"
+    ],
+    "keywords": [
+      "citation",
+      "modules",
+      "dpi",
+      "results",
+      "abstract",
+      "methods",
+      "schedule",
+      "pnas"
+    ],
+    "bytes": 10387
+  }
+]
