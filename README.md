@@ -4,9 +4,13 @@
 > **DeepSeek Harness 的能力层**：模型可以**调用**的工具、人类可以**输入**的命令、
 > 面板可以**驱动**的会话，以及一份**可判定**的规则库 —— 不再只是一本手册。
 
-| 速查 | 检查 | 去AI | 清单 |
-|---|---|---|---|
-| ![速查](preview/v3-rules.png) | ![检查](preview/v3-check.png) | ![去AI](preview/v3-deai.png) | ![清单](preview/v3-checklist.png) |
+| 速查 Rules | 检查 Check |
+|---|---|
+| ![速查](preview/v3-rules.png) | ![检查](preview/v3-check.png) |
+
+| 去AI De-AI | 清单 Checklist |
+|---|---|
+| ![去AI](preview/v3-deai.png) | ![清单](preview/v3-checklist.png) |
 
 - 内容来源：`syxscott/academic-paper-polish` v2.16.1（MIT），见 [`NOTICE`](NOTICE)
 - 形态：**host + client 双半边** bundle，**零第三方依赖**、无构建步骤、**无任何外部网络请求**
@@ -259,6 +263,7 @@ node scripts/eval-conformance.mjs      # 手册完整性 171 条（上游评测�
 node scripts/host-route-test.mjs       # 宿主路由 + 工具 + 命令 183 条
 node scripts/run-interaction-test.mjs  # 浏览器内交互 76 条
 node scripts/render-test.mjs           # 6 视图 × 1 槽位渲染无崩溃
+node scripts/layout-probe.mjs          # 6 视图 × 4 宽度布局体检（24 组，网格拉伸 / 溢出 / 越界）
 node scripts/smoke-test.mjs            # 技能 provider 离线自检
 node scripts/check-inline-scripts.mjs  # 预览台内联脚本语法
 node scripts/code-metrics.mjs          # 代码量统计

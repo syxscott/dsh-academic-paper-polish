@@ -2,9 +2,15 @@
 // skill-index route handler end to end (no agent, no browser).
 // Also exercises the capability layer: the five paper_* tools, the five
 // paper-* commands, the always-on prompt section and the /api/* JSON routes.
+// Finally it exercises the manuscript discovery + analysis routes against a
+// temporary session directory (including a generated .docx fixture).
 // Run: node scripts/host-route-test.mjs
 import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
+import { mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { deflateRawSync } from 'node:zlib';
 
 import { createToolDefinitions } from '../lib/tools.mjs';
 import { createCommandDefinitions } from '../lib/commands.mjs';
@@ -806,6 +812,562 @@ check(
   'the paper-rules command accepts journal=',
   rulesCommandWithJournal?.kind === 'success' && rulesCommandWithJournal.text.includes('paleobiology'),
 );
+
+// ══ the manuscript routes ═════════════════════════════════════════════
+//
+// GET  /api/session/files — the papers of the session, with the auto-select
+// POST /api/analyze      — the section-by-section analysis of one paper
+//
+// The fixtures live in a temporary directory that stands in for the working
+// directory of a session.
+
+const CRC_TABLE = (() => {
+  const table = new Int32Array(256);
+  for (let index = 0; index < 256; index += 1) {
+    let value = index;
+    for (let bit = 0; bit < 8; bit += 1) {
+      value = value & 1 ? 0xedb88320 ^ (value >>> 1) : value >>> 1;
+    }
+    table[index] = value;
+  }
+  return table;
+})();
+
+function crc32(buffer) {
+  let value = 0xffffffff;
+  for (let index = 0; index < buffer.length; index += 1) {
+    value = CRC_TABLE[(value ^ buffer[index]) & 0xff] ^ (value >>> 8);
+  }
+  return (value ^ 0xffffffff) >>> 0;
+}
+
+/** A minimal ZIP writer: stored (0) or deflated (8) entries. */
+function buildZip(files) {
+  const locals = [];
+  const centrals = [];
+  let offset = 0;
+  for (const file of files) {
+    const nameBuffer = Buffer.from(file.name, 'utf8');
+    const raw = Buffer.from(file.text, 'utf8');
+    const method = file.method ?? 0;
+    const data = method === 8 ? deflateRawSync(raw) : raw;
+    const crc = crc32(raw);
+
+    const local = Buffer.alloc(30);
+    local.writeUInt32LE(0x04034b50, 0);
+    local.writeUInt16LE(20, 4);
+    local.writeUInt16LE(0, 6);
+    local.writeUInt16LE(method, 8);
+    local.writeUInt16LE(0, 10);
+    local.writeUInt16LE(0, 12);
+    local.writeUInt32LE(crc, 14);
+    local.writeUInt32LE(data.length, 18);
+    local.writeUInt32LE(raw.length, 22);
+    local.writeUInt16LE(nameBuffer.length, 26);
+    local.writeUInt16LE(0, 28);
+    locals.push(local, nameBuffer, data);
+
+    const central = Buffer.alloc(46);
+    central.writeUInt32LE(0x02014b50, 0);
+    central.writeUInt16LE(20, 4);
+    central.writeUInt16LE(20, 6);
+    central.writeUInt16LE(0, 8);
+    central.writeUInt16LE(method, 10);
+    central.writeUInt16LE(0, 12);
+    central.writeUInt16LE(0, 14);
+    central.writeUInt32LE(crc, 16);
+    central.writeUInt32LE(data.length, 20);
+    central.writeUInt32LE(raw.length, 24);
+    central.writeUInt16LE(nameBuffer.length, 28);
+    central.writeUInt16LE(0, 30);
+    central.writeUInt16LE(0, 32);
+    central.writeUInt16LE(0, 34);
+    central.writeUInt16LE(0, 36);
+    central.writeUInt32LE(0, 38);
+    central.writeUInt32LE(offset, 42);
+    centrals.push(central, nameBuffer);
+    offset += local.length + nameBuffer.length + data.length;
+  }
+  const centralBuffer = Buffer.concat(centrals);
+  const end = Buffer.alloc(22);
+  end.writeUInt32LE(0x06054b50, 0);
+  end.writeUInt16LE(0, 4);
+  end.writeUInt16LE(0, 6);
+  end.writeUInt16LE(files.length, 8);
+  end.writeUInt16LE(files.length, 10);
+  end.writeUInt32LE(centralBuffer.length, 12);
+  end.writeUInt32LE(offset, 16);
+  end.writeUInt16LE(0, 20);
+  return Buffer.concat([...locals, centralBuffer, end]);
+}
+
+/** A minimal .docx: one XML part with the paragraphs of the manuscript. */
+function buildDocx(paragraphs) {
+  const body = paragraphs
+    .map((paragraph) => {
+      const properties = paragraph.style
+        ? `<w:pPr><w:pStyle w:val="${paragraph.style}"/></w:pPr>`
+        : '';
+      return `<w:p>${properties}<w:r><w:t xml:space="preserve">${paragraph.text}</w:t></w:r></w:p>`;
+    })
+    .join('');
+  const document = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body>${body}</w:body></w:document>`;
+  return buildZip([
+    { name: '[Content_Types].xml', text: '<?xml version="1.0"?><Types/>' },
+    { name: '_rels/.rels', text: '<?xml version="1.0"?><Relationships/>' },
+    // deflated on purpose: the reader must inflate it
+    { name: 'word/document.xml', text: document, method: 8 },
+    {
+      name: 'docProps/core.xml',
+      text: '<?xml version="1.0"?><cp:coreProperties xmlns:cp="c" xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:title>Test Manuscript</dc:title></cp:coreProperties>',
+    },
+  ]);
+}
+
+const DOCX_PARAGRAPHS = [
+  { text: 'A new ammonite from the Qilian Basin, China' },
+  { text: 'Abstract', style: 'Heading1' },
+  {
+    text: 'This study describes a new ammonite species from the Qilian Basin and reviews the stratigraphic context of the material. The record extends the known range of the genus by about two million years and refines the regional correlation of the lower Cenomanian beds.',
+  },
+  { text: 'Introduction', style: 'Heading1' },
+  {
+    text: 'Ammonites are index fossils for the Cretaceous of the Qilian Basin (Author et al., 2020). Their taxonomy has been revised repeatedly over the last decade, but the middle part of the sequence is still poorly constrained.',
+  },
+  { text: 'Materials and Methods', style: 'Heading1' },
+  {
+    text: 'The material was collected from three measured sections. All specimens are housed in the repository of the local institute of geology and every specimen carries its own locality and horizon data.',
+  },
+  { text: 'Results', style: 'Heading1' },
+  {
+    text: 'The new taxon is diagnosed by a distinctive whorl profile and a finely ornamented phragmocone. Nine specimens preserve the suture line and three of them expose the complete body chamber.',
+  },
+  { text: 'Discussion', style: 'Heading1' },
+  {
+    text: 'The new species is compared with the type material of the type species and with the material described previously. The differences in the rib density separate the new taxon from its closest neighbour.',
+  },
+  { text: 'Conclusion', style: 'Heading1' },
+  {
+    text: 'The new ammonite extends the stratigraphic range of the genus and refines the regional correlation. It also shows that the basin was open to the sea during the interval.',
+  },
+  { text: 'References', style: 'Heading1' },
+  {
+    text: 'Author, A. (2020). A revision of the ammonites of the region. Journal of Palaeontology, 44, 1-20. Author, B. (2021). New material from the basin. Palaeontology, 45, 22-31.',
+  },
+];
+
+const MARKDOWN_MANUSCRIPT = [
+  'A new ammonite from the Qilian Basin, China',
+  '',
+  '## Abstract',
+  '',
+  'This study describes a new ammonite species from the Qilian Basin. The record extends the known range of the genus by about two million years and refines the regional correlation of the lower Cenomanian beds of the region.',
+  '',
+  '## Introduction',
+  '',
+  'Ammonites are index fossils for the Cretaceous of the Qilian Basin (Author et al., 2020). Their taxonomy has been revised repeatedly over the last decade.',
+  '',
+  '## Results',
+  '',
+  'The new taxon is diagnosed by a distinctive whorl profile and a finely ornamented phragmocone.',
+  '',
+  '## References',
+  '',
+  'Author, A. (2020). A revision of the ammonites of the region. Journal of Palaeontology, 44, 1-20.',
+].join('\n');
+
+// ── the fixture directories ──────────────────────────────────────────
+const workRoot = mkdtempSync(join(tmpdir(), 'paper-session-'));
+const work = join(workRoot, 'work');
+const workAmbiguous = join(workRoot, 'ambiguous');
+const workPlain = join(workRoot, 'plain');
+for (const dir of [work, workAmbiguous, workPlain]) mkdirSync(dir, { recursive: true });
+
+writeFileSync(join(work, 'paper_v3.docx'), buildDocx(DOCX_PARAGRAPHS));
+writeFileSync(join(work, 'old_draft.pdf'), 'not really a pdf, just a placeholder for the candidate list\n');
+mkdirSync(join(work, 'node_modules', 'left-pad'), { recursive: true });
+writeFileSync(join(work, 'node_modules', 'left-pad', 'readme.md'), '## Abstract\n\nA dependency, not a manuscript.\n');
+mkdirSync(join(work, 'sub', 'deep', 'nested', 'deeper'), { recursive: true });
+writeFileSync(join(work, 'sub', 'deep', 'nested', 'notes.md'), 'Some field notes about the sections.\n');
+writeFileSync(join(work, 'sub', 'deep', 'nested', 'deeper', 'buried.md'), 'Too deep to be found.\n');
+writeFileSync(join(workAmbiguous, 'paper_a.docx'), buildDocx(DOCX_PARAGRAPHS));
+writeFileSync(join(workAmbiguous, 'paper_b.docx'), buildDocx(DOCX_PARAGRAPHS));
+writeFileSync(join(workPlain, 'body.md'), MARKDOWN_MANUSCRIPT);
+
+/** A live agent whose working directory is `cwd`. */
+const agentFor = (cwd, id = 'session-42') => ({
+  id,
+  session: {
+    header: { cwd },
+    snapshotEvents: () => [{ type: 'user/message', time: 1700000000000 }],
+  },
+});
+
+const openCtx = (options = {}) =>
+  makeApiCtx({ ...options, connection: { requestRejection: () => undefined } });
+
+const sessionGet = async (query, options = {}) => {
+  const route = openCtx(options);
+  const res = mockRes();
+  await route.handler(
+    makeReq('GET', `/dsh-academic-paper-polish/api/session/files${query}`, undefined, {}),
+    res,
+  );
+  return { status: res.statusCode, body: res.body, payload: jsonOf(res) };
+};
+
+const sessionPost = async (path, payload, options = {}) => {
+  const route = openCtx(options);
+  const res = mockRes();
+  await route.handler(
+    makeReq('POST', `/dsh-academic-paper-polish/api${path}`, JSON.stringify(payload), {}),
+    res,
+  );
+  return { status: res.statusCode, body: res.body, payload: jsonOf(res) };
+};
+
+// ── discovery ─────────────────────────────────────────────────────────
+
+const noSession = await sessionGet('', { agents: { list: () => [], get: () => undefined } });
+check('GET /api/session/files without a live session returns 409', noSession.status === 409, `got ${noSession.status}`);
+check('GET /api/session/files names the 409', noSession.payload?.error === 'no-session', String(noSession.payload?.error));
+
+const workAgent = agentFor(work);
+const discovered = await sessionGet('?sessionId=session-42', {
+  agents: { list: () => [workAgent], get: (id) => (id === 'session-42' ? workAgent : undefined) },
+});
+check('GET /api/session/files returns 200', discovered.status === 200, `got ${discovered.status}`);
+check('GET /api/session/files echoes the session', discovered.payload?.sessionId === 'session-42', String(discovered.payload?.sessionId));
+check('GET /api/session/files reports the working directory', String(discovered.payload?.cwd ?? '').endsWith('work'), String(discovered.payload?.cwd));
+check('GET /api/session/files returns a candidate list', Array.isArray(discovered.payload?.files));
+const candidates = discovered.payload?.files ?? [];
+check('the candidate list is sorted by score', candidates.every((entry, index) => index === 0 || candidates[index - 1].score >= entry.score));
+const top = candidates[0];
+check('the best candidate is the docx', top?.name === 'paper_v3.docx', top?.name);
+check('the best candidate carries a score', typeof top?.score === 'number' && top.score >= 140, String(top?.score));
+check('the best candidate is a manuscript', top?.kind === 'manuscript', String(top?.kind));
+check('the best candidate explains itself', Array.isArray(top?.reasons) && top.reasons.length > 0, JSON.stringify(top?.reasons));
+check(
+  'the reasons mention the file name',
+  (top?.reasons ?? []).some((reason) => reason.includes('paper')),
+  JSON.stringify(top?.reasons),
+);
+check(
+  'the reasons mention the headings',
+  (top?.reasons ?? []).some((reason) => reason.includes('Abstract')),
+  JSON.stringify(top?.reasons),
+);
+check('the best candidate is auto-selected', discovered.payload?.best === top?.path, String(discovered.payload?.best));
+check(
+  'the winner beats the runner-up by the ambiguity factor',
+  candidates.length < 2 || top.score >= 1.6 * candidates[1].score,
+  `${top?.score} vs ${candidates[1]?.score}`,
+);
+check(
+  'a candidate carries the metadata the panel shows',
+  candidates.every(
+    (entry) =>
+      typeof entry.path === 'string' &&
+      typeof entry.name === 'string' &&
+      typeof entry.ext === 'string' &&
+      typeof entry.bytes === 'number' &&
+      typeof entry.mtime === 'string' &&
+      ['manuscript', 'other'].includes(entry.kind),
+  ),
+);
+check(
+  'the skip list is honoured (node_modules is not walked)',
+  candidates.every((entry) => !entry.path.includes('node_modules')),
+  candidates.map((entry) => entry.path).join(', '),
+);
+check(
+  'the depth limit is honoured (level 3 is read)',
+  candidates.some((entry) => entry.path.endsWith('nested/notes.md')),
+  candidates.map((entry) => entry.path).join(', '),
+);
+check(
+  'the depth limit is honoured (level 4 is not read)',
+  candidates.every((entry) => !entry.path.includes('buried.md')),
+  candidates.map((entry) => entry.path).join(', '),
+);
+check(
+  'a pdf is a candidate even though it cannot be extracted',
+  candidates.some((entry) => entry.ext === '.pdf'),
+  candidates.map((entry) => entry.ext).join(', '),
+);
+
+// without a session id the most recently active agent is used
+const latest = await sessionGet('', {
+  agents: { list: () => [workAgent], get: () => undefined },
+});
+check('GET /api/session/files falls back to the latest agent', latest.status === 200, `got ${latest.status}`);
+check('the fallback reports the agent id', latest.payload?.sessionId === 'session-42', String(latest.payload?.sessionId));
+
+// two candidates that score the same → the human has to choose
+const ambiguousAgent = agentFor(workAmbiguous, 'session-77');
+const ambiguous = await sessionGet('?sessionId=session-77', {
+  agents: { list: () => [ambiguousAgent], get: (id) => (id === 'session-77' ? ambiguousAgent : undefined) },
+});
+check('an ambiguous session still returns 200', ambiguous.status === 200, `got ${ambiguous.status}`);
+check('an ambiguous session lists both candidates', (ambiguous.payload?.files ?? []).length === 2, String((ambiguous.payload?.files ?? []).length));
+check('an ambiguous session returns best: null', ambiguous.payload?.best === null, String(ambiguous.payload?.best));
+check(
+  'the ambiguous candidates really score the same',
+  (ambiguous.payload?.files ?? []).length < 2 ||
+    ambiguous.payload.files[0].score === ambiguous.payload.files[1].score,
+  (ambiguous.payload?.files ?? []).map((entry) => entry.score).join(', '),
+);
+
+// a cold session is resolved through the session controller
+const coldResolvedIds = [];
+const coldSession = await sessionGet('?sessionId=session-cold', {
+  agents: { list: () => [], get: () => undefined },
+  sessionController: {
+    resolveAgent: async (sessionId) => {
+      coldResolvedIds.push(sessionId);
+      return { agent: agentFor(work, 'session-cold') };
+    },
+  },
+});
+check('a cold session is resolved through the controller', coldSession.status === 200, `got ${coldSession.status}`);
+check('the controller was asked for the session', coldResolvedIds[0] === 'session-cold', String(coldResolvedIds[0]));
+
+// ── analysis ──────────────────────────────────────────────────────────
+
+const plainAgent = agentFor(workPlain, 'session-plain');
+const plainCtx = {
+  agents: { list: () => [plainAgent], get: (id) => (id === 'session-plain' ? plainAgent : undefined) },
+};
+
+const noPath = await sessionPost('/analyze', {}, plainCtx);
+check('POST /api/analyze without a path returns 400', noPath.status === 400, `got ${noPath.status}`);
+check('POST /api/analyze names the 400', noPath.payload?.error === 'bad-request', String(noPath.payload?.error));
+
+const missing = await sessionPost('/analyze', { path: 'no-such-file.docx' }, plainCtx);
+check('POST /api/analyze with a missing file returns 404', missing.status === 404, `got ${missing.status}`);
+check('POST /api/analyze names the 404', missing.payload?.error === 'file-not-found', String(missing.payload?.error));
+
+const outside = await sessionPost(
+  '/analyze',
+  { path: join(workAmbiguous, 'paper_a.docx') },
+  plainCtx,
+);
+check('POST /api/analyze outside the working directory returns 403', outside.status === 403, `got ${outside.status}`);
+check('POST /api/analyze names the 403', outside.payload?.error === 'forbidden', String(outside.payload?.error));
+
+const workCtx = {
+  agents: { list: () => [workAgent], get: (id) => (id === 'session-42' ? workAgent : undefined) },
+};
+
+// a link that points out of the working directory is refused as well
+try {
+  symlinkSync(workAmbiguous, join(work, 'escape'), 'junction');
+  const escaped = await sessionPost(
+    '/analyze',
+    { path: 'escape/paper_a.docx' },
+    workCtx,
+  );
+  check('a link out of the working directory returns 403', escaped.status === 403, `got ${escaped.status}`);
+  check('a link out of the working directory names the 403', escaped.payload?.error === 'forbidden', String(escaped.payload?.error));
+} catch (error) {
+  console.log(`· the symlink check was skipped (${error.code ?? error.message})`);
+}
+
+const pdf = await sessionPost('/analyze', { path: 'old_draft.pdf' }, workCtx);
+check('POST /api/analyze with a pdf returns 415', pdf.status === 415, `got ${pdf.status}`);
+check('POST /api/analyze names the 415', pdf.payload?.error === 'unsupported-format', String(pdf.payload?.error));
+check(
+  'the 415 tells the human what to do',
+  String(pdf.payload?.message ?? '').includes('docx'),
+  String(pdf.payload?.message),
+);
+
+writeFileSync(join(workPlain, 'unknown.xyz'), 'what is this\n');
+const unknownFormat = await sessionPost('/analyze', { path: 'unknown.xyz' }, plainCtx);
+check('POST /api/analyze with an unknown extension returns 415', unknownFormat.status === 415, `got ${unknownFormat.status}`);
+
+// the plain-text manuscript
+const analyzed = await sessionPost('/analyze', { path: 'body.md' }, plainCtx);
+check('POST /api/analyze returns 200', analyzed.status === 200, `got ${analyzed.status} ${analyzed.body.slice(0, 200)}`);
+const report = analyzed.payload?.report ?? [];
+check('the report has one entry per section', report.length === 5, String(report.length));
+check(
+  'the report follows the canonical section order',
+  report.map((entry) => entry.section).join(',') === 'title,abstract,introduction,results,references',
+  report.map((entry) => entry.section).join(','),
+);
+check(
+  'a report entry carries the section key, title and word count',
+  report.every(
+    (entry) =>
+      typeof entry.section === 'string' &&
+      typeof entry.title === 'string' &&
+      typeof entry.words === 'number' &&
+      entry.words > 0,
+  ),
+);
+check(
+  'a report entry carries its own summary',
+  report.every(
+    (entry) =>
+      entry.summary &&
+      typeof entry.summary.total === 'number' &&
+      typeof entry.summary.hard === 'number' &&
+      typeof entry.summary.soft === 'number' &&
+      typeof entry.summary.info === 'number' &&
+      typeof entry.summary.pass === 'boolean' &&
+      typeof entry.summary.checkedRules === 'number' &&
+      typeof entry.summary.manualRules === 'number' &&
+      typeof entry.summary.skippedJournalRules === 'number' &&
+      'journalKey' in entry.summary &&
+      typeof entry.summary.journalUnknown === 'boolean',
+  ),
+);
+check(
+  'a report entry carries violations and advice',
+  report.every((entry) => Array.isArray(entry.violations) && Array.isArray(entry.advice)),
+);
+check(
+  'a violation carries the rule it comes from',
+  report
+    .flatMap((entry) => entry.violations)
+    .every(
+      (violation) =>
+        typeof violation.id === 'string' &&
+        typeof violation.ruleId === 'string' &&
+        typeof violation.title === 'string' &&
+        ['hard', 'soft', 'info'].includes(violation.severity) &&
+        typeof violation.statement === 'string' &&
+        typeof violation.fix === 'string' &&
+        typeof violation.source === 'object',
+    ),
+);
+check(
+  'the file block describes the analysed file',
+  analyzed.payload?.file?.name === 'body.md' &&
+    analyzed.payload?.file?.format === 'md' &&
+    typeof analyzed.payload?.file?.bytes === 'number' &&
+    Array.isArray(analyzed.payload?.file?.sections),
+);
+check(
+  'the file block lists the sections with their word counts',
+  (analyzed.payload?.file?.sections ?? []).length === 5 &&
+    analyzed.payload.file.sections.every(
+      (entry) =>
+        typeof entry.key === 'string' &&
+        typeof entry.title === 'string' &&
+        typeof entry.words === 'number',
+    ),
+);
+check(
+  'the top level summary counts the violations',
+  typeof analyzed.payload?.summary?.total === 'number' &&
+    analyzed.payload.summary.hard + analyzed.payload.summary.soft + analyzed.payload.summary.info ===
+      analyzed.payload.summary.total &&
+    analyzed.payload.summary.sections === report.length,
+  JSON.stringify(analyzed.payload?.summary),
+);
+check(
+  'the de-AI block carries a score and the hits',
+  typeof analyzed.payload?.deai?.score === 'number' &&
+    analyzed.payload.deai.score >= 0 &&
+    analyzed.payload.deai.score <= 100 &&
+    Array.isArray(analyzed.payload?.deai?.hits),
+);
+
+// with a target journal the journal specific rules apply
+const withJournal = await sessionPost(
+  '/analyze',
+  { path: 'body.md', journal: 'paleobiology' },
+  plainCtx,
+);
+check(
+  'a known journal is resolved to its key',
+  withJournal.payload?.report?.[0]?.summary?.journalKey === 'paleobiology',
+  String(withJournal.payload?.report?.[0]?.summary?.journalKey),
+);
+check(
+  'a known journal is not unknown',
+  withJournal.payload?.report?.[0]?.summary?.journalUnknown === false,
+);
+const withAbbreviation = await sessionPost(
+  '/analyze',
+  { path: 'body.md', journal: 'PE' },
+  plainCtx,
+);
+check(
+  'a journal abbreviation resolves to the same key',
+  withAbbreviation.payload?.report?.[0]?.summary?.journalKey === 'palaeontologia-electronica',
+  String(withAbbreviation.payload?.report?.[0]?.summary?.journalKey),
+);
+const unknownJournal = await sessionPost(
+  '/analyze',
+  { path: 'body.md', journal: 'No Such Journal' },
+  plainCtx,
+);
+check(
+  'an unknown journal is reported, not thrown',
+  unknownJournal.status === 200 && unknownJournal.payload?.report?.[0]?.summary?.journalUnknown === true,
+  `${unknownJournal.status} ${JSON.stringify(unknownJournal.payload?.report?.[0]?.summary ?? {})}`,
+);
+check(
+  'an unknown journal still applies the general rules',
+  (unknownJournal.payload?.report ?? []).some((entry) => (entry.summary?.checkedRules ?? 0) > 0),
+  JSON.stringify((unknownJournal.payload?.report ?? []).map((entry) => entry.summary?.checkedRules)),
+);
+
+// the .docx fixture
+const docxReport = await sessionPost('/analyze', { path: 'paper_v3.docx' }, workCtx);
+check('POST /api/analyze reads a docx', docxReport.status === 200, `got ${docxReport.status} ${docxReport.body.slice(0, 200)}`);
+check('the docx file block reports the format', docxReport.payload?.file?.format === 'docx', String(docxReport.payload?.file?.format));
+check(
+  'the extracted headings become sections',
+  ['abstract', 'introduction', 'methods', 'results', 'discussion', 'conclusion', 'references'].every(
+    (key) => (docxReport.payload?.file?.sections ?? []).some((entry) => entry.key === key),
+  ),
+  JSON.stringify((docxReport.payload?.file?.sections ?? []).map((entry) => entry.key)),
+);
+check(
+  'the docx report follows the canonical order too',
+  (docxReport.payload?.report ?? [])
+    .map((entry) => entry.section)
+    .join(',')
+    .includes('title,abstract,introduction,methods,results,discussion,conclusion,references'),
+  (docxReport.payload?.report ?? []).map((entry) => entry.section).join(','),
+);
+check(
+  'the docx body reaches the rule engine',
+  (docxReport.payload?.report ?? []).some((entry) => entry.words > 10),
+);
+
+// a file without any recognisable heading
+writeFileSync(join(workPlain, 'plain.txt'), 'Just one long paragraph of text without any heading at all in it.\n');
+const headingless = await sessionPost('/analyze', { path: 'plain.txt' }, plainCtx);
+check('a file without headings is still analysed', headingless.status === 200, `got ${headingless.status}`);
+check(
+  'a file without headings becomes one document entry',
+  headingless.payload?.report?.length === 1 && headingless.payload.report[0].section === 'document',
+  JSON.stringify((headingless.payload?.report ?? []).map((entry) => entry.section)),
+);
+check(
+  'a file without headings reports no sections',
+  Array.isArray(headingless.payload?.file?.sections) && headingless.payload.file.sections.length === 0,
+);
+
+// only one section may be asked for
+const singleSection = await sessionPost(
+  '/analyze',
+  { path: 'body.md', section: 'abstract' },
+  plainCtx,
+);
+check(
+  'a single section can be asked for',
+  singleSection.status === 200 && singleSection.payload?.report?.length === 1 &&
+    singleSection.payload.report[0].section === 'abstract',
+  JSON.stringify((singleSection.payload?.report ?? []).map((entry) => entry.section)),
+);
+
+rmSync(workRoot, { recursive: true, force: true });
 
 if (failures > 0) {
   console.log(`\n${failures} failure(s)`);

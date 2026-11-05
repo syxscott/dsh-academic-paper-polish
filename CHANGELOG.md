@@ -3,6 +3,34 @@
 All notable changes to this project are documented here. Format based on
 [Keep a Changelog](https://keepachangelog.com/); versions follow semver.
 
+## [3.0.1] - 2026-11-05
+
+### Fixed
+- 🔴 **面板网格行被拉高（检查 / 去AI / 手册 三个视图 UI 错乱）**：
+  `.dapp-scroll` 是 `display:grid` 且 `flex:1 1 auto`，它唯一的 auto 行会被拉满整个容器高度；
+  `.dapp-view` 又是 `display:grid`，于是它把多出来的空间**平均分给每一个 auto 行** ——
+  搜索框被撑到 **277px** 高，段落下拉框与「目标期刊」之间被撑出 200px 的空洞，
+  手册视图的提示行与结果行同样被撑开。
+  修法：`.dapp-scroll` 与 `.dapp-view` 都加 `align-content:start`（外加
+  `.dapp-scroll` 的 `grid-auto-rows:min-content`），行高回到内容高度，多余空间落到底部。
+- 🔴 **手册视图默认是空的**：`manualResults` 在没有搜索词时直接 `return []`，
+  所以「手册」标签页打开后一个文件都不显示，必须先输入才出内容。
+  改为无查询时直接列出索引里的文件。
+- 客户端内置的技能索引（离线兜底）与 `skill-index.json` 脱节：
+  新增的 `references/AGENTS.md` 不在其中。新增 `scripts/sync-skill-index.mjs`
+  重新生成索引并同步进 `client.js`，两者不再可能不一致（索引 38 → 39 条）。
+
+### Added
+- **`scripts/layout-probe.mjs`**：6 个视图 × 4 个宽度（320/380/460/560）的布局体检，
+  检查横向溢出、越界元素，以及**网格行是否被拉伸**
+  （`align-content` 必须是 `start`，否则就是这次这种 bug）。
+- **`scripts/measure-view.mjs`**：打印单个视图的盒模型几何（定位布局问题用）。
+- **`scripts/shoot-views.mjs`**：截图脚本跟随新视图 id 更新，`?demo=1` 会自动填正文并点检查，
+  截出来的是**有结果的界面**而不是空输入框。
+
+### Test
+- 新增布局体检 24 组断言；其余 466 条不变。
+
 ## [3.0.0] - 2026-11-05
 
 ### Added

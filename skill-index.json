@@ -21,12 +21,12 @@
       "结论",
       "讨论",
       "引言",
+      "倒金字塔",
+      "引文密度",
       "硬规则",
-      "模板",
-      "图注",
-      "倒金字塔"
+      "模板"
     ],
-    "bytes": 30879
+    "bytes": 31274
   },
   {
     "path": "prompts/01-abstract.md",
@@ -42,12 +42,12 @@
       "维度",
       "结果",
       "结论",
+      "缩写",
       "方法类论文",
       "双语关键词",
-      "参考文献",
-      "目标期刊"
+      "参考文献"
     ],
-    "bytes": 3000
+    "bytes": 3346
   },
   {
     "path": "prompts/02-introduction.md",
@@ -69,9 +69,9 @@
       "硬规则",
       "维度",
       "参考文献",
-      "章节导航句"
+      "摘要"
     ],
-    "bytes": 5184
+    "bytes": 5747
   },
   {
     "path": "prompts/03-literature-review.md",
@@ -81,7 +81,7 @@
     "headings": [
       "🔴 综述论文（Review Article）的结构",
       "三类文体对比",
-      "引言三段式（综述版）",
+      "引言三段结构（综述版）",
       "🔴 小标题的六种组织标准",
       "🔴 综述准备的 18 个步骤",
       "🔴 参考文献要求"
@@ -96,7 +96,7 @@
       "学位论文",
       "综述口吻"
     ],
-    "bytes": 5862
+    "bytes": 6099
   },
   {
     "path": "prompts/04-methods.md",
@@ -174,7 +174,7 @@
       "方法类论文",
       "参考文献"
     ],
-    "bytes": 6089
+    "bytes": 6168
   },
   {
     "path": "prompts/07-conclusion.md",
@@ -501,6 +501,35 @@
     "bytes": 4838
   },
   {
+    "path": "references/AGENTS.md",
+    "kind": "reference",
+    "title": "AGENTS.md — Academic Paper Polish",
+    "subtitle": "本文件是本仓库的跨工具规则单一来源（single source of",
+    "headings": [
+      "仓库结构",
+      "AI 在本仓库中的工作方式",
+      "何时加载哪个模块",
+      "改稿时的默认行为",
+      "🔴 不可违反的内容红线",
+      "学术规范要点（AI 生成内容必须遵守）",
+      "引文密度（最易出错）",
+      "结构",
+      "期刊差异（必须先确认目标期刊）",
+      "措辞"
+    ],
+    "keywords": [
+      "目标期刊",
+      "引文密度",
+      "结论",
+      "要点",
+      "引言",
+      "语料",
+      "硬规则",
+      "摘要"
+    ],
+    "bytes": 19430
+  },
+  {
     "path": "references/ai-ml-paper-patterns.md",
     "kind": "reference",
     "title": "AI/ML 方法类地学论文的写作实证（v2.16.0 新增）",
@@ -653,26 +682,26 @@
     "headings": [
       "一、图件硬参数",
       "Copernicus / J. Micropalaeontology 口径（🔴 与上表不同）",
+      "Palaeontologia Electronica 口径（🔴 与上表不同）",
       "图内规范细节（PPP 原文，v2 补）",
       "少数情况",
       "二、🔴 Word 缩放铁律（最易犯错）",
       "三、页面设置",
       "四、制图尺寸与字号",
       "五、构图原则",
-      "黄金比例（三分之二原则）",
-      "对称 vs 不对称"
+      "黄金比例（三分之二原则）"
     ],
     "keywords": [
       "原则",
       "构图",
       "图注",
+      "铁律",
       "字号",
       "图表硬参数",
       "黄金比例",
-      "页面设置",
-      "制图尺寸"
+      "页面设置"
     ],
-    "bytes": 8356
+    "bytes": 9666
   },
   {
     "path": "references/fulltext-reading-evidence.md",
@@ -788,7 +817,7 @@
       "比例尺",
       "微体古生物"
     ],
-    "bytes": 61439
+    "bytes": 62437
   },
   {
     "path": "references/multi-journal-style-guides.md",
@@ -990,6 +1019,6 @@
       "schedule",
       "pnas"
     ],
-    "bytes": 10387
+    "bytes": 10010
   }
 ]

@@ -166,6 +166,7 @@ const COMMANDS = ['paper-check', 'paper-rules', 'paper-journals', 'paper-outline
 const API_ROUTES = [
   '/api/meta', '/api/rules', '/api/journals', '/api/checklists', '/api/sentences',
   '/api/check', '/api/deai', '/api/outline', '/api/send',
+  '/api/session/files', '/api/analyze',
 ];
 
 if (libFiles.length === 0) fail('lib/ is missing — the host capability layer has no modules');

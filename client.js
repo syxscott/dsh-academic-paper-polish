@@ -112,12 +112,11 @@ window.__ModuleLoader__.load({
     // ── bundled skill index (the 手册 fallback) ──────────────────────────
 
     const SKILL_INDEX = [
-[
   {
     "path": "SKILL.md",
     "kind": "skill",
     "title": "学术论文写作与润色全流程",
-    "subtitle": "name: academic-paper-polish",
+    "subtitle": "渐进披露：先读本文件建立框架 → 按用户意图只读需要的模块 →",
     "headings": [
       "何时使用",
       "🔴 铁律 0：先定期刊，再动笔",
@@ -132,79 +131,265 @@ window.__ModuleLoader__.load({
     ],
     "keywords": [
       "局限性",
-      "先定期刊",
-      "模块索引",
-      "跨模块通",
+      "结论",
+      "讨论",
+      "引言",
       "倒金字塔",
       "引文密度",
-      "走完六步",
+      "硬规则",
+      "模板"
+    ],
+    "bytes": 31274
+  },
+  {
+    "path": "prompts/01-abstract.md",
+    "kind": "prompt",
+    "title": "模块 1 · 摘要润色（Abstract）",
+    "subtitle": "适用：写完 / 改完正文后回头写摘要，或按目标期刊要求压缩摘要。",
+    "headings": [
+      "评审维度速查",
+      "地学 / SCI 期刊补充约束"
+    ],
+    "keywords": [
+      "摘要",
+      "维度",
+      "结果",
+      "结论",
+      "缩写",
+      "方法类论文",
+      "双语关键词",
+      "参考文献"
+    ],
+    "bytes": 3346
+  },
+  {
+    "path": "prompts/02-introduction.md",
+    "kind": "prompt",
+    "title": "模块 2 · 引言润色（Introduction）",
+    "subtitle": "适用：建立研究动机、评述关键文献、引出缺口。",
+    "headings": [
+      "评审维度速查",
+      "🔴 硬规则：opening 必须与 resolution 对齐",
+      "🔴 引文密度要求",
+      "🔴 措辞分寸",
+      "引出不足的句式库"
+    ],
+    "keywords": [
+      "引言",
+      "措辞分寸",
+      "引文密度",
+      "句式库",
+      "硬规则",
+      "维度",
+      "参考文献",
+      "摘要"
+    ],
+    "bytes": 5747
+  },
+  {
+    "path": "prompts/03-literature-review.md",
+    "kind": "prompt",
+    "title": "模块 3 · 文献综述润色（Literature Review）",
+    "subtitle": "综述型论文的引言 = \"前编回顾 + 本编范围 + 双角色框架\"；",
+    "headings": [
+      "🔴 综述论文（Review Article）的结构",
+      "三类文体对比",
+      "引言三段结构（综述版）",
+      "🔴 小标题的六种组织标准",
+      "🔴 综述准备的 18 个步骤",
+      "🔴 参考文献要求"
+    ],
+    "keywords": [
+      "引言",
+      "文献综述",
+      "参考文献",
+      "误区",
+      "摘要",
+      "收录标准",
+      "学位论文",
+      "综述口吻"
+    ],
+    "bytes": 6099
+  },
+  {
+    "path": "prompts/04-methods.md",
+    "kind": "prompt",
+    "title": "模块 4 · 研究方法润色（Methods）",
+    "subtitle": "本领域没有\"必须写满 Methods\"的规则",
+    "headings": [
+      "🔴 地学 / 实验科学补充",
+      "四段式模式",
+      "自查（缺任一项即不合格）",
+      "常见错误",
+      "引文密度",
+      "数据与代码可用性声明（多数期刊要求）",
+      "v2.16.1 - 数据集交代的三种主流写法（实测口径）"
+    ],
+    "keywords": [
+      "代码可用性",
+      "数据集交代",
+      "常见错误",
+      "期刊要求",
+      "研究方法",
+      "引文密度",
+      "实验设计",
+      "公式"
+    ],
+    "bytes": 4598
+  },
+  {
+    "path": "prompts/05-results.md",
+    "kind": "prompt",
+    "title": "模块 5 · 结果润色（Results）",
+    "subtitle": "适用：结果章节 + 图表规范检查。",
+    "headings": [
+      "🔴 Results vs Discussion 的组织差异",
+      "期刊差异（动笔前必须确认）",
+      "🔴 引文密度：Results 几乎没有参考文献",
+      "🔴 图表硬参数（技术检查卡口）",
+      "🔴🔴 Word 缩放铁律",
+      "🔴 版权红线",
+      "构图",
+      "v2.16.1 - 方法类图件的真实频率（合并 8 分片 31 篇）"
+    ],
+    "keywords": [
+      "结果",
+      "构图",
+      "图表硬参数",
+      "参考文献",
+      "引文密度",
+      "版权",
+      "铁律",
+      "混淆矩阵"
+    ],
+    "bytes": 5657
+  },
+  {
+    "path": "prompts/06-discussion.md",
+    "kind": "prompt",
+    "title": "模块 6 · 讨论润色（Discussion）",
+    "subtitle": "适用：讨论章节。 核心：结果 ↔ 文献 ↔ 理论 ↔ 实践",
+    "headings": [
+      "🔴 讨论的六步框架（缺一不可）",
+      "🔴 引文密度：Discussion 每段 5–8 句",
+      "局限性 + 未来方向句式（可直接套用）",
+      "讨论常用动词",
+      "环境 / 地学意义（地学论文常见末节）",
+      "v2.16.1 - 局限自陈的七种句式（实测，可直接套用）"
+    ],
+    "keywords": [
+      "讨论",
+      "局限性",
+      "未来方向",
+      "引文密度",
+      "结论",
+      "结果",
+      "方法类论文",
+      "参考文献"
+    ],
+    "bytes": 6168
+  },
+  {
+    "path": "prompts/07-conclusion.md",
+    "kind": "prompt",
+    "title": "模块 7 · 结论润色（Conclusion）",
+    "subtitle": "适用：结论章节。 核心：总结 + 亮点 + 局限性 + 未来方向，不引入新信息。",
+    "headings": [
+      "🔴 Do / Don't",
+      "🔴 两条要点",
+      "🔴 期刊差异：结论段可能不独立存在",
+      "篇幅"
+    ],
+    "keywords": [
+      "结论",
+      "要点",
+      "局限性",
+      "方法类论文",
+      "描述类论文",
+      "目标期刊",
       "未来方向"
     ],
-    "bytes": 30879
+    "bytes": 3181
   },
   {
-    "path": "docs/COMPATIBILITY.md",
-    "kind": "doc",
-    "title": "AI 工具兼容性矩阵",
-    "subtitle": "本仓库采用双轨适配：",
+    "path": "prompts/08-deai-polish.md",
+    "kind": "prompt",
+    "title": "模块 8 · 降低 AI 率（终稿通篇润色）",
+    "subtitle": "本领域摘要口径 = 现在时 95% + 被动 87% + \"we\" 仅",
     "headings": [
-      "一、结论先行",
-      "二、兼容性矩阵",
-      "三、安装路径",
-      "作为 Skill（推荐：获得完整的 10 模块 + 渐进披露）",
-      "作为项目规则（仓库级）",
-      "直接当 Prompt 用（零安装）",
-      "四、Claude Code 的版本差异（重要）",
-      "Claude Code 规则未加载的排查",
-      "五、Codex 的 32 KiB 限制",
-      "5.5 英文用户（English users）"
+      "AI 高频词黑名单",
+      "🔴 去 AI 化不能违反学术规范",
+      "🔴 参考文献区不做去 AI 化",
+      "⚠️ 判定标准"
     ],
     "keywords": [
-      "Claude",
-      "兼容性矩阵",
-      "规则未加载",
-      "结论先行",
-      "安装路径",
-      "获得完整",
-      "渐进披露",
-      "Code"
+      "参考文献",
+      "结论",
+      "目标期刊",
+      "期刊要求",
+      "时态",
+      "语态",
+      "摘要"
     ],
-    "bytes": 7253
+    "bytes": 3770
   },
   {
-    "path": "docs/PROMPTS-EN.md",
-    "kind": "doc",
-    "title": "Academic Paper Polish — English",
-    "subtitle": "1. Open the module you need in skills/academic-paper-polish/prompts-en/",
+    "path": "prompts/09-journal-submission.md",
+    "kind": "prompt",
+    "title": "模块 9 · 期刊匹配与投稿（Journal Matching & Submission）",
+    "subtitle": "图注前缀也是多语种的（Fig./Рис./Таблица/图/图版/Abb.）。",
     "headings": [
-      "How to use (no installation required)",
-      "The 10 modules",
-      "What this repository is",
-      "The eight hard rules",
-      "1. Pick the journal before you write",
-      "2. Inverted pyramid, and opening must match resolution",
-      "3. Citation density",
-      "4. Paragraphs: 5–8 sentences",
-      "5. The six-step discussion",
-      "6. Conclusions must carry limitations + future directions"
+      "🔴 期刊结构硬约束速查",
+      "🔴 ES&T 的 R&D 写法（原文要点）",
+      "🔴 GCA 的 Results / Discussion 分工",
+      "🔴 送审流程与\"格式即生死\"",
+      "🔴 常用前置部分规范",
+      "🔴 Cover Letter",
+      "🔴 投稿后 6 个状态",
+      "🔴 结局概率（提前知道期望值）",
+      "v2.16.1 - 声明块的两种口径（机器层 vs 人工层）"
     ],
     "keywords": [
-      "academic-paper-polish",
-      "prompts-en",
-      "skills",
-      "must",
-      "installation",
-      "Conclusions",
-      "limitations",
-      "repository"
+      "投稿",
+      "声明块",
+      "要点",
+      "期刊结构",
+      "期刊匹配",
+      "送审流程",
+      "比例尺",
+      "结论"
     ],
-    "bytes": 10387
+    "bytes": 8084
+  },
+  {
+    "path": "prompts/10-reviewer-response.md",
+    "kind": "prompt",
+    "title": "模块 10 · 审稿意见回复（Responding to Reviewers）",
+    "subtitle": "适用：收到 Decision letter 后逐条回复。",
+    "headings": [
+      "🔴 回复四要素（范例）",
+      "🔴 六条纪律（逐条检查）",
+      "🔴 审稿人关注什么（反向自查 8 项）",
+      "🔴 ELSEVIER「ACCEPTANCE」十点",
+      "🔴 找审稿人的途径",
+      "大修 vs 小修"
+    ],
+    "keywords": [
+      "大修",
+      "小修",
+      "参考文献",
+      "讨论",
+      "返修",
+      "结果",
+      "结论"
+    ],
+    "bytes": 4752
   },
   {
     "path": "prompts-en/01-abstract.md",
     "kind": "prompt-en",
     "title": "Module 1 · Abstract Polish",
-    "subtitle": "1. 2–3 sentences of basic-level introduction to the field",
+    "subtitle": "No other file in this repository is required.",
     "headings": [
       "Review dimensions",
       "Journal constraints to apply",
@@ -212,14 +397,12 @@ window.__ModuleLoader__.load({
       "v2.16.0 - Abstract in METHOD-CLASS papers"
     ],
     "keywords": [
-      "METHOD-CLASS",
-      "introduction",
-      "constraints",
-      "basic-level",
-      "dimensions",
-      "four-part",
-      "paragraph",
-      "sentences"
+      "abstract",
+      "nature",
+      "results",
+      "pnas",
+      "citation",
+      "methods"
     ],
     "bytes": 4333
   },
@@ -227,7 +410,7 @@ window.__ModuleLoader__.load({
     "path": "prompts-en/02-introduction.md",
     "kind": "prompt-en",
     "title": "Module 2 · Introduction Polish",
-    "subtitle": "The most common failure of an introduction is not poor writing — it is a mismatch between the question posed a",
+    "subtitle": "Self-contained — no other file needed.",
     "headings": [
       "Review dimensions",
       "🔴 The hardest rule: opening must match resolution",
@@ -241,14 +424,9 @@ window.__ModuleLoader__.load({
       "Section-navigation sentences (common in method-class papers,"
     ],
     "keywords": [
-      "contribution",
-      "papers",
-      "common",
-      "Section-navigation",
-      "Introduction",
-      "METHOD-CLASS",
-      "method-class",
-      "introduction"
+      "citation",
+      "methods",
+      "results"
     ],
     "bytes": 6484
   },
@@ -256,7 +434,7 @@ window.__ModuleLoader__.load({
     "path": "prompts-en/03-literature-review.md",
     "kind": "prompt-en",
     "title": "Module 3 · Literature Review Polish",
-    "subtitle": "A review is not a longer research paper. It has its own skeleton:",
+    "subtitle": "Review article structure；Six ways to organise subheadings",
     "headings": [
       "Review article structure",
       "Three genres compared",
@@ -264,17 +442,15 @@ window.__ModuleLoader__.load({
       "Six ways to organise subheadings",
       "🔴 The 18-step review workflow",
       "🔴 Reference requirements",
-      "🔴 Earth-Science Reviews scope note"
+      "🔴 *Earth-Science Reviews* scope note"
     ],
     "keywords": [
-      "review",
-      "Earth-Science",
-      "introduction",
-      "requirements",
-      "subheadings",
-      "Three-part",
-      "structure",
-      "Reference"
+      "citation",
+      "abstract",
+      "methods",
+      "title",
+      "results",
+      "layout"
     ],
     "bytes": 6174
   },
@@ -282,7 +458,7 @@ window.__ModuleLoader__.load({
     "path": "prompts-en/04-methods.md",
     "kind": "prompt-en",
     "title": "Module 4 · Methods Polish",
-    "subtitle": "1. Objective description of the regional geological setting, climatic background, environmental parameters",
+    "subtitle": "Earth-science / experimental-science additions；Citation density",
     "headings": [
       "Earth-science / experimental-science additions",
       "Four-part pattern",
@@ -296,14 +472,12 @@ window.__ModuleLoader__.load({
       "Environment versions (most often omitted, most often asked f"
     ],
     "keywords": [
-      "most",
-      "additions",
-      "often",
-      "Data",
-      "experimental-science",
-      "Evidence-based",
-      "Earth-science",
-      "environmental"
+      "dataset",
+      "methods",
+      "citation",
+      "results",
+      "baseline",
+      "pnas"
     ],
     "bytes": 7151
   },
@@ -311,7 +485,7 @@ window.__ModuleLoader__.load({
     "path": "prompts-en/05-results.md",
     "kind": "prompt-en",
     "title": "Module 5 · Results Polish",
-    "subtitle": "The same body of results is reorganised along different axes in the two sections:",
+    "subtitle": "Results vs Discussion: different axes；Citation density: Results carries almost none",
     "headings": [
       "🔴 Results vs Discussion: different axes",
       "Journal differences (confirm before drafting)",
@@ -325,14 +499,13 @@ window.__ModuleLoader__.load({
       "Journal-specific dpi (same photo, different requirements)"
     ],
     "keywords": [
-      "different",
-      "Results",
-      "axes",
-      "same",
-      "palaeontology-specific",
-      "Journal-specific",
-      "technical-check",
-      "requirements"
+      "results",
+      "dpi",
+      "colour",
+      "citation",
+      "dataset",
+      "title",
+      "pnas"
     ],
     "bytes": 7950
   },
@@ -340,7 +513,7 @@ window.__ModuleLoader__.load({
     "path": "prompts-en/06-discussion.md",
     "kind": "prompt-en",
     "title": "Module 6 · Discussion Polish",
-    "subtitle": "1. First — measurable only at −0.4 V vs SHE for EAC and 0.7 V vs SHE for EDC, constrained by the lack of suita",
+    "subtitle": "The six-step discussion (all six are mandatory)",
     "headings": [
       "🔴 The six-step discussion (all six are mandatory)",
       "🔴 Citation density: 5–8 sentences per paragraph",
@@ -353,14 +526,9 @@ window.__ModuleLoader__.load({
       "v2.16.1 - Seven sentence patterns for stating limitations (m"
     ],
     "keywords": [
-      "SHE",
-      "Environmental",
-      "significance",
-      "METHOD-CLASS",
-      "Limitations",
-      "limitations",
-      "constrained",
-      "discussion"
+      "citation",
+      "results",
+      "methods"
     ],
     "bytes": 6979
   },
@@ -368,7 +536,7 @@ window.__ModuleLoader__.load({
     "path": "prompts-en/07-conclusion.md",
     "kind": "prompt-en",
     "title": "Module 7 · Conclusion Polish",
-    "subtitle": "1. Summary and highlight — the significance of the work at a high level; foreground the innovation",
+    "subtitle": "Do / Don't；Two things the conclusion must carry",
     "headings": [
       "🔴 Do / Don't",
       "🔴 Two things the conclusion must carry",
@@ -379,14 +547,7 @@ window.__ModuleLoader__.load({
       "Skeletons are not interchangeable (descriptive vs method-cla"
     ],
     "keywords": [
-      "conclusion",
-      "must",
-      "interchangeable",
-      "METHOD-CLASS",
-      "method-class",
-      "significance",
-      "Conclusions",
-      "descriptive"
+      "results"
     ],
     "bytes": 4280
   },
@@ -394,21 +555,14 @@ window.__ModuleLoader__.load({
     "path": "prompts-en/08-deai-polish.md",
     "kind": "prompt-en",
     "title": "Module 8 · De-AI Polish (final whole-manuscript pass)",
-    "subtitle": "Some journals (certain Elsevier titles, for example) require a declaration of AI use. If AI-assisted polishing",
+    "subtitle": "Use only after Modules 1–7 are finalised. This is the last step and is applied to the",
     "headings": [
       "AI high-frequency word blacklist",
       "🔴 What de-AI polish must never do",
       "⚠️ Do not de-AI the reference list"
     ],
     "keywords": [
-      "de-AI",
-      "Acknowledgements",
-      "high-frequency",
-      "declaration",
-      "AI-assisted",
-      "blacklist",
-      "reference",
-      "polishing"
+      "modules"
     ],
     "bytes": 3988
   },
@@ -416,7 +570,7 @@ window.__ModuleLoader__.load({
     "path": "prompts-en/09-journal-submission.md",
     "kind": "prompt-en",
     "title": "Module 9 · Journal Matching & Submission",
-    "subtitle": "1. A cover letter is mandatory for every submission",
+    "subtitle": "Pick the journal before you write. This determines every structural decision downstream.",
     "headings": [
       "🔴 Journal structural constraints",
       "Submission review pipeline",
@@ -430,14 +584,14 @@ window.__ModuleLoader__.load({
       "Three tiers of code release"
     ],
     "keywords": [
-      "letter",
-      "Post-submission",
-      "probabilities",
-      "Front-matter",
-      "expectations",
-      "denominators",
-      "availability",
-      "formulations"
+      "title",
+      "abstract",
+      "editors",
+      "baseline",
+      "keywords",
+      "methods",
+      "results",
+      "pnas"
     ],
     "bytes": 10171
   },
@@ -445,7 +599,7 @@ window.__ModuleLoader__.load({
     "path": "prompts-en/10-reviewer-response.md",
     "kind": "prompt-en",
     "title": "Module 10 · Responding to Reviewers",
-    "subtitle": "Reviewer: \"N2 purging may not remove all O2; please provide post-treatment dissolved oxygen data.\"",
+    "subtitle": "The four elements (worked example)；Six disciplines (check each)",
     "headings": [
       "🔴 The four elements (worked example)",
       "🔴 Six disciplines (check each)",
@@ -455,267 +609,44 @@ window.__ModuleLoader__.load({
       "Major vs minor revision"
     ],
     "keywords": [
-      "reviewers",
-      "check",
-      "post-treatment",
-      "disciplines",
-      "self-audit",
-      "ACCEPTANCE",
-      "checklist",
-      "dissolved"
+      "editors"
     ],
     "bytes": 4838
   },
   {
-    "path": "prompts/01-abstract.md",
-    "kind": "prompt",
-    "title": "模块 1 · 摘要润色（Abstract）",
-    "subtitle": "详见 ../references/journal-constraints.md。",
+    "path": "references/AGENTS.md",
+    "kind": "reference",
+    "title": "AGENTS.md — Academic Paper Polish",
+    "subtitle": "本文件是本仓库的跨工具规则单一来源（single source of",
     "headings": [
-      "评审维度速查",
-      "地学 / SCI 期刊补充约束"
+      "仓库结构",
+      "AI 在本仓库中的工作方式",
+      "何时加载哪个模块",
+      "改稿时的默认行为",
+      "🔴 不可违反的内容红线",
+      "学术规范要点（AI 生成内容必须遵守）",
+      "引文密度（最易出错）",
+      "结构",
+      "期刊差异（必须先确认目标期刊）",
+      "措辞"
     ],
     "keywords": [
-      "评审维度速查",
-      "期刊补充约束",
-      "地学",
-      "详见",
-      "references",
-      "SCI"
-    ],
-    "bytes": 3000
-  },
-  {
-    "path": "prompts/02-introduction.md",
-    "kind": "prompt",
-    "title": "模块 2 · 引言润色（Introduction）",
-    "subtitle": "引言最大的失败不是写得不好，而是提出的问题与给出的答案对不上。",
-    "headings": [
-      "评审维度速查",
-      "🔴 硬规则：opening 必须与 resolution 对齐",
-      "🔴 引文密度要求",
-      "🔴 措辞分寸",
-      "引出不足的句式库"
-    ],
-    "keywords": [
-      "评审维度速查",
+      "目标期刊",
       "引文密度",
-      "措辞分寸",
-      "硬规则",
-      "句式库",
-      "引出",
+      "结论",
+      "要点",
       "引言",
-      "失败"
+      "语料",
+      "硬规则",
+      "摘要"
     ],
-    "bytes": 5184
-  },
-  {
-    "path": "prompts/03-literature-review.md",
-    "kind": "prompt",
-    "title": "模块 3 · 文献综述润色（Literature Review）",
-    "subtitle": "与研究论文不同，综述有自己的骨架：",
-    "headings": [
-      "🔴 综述论文（Review Article）的结构",
-      "三类文体对比",
-      "引言三段式（综述版）",
-      "🔴 小标题的六种组织标准",
-      "🔴 综述准备的 18 个步骤",
-      "🔴 参考文献要求"
-    ],
-    "keywords": [
-      "六种组织标准",
-      "引言三段式",
-      "综述有自己",
-      "综述论文",
-      "三类文体",
-      "综述准备",
-      "参考文献",
-      "研究论文"
-    ],
-    "bytes": 5862
-  },
-  {
-    "path": "prompts/04-methods.md",
-    "kind": "prompt",
-    "title": "模块 4 · 研究方法润色（Methods）",
-    "subtitle": "1. 客观描述区域地质背景、气候背景、环境参数",
-    "headings": [
-      "🔴 地学 / 实验科学补充",
-      "四段式模式",
-      "自查（缺任一项即不合格）",
-      "常见错误",
-      "引文密度",
-      "数据与代码可用性声明（多数期刊要求）",
-      "v2.16.1 - 数据集交代的三种主流写法（实测口径）"
-    ],
-    "keywords": [
-      "客观描述区域地质背景",
-      "实验科学补充",
-      "三种主流写法",
-      "四段式模式",
-      "数据集交代",
-      "常见错误",
-      "引文密度",
-      "多数期刊"
-    ],
-    "bytes": 4598
-  },
-  {
-    "path": "prompts/05-results.md",
-    "kind": "prompt",
-    "title": "模块 5 · 结果润色（Results）",
-    "subtitle": "同一批结果，在两部分用不同坐标系重组：",
-    "headings": [
-      "🔴 Results vs Discussion 的组织差异",
-      "期刊差异（动笔前必须确认）",
-      "🔴 引文密度：Results 几乎没有参考文献",
-      "🔴 图表硬参数（技术检查卡口）",
-      "🔴🔴 Word 缩放铁律",
-      "🔴 版权红线",
-      "构图",
-      "v2.16.1 - 方法类图件的真实频率（合并 8 分片 31 篇）"
-    ],
-    "keywords": [
-      "几乎没有参考文献",
-      "Results",
-      "技术检查卡口",
-      "同坐标系重组",
-      "图表硬参数",
-      "方法类图件",
-      "同一批结果",
-      "组织差异"
-    ],
-    "bytes": 5657
-  },
-  {
-    "path": "prompts/06-discussion.md",
-    "kind": "prompt",
-    "title": "模块 6 · 讨论润色（Discussion）",
-    "subtitle": "1. First — 只能在 −0.4 V vs SHE 测 EAC、0.7 V vs SHE 测 ED",
-    "headings": [
-      "🔴 讨论的六步框架（缺一不可）",
-      "🔴 引文密度：Discussion 每段 5–8 句",
-      "局限性 + 未来方向句式（可直接套用）",
-      "讨论常用动词",
-      "环境 / 地学意义（地学论文常见末节）",
-      "v2.16.1 - 局限自陈的七种句式（实测，可直接套用）"
-    ],
-    "keywords": [
-      "直接套",
-      "地学论文常见末节",
-      "未来方向句式",
-      "六步框架",
-      "引文密度",
-      "地学意义",
-      "局限自陈",
-      "七种句式"
-    ],
-    "bytes": 6089
-  },
-  {
-    "path": "prompts/07-conclusion.md",
-    "kind": "prompt",
-    "title": "模块 7 · 结论润色（Conclusion）",
-    "subtitle": "1. 总结要点、突出亮点 —— 从大的层面总结研究意义；突出创新点",
-    "headings": [
-      "🔴 Do / Don't",
-      "🔴 两条要点",
-      "🔴 期刊差异：结论段可能不独立存在",
-      "篇幅"
-    ],
-    "keywords": [
-      "层面总结研究意义",
-      "突出创新点",
-      "期刊差异",
-      "突出亮点",
-      "结论段",
-      "独立存",
-      "篇幅",
-      "总结"
-    ],
-    "bytes": 3181
-  },
-  {
-    "path": "prompts/08-deai-polish.md",
-    "kind": "prompt",
-    "title": "模块 8 · 降低 AI 率（终稿通篇润色）",
-    "subtitle": "参考文献是机器可读的规范条目，不要改写、不要换格式、不要调整顺序（除非换投期刊）。去 AI 化只针对正文",
-    "headings": [
-      "AI 高频词黑名单",
-      "🔴 去 AI 化不能违反学术规范",
-      "🔴 参考文献区不做去 AI 化",
-      "⚠️ 判定标准"
-    ],
-    "keywords": [
-      "能违反学术规范",
-      "高频词黑名单",
-      "除非换投期刊",
-      "参考文献区",
-      "判定标准",
-      "参考文献",
-      "调整顺序",
-      "换格式"
-    ],
-    "bytes": 3770
-  },
-  {
-    "path": "prompts/09-journal-submission.md",
-    "kind": "prompt",
-    "title": "模块 9 · 期刊匹配与投稿（Journal Matching & Submission）",
-    "subtitle": "1. 所有稿件必须附 Cover Letter",
-    "headings": [
-      "🔴 期刊结构硬约束速查",
-      "🔴 ES&T 的 R&D 写法（原文要点）",
-      "🔴 GCA 的 Results / Discussion 分工",
-      "🔴 送审流程与\"格式即生死\"",
-      "🔴 常用前置部分规范",
-      "🔴 Cover Letter",
-      "🔴 投稿后 6 个状态",
-      "🔴 结局概率（提前知道期望值）",
-      "v2.16.1 - 声明块的两种口径（机器层 vs 人工层）"
-    ],
-    "keywords": [
-      "格式即生死",
-      "期刊结构硬约束速查",
-      "Letter",
-      "置部分规范",
-      "Cover",
-      "知道期望值",
-      "送审流程",
-      "结局概率"
-    ],
-    "bytes": 8084
-  },
-  {
-    "path": "prompts/10-reviewer-response.md",
-    "kind": "prompt",
-    "title": "模块 10 · 审稿意见回复（Responding to Reviewers）",
-    "subtitle": "审稿人质疑：\"N2 吹扫可能除不掉全部 O2，建议提供处理后溶解氧数据。\"",
-    "headings": [
-      "🔴 回复四要素（范例）",
-      "🔴 六条纪律（逐条检查）",
-      "🔴 审稿人关注什么（反向自查 8 项）",
-      "🔴 ELSEVIER「ACCEPTANCE」十点",
-      "🔴 找审稿人的途径",
-      "大修 vs 小修"
-    ],
-    "keywords": [
-      "审稿人关注什么",
-      "建议提供处理",
-      "审稿人质疑",
-      "溶解氧数据",
-      "反向自查",
-      "找审稿人",
-      "回复四",
-      "掉全部"
-    ],
-    "bytes": 4752
+    "bytes": 19430
   },
   {
     "path": "references/ai-ml-paper-patterns.md",
     "kind": "reference",
     "title": "AI/ML 方法类地学论文的写作实证（v2.16.0 新增）",
-    "subtitle": "按「论文自己的研究对象是不是化石/微体化石」+「有没有用 AI/ML 方法」两轴分层：",
+    "subtitle": "本文件补上这个空白：把「AI 方法类地学论文实际怎么写」逐条取证。",
     "headings": [
       "一、阅读口径与分层（先说清楚能兑现什么）",
       "1.1 分层判据（机器执行，可复现）",
@@ -729,14 +660,14 @@ window.__ModuleLoader__.load({
       "4.1 数据集怎么交代（必备六件）"
     ],
     "keywords": [
-      "实际写法",
-      "availability",
-      "先说清楚能兑现什么",
-      "随结论一起声明",
-      "数据集怎么交代",
-      "五种实际写法",
-      "古生物论文",
-      "方法类论文"
+      "方法类论文",
+      "声明块",
+      "结论",
+      "语料",
+      "逐字原文",
+      "分母",
+      "古生物",
+      "描述类论文"
     ],
     "bytes": 52362
   },
@@ -744,7 +675,7 @@ window.__ModuleLoader__.load({
     "path": "references/checklist.md",
     "kind": "reference",
     "title": "投稿前自查清单（打印 / 逐项过版）",
-    "subtitle": "来源：本技能方法库",
+    "subtitle": "A. 写作前（不满足则不要动笔）；B. 题目 · 署名 · 摘要",
     "headings": [
       "A. 写作前（不满足则不要动笔）",
       "B. 题目 · 署名 · 摘要",
@@ -758,14 +689,14 @@ window.__ModuleLoader__.load({
       "J. 综述专项"
     ],
     "keywords": [
-      "本技能方法库",
+      "投稿",
       "参考文献",
-      "满足则",
-      "综述专",
-      "写作",
-      "动笔",
-      "题目",
-      "署名"
+      "自查清单",
+      "结果",
+      "结论",
+      "署名",
+      "讨论",
+      "题目"
     ],
     "bytes": 8433
   },
@@ -773,7 +704,7 @@ window.__ModuleLoader__.load({
     "path": "references/color-system.md",
     "kind": "reference",
     "title": "配色系统与视觉编码（Color System & Visual Encoding）",
-    "subtitle": "最常见的错误：把配色当成\"好看不好看\"。",
+    "subtitle": "本文件给的是配色决策逻辑 —— 面对一张新图",
     "headings": [
       "🔴 铁律：配色是语义系统，不是审美选择",
       "一、🔴 第一原则：色相必须在全图可追溯",
@@ -787,14 +718,14 @@ window.__ModuleLoader__.load({
       "三、🔴 一个通道只能承载一个变量"
     ],
     "keywords": [
-      "空心",
-      "好看不好看",
-      "好看",
-      "通道只能承载一",
-      "非第三种颜色",
-      "遗传学三态",
-      "语义系统",
-      "审美选择"
+      "配色",
+      "原则",
+      "色阶",
+      "铁律",
+      "图例",
+      "顶刊",
+      "背景色",
+      "灰度"
     ],
     "bytes": 16673
   },
@@ -802,7 +733,7 @@ window.__ModuleLoader__.load({
     "path": "references/figure-conventions-evidence.md",
     "kind": "reference",
     "title": "图件制图实证（v2.15.0 新增）",
-    "subtitle": "→ 同一篇论文内部可能两制并存（如 QSR 正文插图用 ×N、图版用比例尺条），因此规则必须写成「本文的",
+    "subtitle": "本文件的证据来自「实际打开渲染出的 PNG 看图」，不是只看图注文字。",
     "headings": [
       "一、核心结论：制图惯例按「刊」分，不存在全领域统一规则",
       "1.1 比例尺 vs 放大倍数（最强的按刊分界）",
@@ -816,14 +747,14 @@ window.__ModuleLoader__.load({
       "3.1 罗马数字图版号 + 放大倍数（Geologica Carpathica / QJGS / 成都地矿所刊）"
     ],
     "keywords": [
+      "图注",
       "图版",
-      "本领域用什么制",
       "放大倍数",
       "比例尺",
-      "什么制",
-      "图注",
-      "全领域统一规则",
-      "图注位置分两派"
+      "制图",
+      "中文刊",
+      "结论",
+      "图例"
     ],
     "bytes": 9562
   },
@@ -831,7 +762,7 @@ window.__ModuleLoader__.load({
     "path": "references/figure-design-system.md",
     "kind": "reference",
     "title": "图件设计体系（Figure Design System）",
-    "subtitle": "🔴 判据：这篇论文的图不需要看图注就能读懂颜色 —— 因为同一篇里",
+    "subtitle": "本文件给的是第三层、也是最常被跳过的一层",
     "headings": [
       "零、为什么以这篇为蓝本",
       "🔖 蓝本原文锚点（verbatim，逐句引用）",
@@ -845,14 +776,14 @@ window.__ModuleLoader__.load({
       "E. 回归与排序图（Fig 7、Fig 8、Fig 10b、Fig 12、Fig 13）"
     ],
     "keywords": [
-      "Fig",
-      "看图注就能读懂颜色",
-      "图序即论证顺序",
-      "到任何一篇论文",
-      "蓝本原文锚点",
-      "五种图件原型",
-      "性能矩阵",
-      "比较面板"
+      "铁律",
+      "图注",
+      "图件设计",
+      "图件原型",
+      "图序",
+      "色阶",
+      "图例",
+      "语义色"
     ],
     "bytes": 20351
   },
@@ -860,36 +791,36 @@ window.__ModuleLoader__.load({
     "path": "references/figure-specs.md",
     "kind": "reference",
     "title": "图表硬参数速查",
-    "subtitle": "横版满版（极少见）。",
+    "subtitle": "图表与排版的可直接执行硬参数。",
     "headings": [
       "一、图件硬参数",
       "Copernicus / J. Micropalaeontology 口径（🔴 与上表不同）",
+      "Palaeontologia Electronica 口径（🔴 与上表不同）",
       "图内规范细节（PPP 原文，v2 补）",
       "少数情况",
       "二、🔴 Word 缩放铁律（最易犯错）",
       "三、页面设置",
       "四、制图尺寸与字号",
       "五、构图原则",
-      "黄金比例（三分之二原则）",
-      "对称 vs 不对称"
+      "黄金比例（三分之二原则）"
     ],
     "keywords": [
-      "图内规范细节",
-      "三分之二原则",
-      "图件硬参数",
-      "少数情况",
-      "缩放铁律",
-      "页面设置",
-      "制图尺寸",
-      "构图原则"
+      "原则",
+      "构图",
+      "图注",
+      "铁律",
+      "字号",
+      "图表硬参数",
+      "黄金比例",
+      "页面设置"
     ],
-    "bytes": 8356
+    "bytes": 9666
   },
   {
     "path": "references/fulltext-reading-evidence.md",
     "kind": "reference",
     "title": "全文逐字精读实证（v2.15.0 新增）",
-    "subtitle": "该口径作废。原因有二：(1) 旧抽取器用 dict 存章节，遇同名标题会覆盖前一段正文；",
+    "subtitle": "本文件的每一条结论都来自「逐字读完整个正文文件」，不是关键词命中率",
     "headings": [
       "一、阅读口径与可兑现范围（先说清楚）",
       "二、章节链实测：没有统一模板",
@@ -903,14 +834,14 @@ window.__ModuleLoader__.load({
       "3.2 Results 的两条硬要求"
     ],
     "keywords": [
-      "Methods",
-      "无独立",
-      "Discussion",
-      "遇同名标题会覆盖",
-      "分类学体系论文",
-      "区域生物地层学",
-      "Results",
-      "没有统一模板"
+      "模板",
+      "讨论",
+      "章节链",
+      "系统描述",
+      "分类学",
+      "声明块",
+      "逐字精读",
+      "地层学"
     ],
     "bytes": 47991
   },
@@ -918,7 +849,7 @@ window.__ModuleLoader__.load({
     "path": "references/journal-constraints.md",
     "kind": "reference",
     "title": "期刊结构硬约束速查",
-    "subtitle": "图注不许再靠 \"the dashed line means …\" 定义符号",
+    "subtitle": "写作前必须先确定目标期刊 —— 结构要求因刊而异，这是硬约束不是建议。",
     "headings": [
       "对照表",
       "J. Micropalaeontology（JM）/ Copernicus 平台口径",
@@ -929,17 +860,17 @@ window.__ModuleLoader__.load({
       "定刊时的四查",
       "GCA Cover Letter 硬性要求",
       "常用配图配色（可直接抄）",
-      "图件要求（送审 vs 终稿完全不同）"
+      "图件要求（送审 vs 终稿**完全不同**）"
     ],
     "keywords": [
-      "GCA",
-      "原文",
-      "Discussion",
-      "Results",
-      "图件硬参数",
-      "平台口径",
-      "平台独有",
-      "配图配色"
+      "要点",
+      "配色",
+      "期刊结构",
+      "参考文献",
+      "古生物",
+      "结论",
+      "摘要",
+      "缩写"
     ],
     "bytes": 19388
   },
@@ -947,7 +878,7 @@ window.__ModuleLoader__.load({
     "path": "references/literature-search.md",
     "kind": "reference",
     "title": "文献检索与素材积累实操",
-    "subtitle": "1. 关键词查询 —— 中英文各查一遍",
+    "subtitle": "来自文献检索部分(2025-09-08) +",
     "headings": [
       "一、检索工具清单",
       "关键词查询的四种变体（ P19–21，v2 补具体查询串）",
@@ -961,14 +892,14 @@ window.__ModuleLoader__.load({
       "3. 辨证思维训练（ P35，v2 补批注全文示例）"
     ],
     "keywords": [
-      "关键词查询",
-      "积累自己",
-      "写作技巧参考库",
-      "补批注全文示例",
-      "检索工具清单",
-      "补具体查询串",
-      "检索策略实例",
-      "核心积累方法"
+      "辨证思维",
+      "检索策略",
+      "检索工具",
+      "素材库",
+      "谷歌学术",
+      "模板",
+      "知网",
+      "课程作业"
     ],
     "bytes": 8444
   },
@@ -976,7 +907,7 @@ window.__ModuleLoader__.load({
     "path": "references/micropaleo-paper-patterns.md",
     "kind": "reference",
     "title": "微体古生物 / 放射虫论文的写作与制图模式",
-    "subtitle": "按语料实际写法，微体古生物论文分成四类，骨架互不相同。把综述稿写成系统描述稿，",
+    "subtitle": "本文件讲第三件事：这个领域（微体古生物 / 放射虫）的论文实际长什么样 ——",
     "headings": [
       "一、🔴 四种主题的论文骨架",
       "🔴 A 类（系统描述）的关键结构特征",
@@ -986,26 +917,26 @@ window.__ModuleLoader__.load({
       "2.3 🔴 图注里的来源声明（本领域特有）",
       "三、🔴 色彩风格：灰度优先，形状承担分组",
       "3.1 彩色出现在哪里",
-      "3.2 彩色系统树的三个可抄细节（Biard et al. 2022, Environ Microbiol）",
+      "3.2 彩色系统树的三个可抄细节（Biard et al. 2022, *Environ Microbiol*）",
       "四、🔴 地图与地质图：灰度花纹 + 插图 + 比例尺"
     ],
     "keywords": [
       "图注",
-      "综述稿写成系统描述稿",
-      "按语料实际写法",
-      "关键结构特征",
-      "面板字母体系",
-      "语料原句逐字",
-      "形状承担分组",
-      "本领域特有"
+      "灰度",
+      "系统描述",
+      "图版",
+      "语料",
+      "放射虫",
+      "比例尺",
+      "微体古生物"
     ],
-    "bytes": 61439
+    "bytes": 62437
   },
   {
     "path": "references/multi-journal-style-guides.md",
     "kind": "reference",
     "title": "多期刊官方 Style Guide 汇总（地学 / 古生物 / CV）",
-    "subtitle": "⚠️ v2.8.0 修正：官方页全文没有出现 \"paragraph\" 一词（本次逐字核对结果）——",
+    "subtitle": "ESR / Nature / PNAS / CVPR / Palaeoworld",
     "headings": [
       "目录",
       "1.1 收录边界（🔴 最容易被 desk-reject 的地方）",
@@ -1019,14 +950,14 @@ window.__ModuleLoader__.load({
       "2.1 Article 篇幅（🔴 按\"印刷页\"算，不按字数）"
     ],
     "keywords": [
-      "印刷页",
-      "鼓励",
-      "必须",
-      "官方页全文没有出现",
-      "官方体裁口径",
+      "参考文献",
+      "官方原文",
+      "古生物",
       "收录边界",
-      "文章类型",
-      "文件格式"
+      "复核",
+      "目录",
+      "缩写",
+      "投稿"
     ],
     "bytes": 81736
   },
@@ -1034,7 +965,7 @@ window.__ModuleLoader__.load({
     "path": "references/paleobiology-journal.md",
     "kind": "reference",
     "title": "Paleobiology 期刊投稿规范（图件 + 文体）",
-    "subtitle": "图可拆成两个或多个文件，分别在不同页出版（如把大图拆成两半，各按双栏宽出版）。",
+    "subtitle": "一、图件规范（Electronic Figure Guidelines）",
     "headings": [
       "一、图件规范（Electronic Figure Guidelines）",
       "1.1 两套要求：送审 vs 出版",
@@ -1048,14 +979,14 @@ window.__ModuleLoader__.load({
       "1.9 🔴 图注（Caption）"
     ],
     "keywords": [
-      "化石形态学论文直接适",
-      "各按双栏宽出版",
-      "按图件类型分",
-      "大图拆成两半",
-      "大文件压缩",
-      "图件规范",
-      "图件尺寸",
-      "生产规范"
+      "图注",
+      "字体",
+      "缩写",
+      "化石形态学",
+      "标本照相",
+      "投稿",
+      "比例尺",
+      "表格"
     ],
     "bytes": 21564
   },
@@ -1063,7 +994,7 @@ window.__ModuleLoader__.load({
     "path": "references/sentence-bank.md",
     "kind": "reference",
     "title": "句式库",
-    "subtitle": "1. First — 只能在 −0.4 V vs SHE 测 EAC、0.7 V vs SHE 测 ED",
+    "subtitle": "全部来自本技能方法库。 按用途分组，可直接套用。",
     "headings": [
       "一、引言：引出研究不足（用 However 引导）",
       "强调自己研究重要性的 5 种切入",
@@ -1078,13 +1009,13 @@ window.__ModuleLoader__.load({
     ],
     "keywords": [
       "引言",
-      "强调自己研究重",
-      "问句作小标题",
-      "编辑拒稿话术",
-      "措辞正反例",
-      "分层指示词",
-      "回复审稿人",
-      "引出研究"
+      "讨论",
+      "未来方向",
+      "局限性",
+      "句式库",
+      "结论",
+      "摘要",
+      "结果"
     ],
     "bytes": 8380
   },
@@ -1092,7 +1023,7 @@ window.__ModuleLoader__.load({
     "path": "references/格式硬参数与文献检索实操.md",
     "kind": "reference",
     "title": "格式硬参数与文献检索实操",
-    "subtitle": "以 PPP（Palaeogeography, Palaeoclimatology, Palaeoecol",
+    "subtitle": "地学 SCI 投稿的格式硬参数、引文密度、送审流程与时间预算；",
     "headings": [
       "〇、★ Guide for Authors 的三种入口★",
       "一、体裁与篇幅",
@@ -1106,14 +1037,14 @@ window.__ModuleLoader__.load({
       "★ Graphical Abstract"
     ],
     "keywords": [
-      "作者指南藏",
-      "文章结构",
-      "标题分级",
-      "顺序固定",
-      "正文结构",
-      "备信息",
-      "置部分",
-      "限篇幅"
+      "参考文献",
+      "学位论文",
+      "图注",
+      "配色",
+      "版式",
+      "文献综述",
+      "放射虫",
+      "分辨率"
     ],
     "bytes": 38761
   },
@@ -1121,7 +1052,7 @@ window.__ModuleLoader__.load({
     "path": "references/论文写作方法论骨架.md",
     "kind": "reference",
     "title": "论文写作方法论骨架",
-    "subtitle": "作者必须能回答 4 个问题：",
+    "subtitle": "面向地学 SCI 论文与学位论文的写作与投稿方法论。",
     "headings": [
       "一、总纲：论文写作前的四项准备",
       "1.3 制图要求",
@@ -1135,19 +1066,75 @@ window.__ModuleLoader__.load({
       "7.1 四大内容"
     ],
     "keywords": [
-      "论文写作",
-      "写作姿态",
-      "论文结构",
-      "四大内容",
-      "能回答",
-      "总纲",
-      "准备",
-      "制图"
+      "引言",
+      "摘要",
+      "题目",
+      "署名",
+      "结果",
+      "结论",
+      "讨论",
+      "论文写作方法论"
     ],
     "bytes": 40053
+  },
+  {
+    "path": "docs/COMPATIBILITY.md",
+    "kind": "doc",
+    "title": "AI 工具兼容性矩阵",
+    "subtitle": "各工具随时可能改默认值，尤其开关类。",
+    "headings": [
+      "一、结论先行",
+      "二、兼容性矩阵",
+      "三、安装路径",
+      "作为 Skill（推荐：获得完整的 10 模块 + 渐进披露）",
+      "作为项目规则（仓库级）",
+      "直接当 Prompt 用（零安装）",
+      "四、Claude Code 的版本差异（重要）",
+      "Claude Code 规则未加载的排查",
+      "五、Codex 的 32 KiB 限制",
+      "5.5 英文用户（English users）"
+    ],
+    "keywords": [
+      "兼容性矩阵",
+      "结论",
+      "目录",
+      "安装路径",
+      "工具兼容",
+      "硬规则",
+      "表格"
+    ],
+    "bytes": 7253
+  },
+  {
+    "path": "docs/PROMPTS-EN.md",
+    "kind": "doc",
+    "title": "Academic Paper Polish — English",
+    "subtitle": "This is the English entry point.",
+    "headings": [
+      "How to use (no installation required)",
+      "The 10 modules",
+      "What this repository is",
+      "The eight hard rules",
+      "1. Pick the journal before you write",
+      "2. Inverted pyramid, and opening must match resolution",
+      "3. Citation density",
+      "4. Paragraphs: 5–8 sentences",
+      "5. The six-step discussion",
+      "6. Conclusions must carry limitations + future directions"
+    ],
+    "keywords": [
+      "citation",
+      "modules",
+      "dpi",
+      "results",
+      "abstract",
+      "methods",
+      "schedule",
+      "pnas"
+    ],
+    "bytes": 10010
   }
-]
-    ];
+];
 
     // ── icons ────────────────────────────────────────────────────────────
 
@@ -1382,6 +1369,37 @@ window.__ModuleLoader__.load({
       { id: 'review', words: ['review', '综述'] },
     ];
 
+    // ── the sidebar chip's live title ────────────────────────────────────
+    // The chip title is rendered by the host OUTSIDE this component's tree,
+    // so the panel's live state reaches it through a tiny module-level
+    // channel — the same pattern the manual's live index uses.
+    let chipNote = '';
+    const chipListeners = new Set();
+
+    function setChipNote(text) {
+      if (text === chipNote) return;
+      chipNote = text;
+      for (const listener of chipListeners) listener();
+    }
+
+    /** The sidebar chip's title: 「论文助手」 plus the panel's live count. */
+    function PanelTitle() {
+      const [, bump] = useState(0);
+      useEffect(() => {
+        const listener = () => bump((value) => value + 1);
+        chipListeners.add(listener);
+        return () => {
+          chipListeners.delete(listener);
+        };
+      }, []);
+      return h(
+        'span',
+        { className: 'dapp-chip-title' },
+        translate('type.label'),
+        chipNote ? h('span', { className: 'dapp-chip-note' }, chipNote) : null,
+      );
+    }
+
     // ── the live skill index (手册) ──────────────────────────────────────
 
     /** Live skill index fetched from the host's same-origin route (zero
@@ -1601,7 +1619,11 @@ window.__ModuleLoader__.load({
       const tone = SEVERITY_TONE[severity] || 'info';
       return h(
         'span',
-        { className: 'dapp-sev', 'data-tone': tone },
+        {
+          className: 'dapp-sev',
+          'data-tone': tone,
+          title: `${SEVERITY_TEXT[severity] || severity} · ${severity}`,
+        },
         `${SEVERITY_ICON[severity] || '🔵'} ${severity}`,
       );
     }
@@ -1613,16 +1635,19 @@ window.__ModuleLoader__.load({
       const map = {
         unauthorized: {
           tone: 'bad',
+          icon: 'close',
           title: '未授权：宿主拒绝了请求',
           body: '面板请求缺少登录态（HTTP 401）。请在 DeepSeek Harness 里重新登录后刷新。',
         },
         notImplemented: {
           tone: 'warn',
+          icon: 'grid',
           title: '宿主尚未提供该接口',
           body: '这个能力（HTTP 404）还没有在宿主侧上线：面板不会伪造内容，等接口上线后自动可用。',
         },
         failed: {
           tone: 'warn',
+          icon: 'close',
           title: '宿主路由不可达',
           body: '请求没有拿到响应。宿主进程可能正在重启，或该插件没有启用。',
         },
@@ -1631,9 +1656,51 @@ window.__ModuleLoader__.load({
       return h(
         'div',
         { className: 'dapp-state', 'data-tone': info.tone },
-        h('div', { className: 'dapp-state-title' }, info.title),
-        h('div', null, info.body),
+        h(
+          'div',
+          { className: 'dapp-state-head' },
+          h('span', { className: 'dapp-state-mark' }, h(Icon, { name: info.icon, size: 15 })),
+          h('span', { className: 'dapp-state-title' }, info.title),
+        ),
+        h('div', { className: 'dapp-state-body' }, info.body),
         props.detail ? h('div', { className: 'dapp-rid' }, props.detail) : null,
+      );
+    }
+
+    /** A quiet section label — the six views share one rhythm. */
+    function SectionHead(props) {
+      return h(
+        'div',
+        { className: 'dapp-sechead' },
+        h('span', { className: 'dapp-sechead-label' }, props.label),
+        props.meta ? h('span', { className: 'dapp-sechead-meta' }, props.meta) : null,
+      );
+    }
+
+    /** The empty state says what to do next — never a bare 「暂无数据」. */
+    function EmptyState(props) {
+      return h(
+        'div',
+        { className: 'dapp-empty' },
+        h('span', { className: 'dapp-empty-mark' }, h(Icon, { name: props.icon || 'search', size: 15 })),
+        h('span', { className: 'dapp-empty-title' }, props.title),
+        props.hint ? h('span', { className: 'dapp-empty-hint' }, props.hint) : null,
+      );
+    }
+
+    /** Loading placeholder — the host's skeleton bars on the real line height. */
+    function Skeleton(props) {
+      const widths = ['76%', '92%', '58%'];
+      return h(
+        'div',
+        { className: 'dapp-skel', role: 'status', 'aria-label': props.label || '加载中' },
+        widths.slice(0, props.rows || 3).map((width, index) =>
+          h(
+            'div',
+            { key: index, className: 'dapp-skel-text' },
+            h('span', { className: 'dapp-skel-bar', style: { width } }),
+          ),
+        ),
       );
     }
 
@@ -1706,6 +1773,7 @@ window.__ModuleLoader__.load({
 
       // 清单
       const [stageId, setStageId] = useState('');
+      const [collapsed, setCollapsed] = useState({});
 
       // shared
       const [journalKey, setJournalKey] = useState(readStore('journal', ''));
@@ -1716,6 +1784,8 @@ window.__ModuleLoader__.load({
       const searchRef = useRef(null);
       const toastTimer = useRef(null);
       const debounceTimer = useRef(null);
+      const tableRef = useRef(null);
+      const [tableScrolls, setTableScrolls] = useState(false);
 
       useEffect(
         () => () => {
@@ -1873,7 +1943,9 @@ window.__ModuleLoader__.load({
 
       const manualResults = useMemo(() => {
         const needle = manualQuery.trim().toLowerCase();
-        if (!needle) return [];
+        // No query means "show the corpus": the manual browser must list the
+        // files, not sit empty until the user types.
+        if (!needle) return (liveIndex || SKILL_INDEX).slice(0, 40);
         if (remoteHits) return remoteHits.slice(0, 40);
         const index = liveIndex || SKILL_INDEX;
         return index
@@ -1952,6 +2024,18 @@ window.__ModuleLoader__.load({
         return [...fields];
       }, [journalsAll]);
 
+      // The journal table scrolls sideways only when the sidebar is too
+      // narrow for it — the hint follows the real overflow, not a guess.
+      useEffect(() => {
+        const node = tableRef.current;
+        if (!node || typeof ResizeObserver === 'undefined') return undefined;
+        const update = () => setTableScrolls(node.scrollWidth > node.clientWidth + 1);
+        update();
+        const observer = new ResizeObserver(update);
+        observer.observe(node);
+        return () => observer.disconnect();
+      }, [view, journals.length]);
+
       const stages = useMemo(() => {
         const payload = checklistState.data;
         if (!payload) return [];
@@ -1977,6 +2061,15 @@ window.__ModuleLoader__.load({
         () => checklistItems.filter((item) => checked[`${item.stageId}:${item.id}`]).length,
         [checklistItems, checked],
       );
+
+      // The sidebar chip shows how much of the submission checklist is still
+      // open — the count lives outside this tree, so it goes through the
+      // module-level channel.
+      useEffect(() => {
+        if (checklistState.status !== 'ok') return;
+        const pending = checklistItems.length - doneCount;
+        setChipNote(pending > 0 ? `${pending} 项待办` : '');
+      }, [checklistState.status, checklistItems.length, doneCount]);
 
       const detected = useMemo(() => detectSection(checkText), [checkText]);
       useEffect(() => {
@@ -2083,7 +2176,12 @@ window.__ModuleLoader__.load({
           if (inField) return;
           if (event.key === '/' && searchRef.current) {
             event.preventDefault();
-            searchRef.current.focus();
+            const node = searchRef.current;
+            // a search box inside a closed <details> cannot take the focus:
+            // open the fold first, then focus the field.
+            const details = node.closest ? node.closest('details') : null;
+            if (details && !details.open) details.open = true;
+            node.focus();
             return;
           }
           const index = Number(event.key);
@@ -2104,27 +2202,24 @@ window.__ModuleLoader__.load({
       };
 
       // ── header ────────────────────────────────────────────────────────
+      const viewLabel = (VIEWS.find((item) => item.id === view) || {}).label || '';
+      const targetLabel = targetJournal ? `目标：${targetJournal.name}` : '未设目标期刊';
       const head = h(
         'div',
         { className: 'dapp-head' },
-        h('div', { className: 'dapp-mark' }, h(Icon, { name: 'mark', size: 16 })),
+        h('div', { className: 'dapp-mark' }, h(Icon, { name: 'mark', size: 15 })),
         h(
           'div',
           { className: 'dapp-grow' },
           h('div', { className: 'dapp-title' }, t('panel.title')),
-          h(
-            'div',
-            { className: 'dapp-sub' },
-            `${VIEWS.find((item) => item.id === view)?.label || ''} · ${
-              targetJournal ? `目标：${targetJournal.name}` : '未设目标期刊'
-            }`,
-          ),
+          h('div', { className: 'dapp-sub', title: `${viewLabel} · ${targetLabel}` }, `${viewLabel} · ${targetLabel}`),
         ),
         h(
           'button',
           {
             type: 'button',
             className: 'dapp-icon-btn',
+            'aria-expanded': expanded ? 'true' : 'false',
             title: expanded ? t('panel.collapse') : t('panel.expand'),
             onClick: () => setExpanded((value) => !value),
           },
@@ -2134,19 +2229,33 @@ window.__ModuleLoader__.load({
 
       // ── views ─────────────────────────────────────────────────────────
 
-      function searchBox(key, value, setter, placeholder) {
+      function searchBox(key, value, setter, placeholder, primary) {
         return h(
           'div',
           { className: 'dapp-search' },
           h(Icon, { name: 'search', size: 14 }),
           h('input', {
-            ref: searchRef,
+            ref: primary ? searchRef : null,
             type: 'text',
             value,
             placeholder,
             'data-search': key,
+            'aria-label': placeholder,
             onChange: (event) => setter(event.target.value),
           }),
+          value
+            ? h(
+                'button',
+                {
+                  type: 'button',
+                  className: 'dapp-search-clear',
+                  title: '清空搜索',
+                  'aria-label': '清空搜索',
+                  onClick: () => setter(''),
+                },
+                h(Icon, { name: 'close', size: 11 }),
+              )
+            : null,
         );
       }
 
@@ -2205,7 +2314,7 @@ window.__ModuleLoader__.load({
         const sections = Array.isArray(rule.sections) ? rule.sections : [];
         return h(
           'div',
-          { className: 'dapp-card', 'data-sev': severity },
+          { key: str(rule.id, rule.ruleId), className: 'dapp-card', 'data-sev': severity },
           h(
             'div',
             { className: 'dapp-card-title' },
@@ -2254,48 +2363,65 @@ window.__ModuleLoader__.load({
           rulesSeverity ? `严重度「${rulesSeverity}」` : null,
           rulesDomain ? `分类「${rulesDomain}」` : null,
         ].filter(Boolean);
+        const total = state.data && typeof state.data.total === 'number' ? state.data.total : rules.length;
         return h(
           'div',
-          { className: 'dapp-view', style: { display: 'grid', gap: '10px' } },
+          { className: 'dapp-view dapp-cols' },
           h(
             'div',
-            { className: 'dapp-toolbar' },
-            searchBox('rules', rulesQuery, setRulesQuery, '搜规则标题 / 条款 / 修复建议（按 / 聚焦）'),
-            h('div', { className: 'dapp-label' }, '分类'),
-            chipRow(domainOptions, rulesDomain, setRulesDomain, 'domain'),
-            h('div', { className: 'dapp-label' }, '段落'),
-            chipRow(sectionOptions, rulesSection, setRulesSection, 'section', true),
-            h('div', { className: 'dapp-label' }, '严重度'),
-            chipRow(SEVERITIES, rulesSeverity, setRulesSeverity, 'severity'),
+            { className: 'dapp-span' },
+            h(
+              'div',
+              { className: 'dapp-toolbar' },
+              searchBox('rules', rulesQuery, setRulesQuery, '搜规则标题 / 条款 / 修复建议（按 / 聚焦）', true),
+              h(
+                'div',
+                { className: 'dapp-fgroup' },
+                h('div', { className: 'dapp-label' }, '分类'),
+                chipRow(domainOptions, rulesDomain, setRulesDomain, 'domain'),
+              ),
+              h(
+                'div',
+                { className: 'dapp-fgroup' },
+                h('div', { className: 'dapp-label' }, '段落'),
+                chipRow(sectionOptions, rulesSection, setRulesSection, 'section', true),
+              ),
+              h(
+                'div',
+                { className: 'dapp-fgroup' },
+                h('div', { className: 'dapp-label' }, '严重度'),
+                chipRow(SEVERITIES, rulesSeverity, setRulesSeverity, 'severity'),
+              ),
+            ),
           ),
           state.status === 'loading'
-            ? h('div', { className: 'dapp-loading' }, '正在读取规则库…')
+            ? h('div', { className: 'dapp-span' }, h(Skeleton, { label: '正在读取规则库' }))
             : null,
           state.status !== 'loading' && state.status !== 'ok'
-            ? h(StateNotice, { status: state.status, detail: state.error && state.error.message })
+            ? h('div', { className: 'dapp-span' }, h(StateNotice, { status: state.status, detail: state.error && state.error.message }))
             : null,
           state.status === 'ok' && rules.length === 0
             ? h(
                 'div',
-                { className: 'dapp-empty' },
-                h('div', null, '暂无匹配规则'),
-                h(
-                  'div',
-                  { className: 'dapp-hint' },
-                  filters.length > 0
-                    ? `试着放宽：清除 ${filters.join('、')}，或换一个关键词。`
-                    : '换一个关键词，或清空搜索框。',
-                ),
+                { className: 'dapp-span' },
+                h(EmptyState, {
+                  icon: 'search',
+                  title: '暂无匹配规则',
+                  hint:
+                    filters.length > 0
+                      ? `试着放宽：清除 ${filters.join('、')}，或换一个关键词。`
+                      : '换一个关键词，或清空搜索框。',
+                }),
               )
             : null,
           state.status === 'ok' && rules.length > 0
             ? h(
                 'div',
-                { className: 'dapp-hintline' },
-                `命中 ${rules.length} 条${state.data && typeof state.data.total === 'number' ? ` / 共 ${state.data.total} 条` : ''}`,
+                { className: 'dapp-span' },
+                h(SectionHead, { label: '命中规则', meta: `${rules.length} / ${total} 条` }),
               )
             : null,
-          rules.map((rule) => h('div', { key: str(rule.id, rule.ruleId) }, renderRuleCard(rule))),
+          rules.map((rule) => renderRuleCard(rule)),
         );
       }
 
@@ -2359,13 +2485,13 @@ window.__ModuleLoader__.load({
         const isTarget = journal.key === journalKey;
         return h(
           'div',
-          { className: 'dapp-view', style: { display: 'grid', gap: '10px' } },
+          { className: 'dapp-view' },
           h(
             'div',
             { className: 'dapp-actions' },
             h(
               'button',
-              { type: 'button', className: 'dapp-btn', onClick: () => setOpenJournal('') },
+              { type: 'button', className: 'dapp-btn dapp-btn-ghost', onClick: () => setOpenJournal('') },
               '← 返回列表',
             ),
             h(
@@ -2409,30 +2535,26 @@ window.__ModuleLoader__.load({
           h(
             'div',
             { className: 'dapp-card' },
-            h('div', { className: 'dapp-label' }, '硬性参数 limits'),
+            h(SectionHead, { label: '硬性参数 limits' }),
             limitKeys.length > 0
               ? h(
-                  'div',
-                  { className: 'dapp-facts' },
-                  limitKeys.map((key) =>
+                  'dl',
+                  { className: 'dapp-kv' },
+                  limitKeys.map((key) => [
+                    h('dt', { key: `k-${key}` }, key),
                     h(
-                      'div',
-                      { key, className: 'dapp-fact' },
-                      h('div', { className: 'dapp-fact-k' }, key),
-                      h(
-                        'div',
-                        { className: 'dapp-fact-v' },
-                        limits[key] === null || limits[key] === undefined ? '—' : String(limits[key]),
-                      ),
+                      'dd',
+                      { key: `v-${key}` },
+                      limits[key] === null || limits[key] === undefined ? '—' : String(limits[key]),
                     ),
-                  ),
+                  ]),
                 )
               : h('div', { className: 'dapp-hint' }, '宿主没有给出该刊的硬性参数。'),
           ),
           h(
             'div',
             { className: 'dapp-card' },
-            h('div', { className: 'dapp-label' }, '段结构 structure'),
+            h(SectionHead, { label: '段结构 structure' }),
             structure.length > 0
               ? h('ol', { className: 'dapp-list' }, structure.map((item) => h('li', { key: item }, item)))
               : h('div', { className: 'dapp-hint' }, '宿主没有给出该刊的段结构。'),
@@ -2440,7 +2562,7 @@ window.__ModuleLoader__.load({
           h(
             'div',
             { className: 'dapp-card' },
-            h('div', { className: 'dapp-label' }, '该刊要求 rules'),
+            h(SectionHead, { label: '该刊要求 rules' }),
             rulesOfJournal.length > 0
               ? h(
                   'ul',
@@ -2499,71 +2621,83 @@ window.__ModuleLoader__.load({
         ];
         return h(
           'div',
-          { className: 'dapp-view', style: { display: 'grid', gap: '10px' } },
+          { className: 'dapp-view' },
           h(
             'div',
             { className: 'dapp-toolbar' },
-            searchBox('journals', journalsQuery, setJournalsQuery, '搜期刊名 / 出版社 / ISSN（按 / 聚焦）'),
+            searchBox('journals', journalsQuery, setJournalsQuery, '搜期刊名 / 出版社 / ISSN（按 / 聚焦）', true),
             h(
               'div',
-              { className: 'dapp-chiprow' },
+              { className: 'dapp-fgroup' },
+              h('div', { className: 'dapp-label' }, '筛选'),
               h(
-                'button',
-                {
-                  type: 'button',
-                  className: 'dapp-chipbtn',
-                  'data-on': journalOpenOnly ? 'true' : 'false',
-                  onClick: () => setJournalOpenOnly((value) => !value),
-                },
-                '仅开放获取',
-              ),
-              h(
-                'button',
-                {
-                  type: 'button',
-                  className: 'dapp-chipbtn',
-                  'data-on': journalMaxApc ? 'true' : 'false',
-                  onClick: () => setJournalMaxApc(journalMaxApc ? '' : '3000'),
-                },
-                'APC ≤ 3000',
+                'div',
+                { className: 'dapp-chiprow' },
+                h(
+                  'button',
+                  {
+                    type: 'button',
+                    className: 'dapp-chipbtn',
+                    'data-on': journalOpenOnly ? 'true' : 'false',
+                    onClick: () => setJournalOpenOnly((value) => !value),
+                  },
+                  '仅开放获取',
+                ),
+                h(
+                  'button',
+                  {
+                    type: 'button',
+                    className: 'dapp-chipbtn',
+                    'data-on': journalMaxApc ? 'true' : 'false',
+                    onClick: () => setJournalMaxApc(journalMaxApc ? '' : '3000'),
+                  },
+                  'APC ≤ 3000',
+                ),
               ),
             ),
             fieldOptions.length > 0
               ? h(
                   'div',
-                  { className: 'dapp-chiprow dapp-chiprow-scroll' },
-                  fieldOptions.map((field) =>
-                    h(
-                      'button',
-                      {
-                        key: field,
-                        type: 'button',
-                        className: 'dapp-chipbtn',
-                        'data-on': journalField === field ? 'true' : 'false',
-                        onClick: () => setJournalField(journalField === field ? '' : field),
-                      },
-                      field,
+                  { className: 'dapp-fgroup' },
+                  h('div', { className: 'dapp-label' }, '领域'),
+                  h(
+                    'div',
+                    { className: 'dapp-chiprow dapp-chiprow-scroll' },
+                    fieldOptions.map((field) =>
+                      h(
+                        'button',
+                        {
+                          key: field,
+                          type: 'button',
+                          className: 'dapp-chipbtn',
+                          'data-on': journalField === field ? 'true' : 'false',
+                          onClick: () => setJournalField(journalField === field ? '' : field),
+                        },
+                        field,
+                      ),
                     ),
                   ),
                 )
               : null,
           ),
-          state.status === 'loading' ? h('div', { className: 'dapp-loading' }, '正在读取期刊库…') : null,
+          state.status === 'loading' ? h(Skeleton, { label: '正在读取期刊库' }) : null,
           state.status !== 'loading' && state.status !== 'ok'
             ? h(StateNotice, { status: state.status, detail: state.error && state.error.message })
             : null,
           state.status === 'ok' && journals.length === 0
-            ? h(
-                'div',
-                { className: 'dapp-empty' },
-                h('div', null, '暂无匹配期刊'),
-                h('div', { className: 'dapp-hint' }, '试着放宽：关闭「仅开放获取」、取消 APC 上限，或清空搜索框。'),
-              )
+            ? h(EmptyState, {
+                icon: 'book',
+                title: '暂无匹配期刊',
+                hint: '试着放宽：关闭「仅开放获取」、取消 APC 上限，或清空搜索框。',
+              })
+            : null,
+          state.status === 'ok' && journals.length > 0
+            ? h(SectionHead, { label: '期刊列表', meta: `${journals.length} 本 · 点行看详情` })
             : null,
           state.status === 'ok' && journals.length > 0
             ? h(
                 'div',
-                { className: 'dapp-tablewrap' },
+                { className: 'dapp-tablewrap', ref: tableRef },
                 h(
                   'table',
                   { className: 'dapp-jtable' },
@@ -2593,8 +2727,8 @@ window.__ModuleLoader__.load({
                 ),
               )
             : null,
-          state.status === 'ok' && journals.length > 0
-            ? h('div', { className: 'dapp-hintline' }, `共 ${journals.length} 本期刊 · 点行看详情 · 表格可横向滚动`)
+          state.status === 'ok' && journals.length > 0 && tableScrolls
+            ? h('div', { className: 'dapp-hintline' }, '表格可横向滚动查看全部列')
             : null,
         );
       }
@@ -2617,131 +2751,150 @@ window.__ModuleLoader__.load({
               : violations.length === 0;
         return h(
           'div',
-          { className: 'dapp-view', style: { display: 'grid', gap: '10px' } },
+          { className: 'dapp-view dapp-cols' },
           h(
             'div',
-            { className: 'dapp-card' },
-            h('div', { className: 'dapp-label' }, '待检段落'),
-            h('textarea', {
-              className: 'dapp-textarea',
-              value: checkText,
-              placeholder: '粘贴要检查的段落（标题 + 正文）…',
-              onChange: (event) => setCheckText(event.target.value),
-            }),
+            { className: 'dapp-span' },
             h(
               'div',
-              { className: 'dapp-field' },
-              h('span', { className: 'dapp-k' }, '段落'),
+              { className: 'dapp-card' },
+              h(SectionHead, { label: '待检段落' }),
+              h('textarea', {
+                className: 'dapp-textarea',
+                value: checkText,
+                'aria-label': '待检段落',
+                placeholder: '粘贴要检查的段落（标题 + 正文）…',
+                onChange: (event) => setCheckText(event.target.value),
+              }),
               h(
-                'select',
-                {
-                  className: 'dapp-select',
-                  value: checkSection,
-                  onChange: (event) => {
-                    setCheckTouched(true);
-                    setCheckSection(event.target.value);
+                'div',
+                { className: 'dapp-field' },
+                h('span', { className: 'dapp-k' }, '段落'),
+                h(
+                  'select',
+                  {
+                    className: 'dapp-select',
+                    'aria-label': '段落',
+                    value: checkSection,
+                    onChange: (event) => {
+                      setCheckTouched(true);
+                      setCheckSection(event.target.value);
+                    },
                   },
-                },
-                h('option', { value: '' }, detected ? `自动（${detected}）` : '自动'),
-                sectionOptions.map((section) =>
-                  h('option', { key: section.id, value: section.id }, section.label),
+                  h('option', { value: '' }, detected ? `自动（${detected}）` : '自动'),
+                  sectionOptions.map((section) =>
+                    h('option', { key: section.id, value: section.id }, section.label),
+                  ),
                 ),
               ),
-            ),
-            h(
-              'div',
-              { className: 'dapp-field' },
-              h('span', { className: 'dapp-k' }, '目标期刊'),
               h(
-                'select',
-                {
-                  className: 'dapp-select',
-                  value: journalKey,
-                  onChange: (event) => {
-                    setJournalKey(event.target.value);
-                    writeStore('journal', event.target.value);
+                'div',
+                { className: 'dapp-field' },
+                h('span', { className: 'dapp-k' }, '目标期刊'),
+                h(
+                  'select',
+                  {
+                    className: 'dapp-select',
+                    'aria-label': '目标期刊',
+                    value: journalKey,
+                    onChange: (event) => {
+                      setJournalKey(event.target.value);
+                      writeStore('journal', event.target.value);
+                    },
                   },
-                },
-                h('option', { value: '' }, '不限'),
-                journalsAll.map((journal) =>
-                  h('option', { key: str(journal.key), value: str(journal.key) }, str(journal.name, journal.key)),
+                  h('option', { value: '' }, '不限'),
+                  journalsAll.map((journal) =>
+                    h('option', { key: str(journal.key), value: str(journal.key) }, str(journal.name, journal.key)),
+                  ),
                 ),
               ),
-            ),
-            h(
-              'div',
-              { className: 'dapp-actions' },
               h(
-                'button',
-                {
-                  type: 'button',
-                  className: 'dapp-btn dapp-btn-primary',
-                  disabled: checkPending || !checkText.trim(),
-                  onClick: runCheck,
-                },
-                checkPending ? '检查中…' : '开始检查',
-              ),
-              h(
-                'button',
-                {
-                  type: 'button',
-                  className: 'dapp-btn',
-                  onClick: () => {
-                    setCheckText('');
-                    setCheckTouched(false);
-                    setCheckState({ status: 'idle', data: null, error: null });
+                'div',
+                { className: 'dapp-actions' },
+                h(
+                  'button',
+                  {
+                    type: 'button',
+                    className: 'dapp-btn dapp-btn-primary',
+                    disabled: checkPending || !checkText.trim(),
+                    onClick: runCheck,
                   },
-                },
-                '清空',
+                  checkPending ? '检查中…' : '开始检查',
+                ),
+                h(
+                  'button',
+                  {
+                    type: 'button',
+                    className: 'dapp-btn',
+                    onClick: () => {
+                      setCheckText('');
+                      setCheckTouched(false);
+                      setCheckState({ status: 'idle', data: null, error: null });
+                    },
+                  },
+                  '清空',
+                ),
               ),
             ),
           ),
           state.status === 'unauthorized' ||
           state.status === 'notImplemented' ||
           state.status === 'failed'
-            ? h(StateNotice, { status: state.status, detail: state.error && state.error.message })
+            ? h('div', { className: 'dapp-span' }, h(StateNotice, { status: state.status, detail: state.error && state.error.message }))
             : null,
           state.status === 'ok'
             ? h(
                 'div',
-                { className: 'dapp-card' },
+                { className: 'dapp-span' },
+                h(SectionHead, { label: '检查结果', meta: total > 0 ? `共 ${total} 项检查` : '' }),
                 h(
                   'div',
-                  { className: 'dapp-verdictbar', 'data-state': passed ? 'ok' : 'bad' },
-                  h('span', { className: 'dapp-verdict-dot' }),
-                  h(
-                    'span',
-                    { className: 'dapp-grow' },
-                    passed ? '✓ 未发现违规' : `✗ 发现 ${violations.length} 条违规`,
-                  ),
-                  h('span', { className: 'dapp-hintline' }, `共 ${total} 项检查`),
-                ),
-                h(
-                  'div',
-                  { className: 'dapp-summary' },
+                  { className: 'dapp-card' },
                   h(
                     'div',
-                    { className: 'dapp-summary-cell' },
-                    h('div', { className: 'dapp-summary-num', 'data-tone': 'bad' }, String(hard)),
-                    h('div', { className: 'dapp-summary-k' }, '🔴 hard'),
+                    { className: 'dapp-verdictbar', 'data-state': passed ? 'ok' : 'bad' },
+                    h('span', { className: 'dapp-verdict-dot' }),
+                    h(
+                      'span',
+                      { className: 'dapp-grow' },
+                      passed ? '✓ 未发现违规' : `✗ 发现 ${violations.length} 条违规`,
+                    ),
                   ),
                   h(
                     'div',
-                    { className: 'dapp-summary-cell' },
-                    h('div', { className: 'dapp-summary-num', 'data-tone': 'warn' }, String(soft)),
-                    h('div', { className: 'dapp-summary-k' }, '🟡 soft'),
-                  ),
-                  h(
-                    'div',
-                    { className: 'dapp-summary-cell' },
-                    h('div', { className: 'dapp-summary-num', 'data-tone': 'info' }, String(info)),
-                    h('div', { className: 'dapp-summary-k' }, '🔵 info'),
+                    { className: 'dapp-summary' },
+                    h(
+                      'div',
+                      { className: 'dapp-summary-cell' },
+                      h('div', { className: 'dapp-summary-num', 'data-tone': 'bad' }, String(hard)),
+                      h('div', { className: 'dapp-summary-k' }, '🔴 hard'),
+                    ),
+                    h(
+                      'div',
+                      { className: 'dapp-summary-cell' },
+                      h('div', { className: 'dapp-summary-num', 'data-tone': 'warn' }, String(soft)),
+                      h('div', { className: 'dapp-summary-k' }, '🟡 soft'),
+                    ),
+                    h(
+                      'div',
+                      { className: 'dapp-summary-cell' },
+                      h('div', { className: 'dapp-summary-num', 'data-tone': 'info' }, String(info)),
+                      h('div', { className: 'dapp-summary-k' }, '🔵 info'),
+                    ),
                   ),
                 ),
               )
             : null,
           state.status === 'ok' && violations.length === 0
-            ? h('div', { className: 'dapp-empty' }, '没有发现违规。')
+            ? h(
+                'div',
+                { className: 'dapp-span' },
+                h(EmptyState, {
+                  icon: 'check',
+                  title: '没有发现违规',
+                  hint: `这一段通过了全部 ${total} 项检查。`,
+                }),
+              )
             : null,
           violations.map((violation, index) =>
             h(
@@ -2823,13 +2976,17 @@ window.__ModuleLoader__.load({
           state.status === 'ok' && advice.length > 0
             ? h(
                 'div',
-                { className: 'dapp-card' },
-                h('div', { className: 'dapp-label' }, '建议 advice'),
+                { className: 'dapp-span' },
                 h(
-                  'ul',
-                  { className: 'dapp-list' },
-                  advice.map((item, index) =>
-                    h('li', { key: index }, typeof item === 'string' ? item : str(item.text, item.title, item.message)),
+                  'div',
+                  { className: 'dapp-card' },
+                  h(SectionHead, { label: '建议 advice', meta: `${advice.length} 条` }),
+                  h(
+                    'ul',
+                    { className: 'dapp-list' },
+                    advice.map((item, index) =>
+                      h('li', { key: index }, typeof item === 'string' ? item : str(item.text, item.title, item.message)),
+                    ),
                   ),
                 ),
               )
@@ -2869,81 +3026,99 @@ window.__ModuleLoader__.load({
           .filter(Boolean);
         return h(
           'div',
-          { className: 'dapp-view', style: { display: 'grid', gap: '10px' } },
+          { className: 'dapp-view dapp-cols' },
           h(
             'div',
-            { className: 'dapp-card' },
-            h('div', { className: 'dapp-label' }, '待扫描文本'),
-            h('textarea', {
-              className: 'dapp-textarea',
-              value: deaiText,
-              placeholder: '粘贴要扫描 AI 腔的段落…',
-              onChange: (event) => setDeaiText(event.target.value),
-            }),
+            { className: 'dapp-span' },
             h(
               'div',
-              { className: 'dapp-actions' },
+              { className: 'dapp-card' },
+              h(SectionHead, { label: '待扫描文本' }),
+              h('textarea', {
+                className: 'dapp-textarea',
+                value: deaiText,
+                'aria-label': '待扫描文本',
+                placeholder: '粘贴要扫描 AI 腔的段落…',
+                onChange: (event) => setDeaiText(event.target.value),
+              }),
               h(
-                'button',
-                {
-                  type: 'button',
-                  className: 'dapp-btn dapp-btn-primary',
-                  disabled: deaiPending || !deaiText.trim(),
-                  onClick: runDeai,
-                },
-                deaiPending ? '扫描中…' : '开始扫描',
+                'div',
+                { className: 'dapp-actions' },
+                h(
+                  'button',
+                  {
+                    type: 'button',
+                    className: 'dapp-btn dapp-btn-primary',
+                    disabled: deaiPending || !deaiText.trim(),
+                    onClick: runDeai,
+                  },
+                  deaiPending ? '扫描中…' : '开始扫描',
+                ),
+                suggestions.length > 0
+                  ? h(
+                      'button',
+                      {
+                        type: 'button',
+                        className: 'dapp-btn',
+                        onClick: () => copyText(suggestions.map((item, index) => `${index + 1}. ${item}`).join('\n')),
+                      },
+                      h(Icon, { name: 'copy', size: 12 }),
+                      '复制全部建议',
+                    )
+                  : null,
               ),
-              suggestions.length > 0
-                ? h(
-                    'button',
-                    {
-                      type: 'button',
-                      className: 'dapp-btn',
-                      onClick: () => copyText(suggestions.map((item, index) => `${index + 1}. ${item}`).join('\n')),
-                    },
-                    h(Icon, { name: 'copy', size: 12 }),
-                    '复制全部建议',
-                  )
-                : null,
             ),
           ),
           state.status === 'unauthorized' ||
           state.status === 'notImplemented' ||
           state.status === 'failed'
-            ? h(StateNotice, { status: state.status, detail: state.error && state.error.message })
+            ? h('div', { className: 'dapp-span' }, h(StateNotice, { status: state.status, detail: state.error && state.error.message }))
             : null,
           state.status === 'ok'
             ? h(
                 'div',
-                { className: 'dapp-card' },
+                { className: 'dapp-span' },
+                h(SectionHead, { label: '扫描结果', meta: hits.length > 0 ? `${hits.length} 处命中` : '' }),
                 h(
                   'div',
-                  { className: 'dapp-card-title' },
-                  h('span', { className: 'dapp-grow' }, '去 AI 化得分'),
-                  h('span', { className: 'dapp-score-big', 'data-tone': score >= 80 ? 'ok' : score >= 50 ? 'warn' : 'bad' }, score === null ? '—' : String(score)),
+                  { className: 'dapp-card' },
+                  h(
+                    'div',
+                    { className: 'dapp-card-title' },
+                    h('span', { className: 'dapp-grow' }, '去 AI 化得分'),
+                    h('span', { className: 'dapp-score-big', 'data-tone': score >= 80 ? 'ok' : score >= 50 ? 'warn' : 'bad' }, score === null ? '—' : String(score)),
+                  ),
+                  h(
+                    'div',
+                    { className: 'dapp-meter' },
+                    h('span', {
+                      style: {
+                        width: `${Math.max(0, Math.min(100, score === null ? 0 : score))}%`,
+                        background:
+                          score === null
+                            ? 'var(--dapp-faint)'
+                            : score >= 80
+                              ? 'var(--dapp-ok)'
+                              : score >= 50
+                                ? 'var(--dapp-warn)'
+                                : 'var(--dapp-bad)',
+                      },
+                    }),
+                  ),
+                  h('div', { className: 'dapp-hintline' }, `命中 ${hits.length} 处 AI 句式（满分 100，越高越干净）`),
                 ),
-                h(
-                  'div',
-                  { className: 'dapp-meter' },
-                  h('span', {
-                    style: {
-                      width: `${Math.max(0, Math.min(100, score === null ? 0 : score))}%`,
-                      background:
-                        score === null
-                          ? 'var(--dapp-muted)'
-                          : score >= 80
-                            ? 'var(--dapp-ok)'
-                            : score >= 50
-                              ? 'var(--dapp-warn)'
-                              : 'var(--dapp-bad)',
-                    },
-                  }),
-                ),
-                h('div', { className: 'dapp-hintline' }, `命中 ${hits.length} 处 AI 句式（满分 100，越高越干净）`),
               )
             : null,
           state.status === 'ok' && hits.length === 0
-            ? h('div', { className: 'dapp-empty' }, '没有命中 AI 句式。')
+            ? h(
+                'div',
+                { className: 'dapp-span' },
+                h(EmptyState, {
+                  icon: 'deai',
+                  title: '没有命中 AI 句式',
+                  hint: '这段文字没有明显的模板句式；继续检查措辞与引用规范。',
+                }),
+              )
             : null,
           hits.map((hit, index) =>
             h(
@@ -3000,7 +3175,7 @@ window.__ModuleLoader__.load({
           ),
           h(
             'details',
-            { className: 'dapp-fold' },
+            { className: 'dapp-span dapp-fold' },
             h(
               'summary',
               null,
@@ -3010,23 +3185,26 @@ window.__ModuleLoader__.load({
             ),
             h(
               'div',
-              { className: 'dapp-fold-body', style: { display: 'grid', gap: '7px' } },
-              searchBox('sentences', sentencesQuery, setSentencesQuery, '搜句式（按 / 聚焦）'),
+              { className: 'dapp-fold-body' },
+              searchBox('sentences', sentencesQuery, setSentencesQuery, '搜句式（按 / 聚焦）', true),
               sentencesState.status === 'loading'
-                ? h('div', { className: 'dapp-loading' }, '正在读取句式库…')
+                ? h(Skeleton, { label: '正在读取句式库', rows: 2 })
                 : null,
               sentencesState.status !== 'loading' && sentencesState.status !== 'ok'
                 ? h(StateNotice, { status: sentencesState.status })
                 : null,
+              sentencesState.status === 'ok' && patterns.length === 0
+                ? h(EmptyState, { icon: 'search', title: '句式库为空', hint: '宿主没有返回任何句式。' })
+                : null,
               patterns.map((pattern, index) =>
                 h(
                   'div',
-                  { key: str(pattern.id, `p${index}`), className: 'dapp-rule' },
+                  { key: str(pattern.id, `p${index}`), className: 'dapp-pattern' },
                   h(
                     'div',
                     { className: 'dapp-grow' },
-                    h('div', { className: 'dapp-rule-title' }, prose(pattern.zh, pattern.en)),
-                    h('div', { className: 'dapp-rule-body' }, prose(pattern.why, pattern.category)),
+                    h('div', { className: 'dapp-pattern-title' }, prose(pattern.zh, pattern.en)),
+                    h('div', { className: 'dapp-pattern-body' }, prose(pattern.why, pattern.category)),
                   ),
                 ),
               ),
@@ -3041,165 +3219,206 @@ window.__ModuleLoader__.load({
         const ratio = totalItems > 0 ? doneCount / totalItems : 0;
         return h(
           'div',
-          { className: 'dapp-view', style: { display: 'grid', gap: '10px' } },
+          { className: 'dapp-view' },
           h(
             'div',
-            { className: 'dapp-card' },
+            { className: 'dapp-span' },
             h(
               'div',
-              { className: 'dapp-check-head' },
-              h(ProgressRing, { ratio, label: `${Math.round(ratio * 100)}%` }),
-              h('span', { className: 'dapp-grow' }, `${t('panel.progress')} ${doneCount}/${totalItems}`),
+              { className: 'dapp-card' },
               h(
-                'button',
-                {
-                  type: 'button',
-                  className: 'dapp-icon-btn',
-                  title: '清空勾选',
-                  onClick: () => setChecked({}),
-                },
-                h(Icon, { name: 'close', size: 13 }),
-              ),
-            ),
-            h(
-              'div',
-              { className: 'dapp-track' },
-              h('span', { className: 'dapp-fill', style: { width: `${Math.round(ratio * 100)}%` } }),
-            ),
-          ),
-          state.status === 'loading' ? h('div', { className: 'dapp-loading' }, '正在读取投稿清单…') : null,
-          state.status !== 'loading' && state.status !== 'ok'
-            ? h(StateNotice, { status: state.status, detail: state.error && state.error.message })
-            : null,
-          state.status === 'ok' && stages.length === 0
-            ? h('div', { className: 'dapp-empty' }, '宿主没有提供清单。')
-            : null,
-          stages.length > 0
-            ? h(
                 'div',
-                { className: 'dapp-chiprow dapp-chiprow-scroll' },
+                { className: 'dapp-check-head' },
+                h(ProgressRing, { ratio, label: `${Math.round(ratio * 100)}%` }),
+                h('span', { className: 'dapp-grow' }, `${t('panel.progress')} ${doneCount}/${totalItems}`),
+                h(
+                  'div',
+                  { className: 'dapp-track' },
+                  h('span', { className: 'dapp-fill', style: { width: `${Math.round(ratio * 100)}%` } }),
+                ),
                 h(
                   'button',
                   {
                     type: 'button',
-                    className: 'dapp-chipbtn',
-                    'data-on': stageId ? 'false' : 'true',
-                    onClick: () => setStageId(''),
+                    className: 'dapp-icon-btn',
+                    title: '清空勾选',
+                    'aria-label': '清空勾选',
+                    onClick: () => setChecked({}),
                   },
-                  '全部',
+                  h(Icon, { name: 'close', size: 13 }),
                 ),
-                stages.map((stage) => {
-                  const stageItems = (stage.items || []).filter(
-                    (item) => checked[`${stage.id}:${item.id}`],
-                  ).length;
-                  return h(
-                    'button',
-                    {
-                      key: stage.id,
-                      type: 'button',
-                      className: 'dapp-chipbtn',
-                      'data-on': stageId === stage.id ? 'true' : 'false',
-                      onClick: () => setStageId(stageId === stage.id ? '' : stage.id),
-                    },
-                    `${str(stage.title, stage.id)} ${stageItems}/${(stage.items || []).length}`,
-                  );
-                }),
-              )
-            : null,
-          visibleStages.map((stage) =>
-            h(
-              'div',
-              { key: stage.id, className: 'dapp-group', 'data-open': 'true' },
-              h(
-                'div',
-                { className: 'dapp-group-head' },
-                h('span', { className: 'dapp-group-key' }, h(Icon, { name: 'check', size: 11 })),
-                h('span', { className: 'dapp-group-name' }, str(stage.title, stage.id)),
-                h(
-                  'span',
-                  { className: 'dapp-group-count' },
-                  `${(stage.items || []).filter((item) => checked[`${stage.id}:${item.id}`]).length}/${
-                    (stage.items || []).length
-                  }`,
-                ),
-              ),
-              h(
-                'div',
-                { className: 'dapp-items' },
-                (stage.items || []).map((item) => {
-                  const key = `${stage.id}:${item.id}`;
-                  const on = Boolean(checked[key]);
-                  return h(
-                    'div',
-                    { key, className: 'dapp-item', 'data-checked': on ? 'true' : 'false' },
-                    h(
-                      'button',
-                      {
-                        type: 'button',
-                        className: 'dapp-box',
-                        'aria-label': str(item.text),
-                        onClick: () => toggleChecked(key),
-                      },
-                      h(Icon, { name: 'check', size: 11, strokeWidth: 2 }),
-                    ),
-                    h(
-                      'div',
-                      { className: 'dapp-grow' },
-                      h('div', { className: 'dapp-item-text dapp-wrap' }, prose(item.text)),
-                      item.severity
-                        ? h(
-                            'div',
-                            { className: 'dapp-rid' },
-                            `${SEVERITY_ICON[item.severity] || '🔵'} ${SEVERITY_TEXT[item.severity] || item.severity}${
-                              item.ruleId ? ` · ${item.ruleId}` : ''
-                            }`,
-                          )
-                        : null,
-                    ),
-                    h(
-                      'button',
-                      {
-                        type: 'button',
-                        className: 'dapp-icon-btn',
-                        title: t('panel.send'),
-                        disabled: sending,
-                        onClick: () =>
-                          sendToSession(
-                            `投稿清单（${str(stage.title, stage.id)}）待办：${str(item.text)}${
-                              item.ruleId ? `（规则 ${item.ruleId}）` : ''
-                            }`,
-                          ),
-                      },
-                      h(Icon, { name: 'send', size: 13 }),
-                    ),
-                  );
-                }),
               ),
             ),
           ),
+          state.status === 'loading' ? h(Skeleton, { label: '正在读取投稿清单' }) : null,
+          state.status !== 'loading' && state.status !== 'ok'
+            ? h(StateNotice, { status: state.status, detail: state.error && state.error.message })
+            : null,
+          state.status === 'ok' && stages.length === 0
+            ? h(
+                'div',
+                { className: 'dapp-span' },
+                h(EmptyState, { icon: 'mark', title: '宿主没有提供清单', hint: '清单接口为空：确认宿主插件已启用并重启宿主。' }),
+              )
+            : null,
+          stages.length > 0
+            ? h(
+                'div',
+                { className: 'dapp-span' },
+                h(SectionHead, { label: '阶段', meta: `${stages.length} 个` }),
+                h(
+                  'div',
+                  { className: 'dapp-chiprow dapp-chiprow-scroll' },
+                  h(
+                    'button',
+                    {
+                      type: 'button',
+                      className: 'dapp-chipbtn',
+                      'data-on': stageId ? 'false' : 'true',
+                      onClick: () => setStageId(''),
+                    },
+                    '全部',
+                  ),
+                  stages.map((stage) => {
+                    const stageItems = (stage.items || []).filter(
+                      (item) => checked[`${stage.id}:${item.id}`],
+                    ).length;
+                    return h(
+                      'button',
+                      {
+                        key: stage.id,
+                        type: 'button',
+                        className: 'dapp-chipbtn',
+                        'data-on': stageId === stage.id ? 'true' : 'false',
+                        onClick: () => setStageId(stageId === stage.id ? '' : stage.id),
+                      },
+                      `${str(stage.title, stage.id)} ${stageItems}/${(stage.items || []).length}`,
+                    );
+                  }),
+                ),
+              )
+            : null,
+          visibleStages.map((stage) => {
+            const stageOpen = !collapsed[stage.id];
+            const done = (stage.items || []).filter((item) => checked[`${stage.id}:${item.id}`]).length;
+            return h(
+              'div',
+              { key: stage.id, className: 'dapp-group', 'data-open': stageOpen ? 'true' : 'false' },
+              h(
+                'button',
+                {
+                  type: 'button',
+                  className: 'dapp-group-head',
+                  'aria-expanded': stageOpen ? 'true' : 'false',
+                  onClick: () => setCollapsed((prev) => ({ ...prev, [stage.id]: stageOpen })),
+                },
+                h(Icon, { name: 'chevron', size: 13, className: 'dapp-chevron' }),
+                h('span', { className: 'dapp-group-name' }, str(stage.title, stage.id)),
+                h('span', { className: 'dapp-group-count' }, `${done}/${(stage.items || []).length}`),
+              ),
+              stageOpen
+                ? h(
+                    'div',
+                    { className: 'dapp-items' },
+                    (stage.items || []).map((item) => {
+                      const key = `${stage.id}:${item.id}`;
+                      const on = Boolean(checked[key]);
+                      return h(
+                        'div',
+                        { key, className: 'dapp-item', 'data-checked': on ? 'true' : 'false' },
+                        h(
+                          'button',
+                          {
+                            type: 'button',
+                            className: 'dapp-box',
+                            'aria-label': str(item.text),
+                            'aria-pressed': on ? 'true' : 'false',
+                            onClick: () => toggleChecked(key),
+                          },
+                          h(Icon, { name: 'check', size: 11, strokeWidth: 2 }),
+                        ),
+                        h(
+                          'div',
+                          { className: 'dapp-grow' },
+                          h('div', { className: 'dapp-item-text dapp-wrap' }, prose(item.text)),
+                          item.severity
+                            ? h(
+                                'div',
+                                { className: 'dapp-item-meta' },
+                                h(SeverityBadge, { severity: item.severity }),
+                                item.ruleId ? h('span', { className: 'dapp-rid' }, str(item.ruleId)) : null,
+                              )
+                            : null,
+                        ),
+                        h(
+                          'button',
+                          {
+                            type: 'button',
+                            className: 'dapp-icon-btn',
+                            title: t('panel.send'),
+                            'aria-label': `${t('panel.send')}：${str(item.text)}`,
+                            disabled: sending,
+                            onClick: () =>
+                              sendToSession(
+                                `投稿清单（${str(stage.title, stage.id)}）待办：${str(item.text)}${
+                                  item.ruleId ? `（规则 ${item.ruleId}）` : ''
+                                }`,
+                              ),
+                          },
+                          h(Icon, { name: 'send', size: 13 }),
+                        ),
+                      );
+                    }),
+                  )
+                : null,
+            );
+          }),
         );
       }
 
       function renderManual() {
+        const stateNote =
+          liveIndexState === 'live'
+            ? remotePending && manualQuery.trim()
+              ? '正在全文检索当前文件…'
+              : '实时索引：全文检索宿主路由读取的当前文件，不消耗任何 token。'
+            : liveIndexState === 'unauthorized'
+              ? '宿主路由拒绝了本次请求（缺登录态），正在使用打包时的内置索引（仅标题级匹配）。'
+              : liveIndexState === 'notImplemented'
+                ? '宿主没有提供 skill-index 路由，正在使用打包时的内置索引（仅标题级匹配）。'
+                : '宿主路由不可达，正在使用打包时的内置索引（仅标题级匹配）。';
         return h(
           'div',
-          { className: 'dapp-view', style: { display: 'grid', gap: '10px' } },
-          searchBox('manual', manualQuery, setManualQuery, '全文检索手册文件（按 / 聚焦）'),
+          { className: 'dapp-view' },
           h(
             'div',
-            { className: 'dapp-hint' },
-            liveIndexState === 'live'
-              ? remotePending && manualQuery.trim()
-                ? '🟢 实时索引：正在全文检索当前文件…'
-                : '🟢 实时索引：全文检索宿主路由读取的当前文件，不消耗任何 token。'
-              : liveIndexState === 'unauthorized'
-                ? '🟠 宿主路由拒绝了本次请求（缺登录态），正在使用打包时的内置索引（仅标题级匹配）。'
-                : liveIndexState === 'notImplemented'
-                  ? '🟡 宿主没有提供 skill-index 路由，正在使用打包时的内置索引（仅标题级匹配）。'
-                  : '🟡 宿主路由不可达，正在使用打包时的内置索引（仅标题级匹配）。',
+            { className: 'dapp-span' },
+            h(SectionHead, { label: '检索' }),
+            searchBox('manual', manualQuery, setManualQuery, '全文检索手册文件（按 / 聚焦）', true),
+            h(
+              'div',
+              { className: 'dapp-status', 'data-tone': liveIndexState === 'live' ? 'ok' : 'warn' },
+              h('span', { className: 'dapp-status-dot' }),
+              h('span', null, stateNote),
+            ),
           ),
           manualQuery.trim() && manualResults.length === 0
-            ? h('div', { className: 'dapp-empty' }, '没有命中任何文件。')
+            ? h(
+                'div',
+                { className: 'dapp-span' },
+                h(EmptyState, {
+                  icon: 'search',
+                  title: '没有命中任何文件',
+                  hint: '换一个关键词，或清空搜索框；文件名也可以直接搜。',
+                }),
+              )
+            : null,
+          manualResults.length > 0
+            ? h(
+                'div',
+                { className: 'dapp-span' },
+                h(SectionHead, { label: '文件', meta: `${manualResults.length} 个` }),
+              )
             : null,
           manualResults.map((entry) =>
             h(
@@ -3208,8 +3427,8 @@ window.__ModuleLoader__.load({
               h(
                 'div',
                 { className: 'dapp-file-top' },
-                h('span', { className: 'dapp-badge' }, entry.kind),
-                h('span', { style: { fontWeight: 600, fontSize: '12px' } }, entry.title),
+                h('span', { className: 'dapp-badge', 'data-kind': entry.kind }, entry.kind),
+                h('span', { className: 'dapp-file-title' }, entry.title),
               ),
               h('div', { className: 'dapp-file-path' }, entry.path),
               h('div', { className: 'dapp-file-sub' }, entry.subtitle),
@@ -3225,7 +3444,10 @@ window.__ModuleLoader__.load({
                 ? h(
                     'div',
                     { className: 'dapp-chips' },
-                    entry.keywords.map((word) => h('span', { key: word, className: 'dapp-badge' }, word)),
+                    entry.keywords.slice(0, 8).map((word) => h('span', { key: word, className: 'dapp-badge' }, word)),
+                    entry.keywords.length > 8
+                      ? h('span', { className: 'dapp-badge' }, `+${entry.keywords.length - 8}`)
+                      : null,
                   )
                 : null,
               h(
@@ -3256,7 +3478,7 @@ window.__ModuleLoader__.load({
               ),
             ),
           ),
-          manualQuery.trim() ? null : h('div', { className: 'dapp-hint' }, '输入关键词即可全文检索技能手册；点「发给会话」把文件交给智能体。'),
+          manualQuery.trim() ? null : h('div', { className: 'dapp-span dapp-hint' }, '输入关键词即可全文检索技能手册；点「发给会话」把文件交给智能体。'),
         );
       }
 
@@ -3366,276 +3588,366 @@ window.__ModuleLoader__.load({
     // ── styles ──────────────────────────────────────────────────────────
 
     const CSS = `
+/* ══ tokens ══════════════════════════════════════════════════════════════
+   One scale, taken from the host's own Plugin Manager page and its right
+   sidebar: type 10 / 11 / 11.5 / 12 / 12.5 / 13 / 13.5 / 14 / 18 / 20 px,
+   spacing 2 / 4 / 6 / 8 / 10 / 12 / 14 / 16 / 20 / 24 px, radius 4 px and
+   999 px (pill). Every colour comes from a --dsw-alias-* theme token, so
+   the panel follows the host theme in light and dark mode.
+   ══════════════════════════════════════════════════════════════════════ */
 .dapp{
-  --dapp-accent: var(--dsw-alias-button-info-fill, #4176e6);
-    --dapp-accent-hover: var(--dsw-alias-button-info-hover, #7aaaff);
-    --dapp-accent-soft: color-mix(in srgb, var(--dapp-accent) 10%, transparent);
-    --dapp-accent-line: color-mix(in srgb, var(--dapp-accent) 38%, transparent);
-    --dapp-surface: var(--dsw-alias-bg-layer-1, #fff);
-    --dapp-surface-2: var(--dsw-alias-bg-overlay, #e9ecf2);
-    --dapp-line: color-mix(in srgb, var(--dsw-alias-label-secondary, #61666b) 18%, transparent);
-    --dapp-line-strong: color-mix(in srgb, var(--dsw-alias-label-secondary, #61666b) 34%, transparent);
-    --dapp-text: var(--dsw-alias-label-primary, #0f1115);
-    --dapp-muted: var(--dsw-alias-label-secondary, #61666b);
-    --dapp-ok: var(--dsw-alias-state-success-primary, #22c55e);
-    --dapp-warn: var(--dsw-alias-state-warn-primary, #f59e0b);
-    --dapp-bad: var(--dsw-alias-state-error-primary, #ec1313);
-    --dapp-ok-soft: color-mix(in srgb, var(--dapp-ok) 12%, transparent);
-    --dapp-warn-soft: color-mix(in srgb, var(--dapp-warn) 14%, transparent);
-    --dapp-bad-soft: color-mix(in srgb, var(--dapp-bad) 12%, transparent);
-    --dapp-r: 10px;
-  --dapp-r:10px;font-family:inherit;color:var(--dapp-text)}
+  /* colour — theme tokens only, no literal colours */
+  --dapp-accent: var(--dsw-alias-state-business-primary);
+  --dapp-on-accent: var(--dsw-alias-label-primary-foreground);
+  --dapp-accent-soft: color-mix(in srgb, var(--dapp-accent) 10%, transparent);
+  --dapp-accent-line: color-mix(in srgb, var(--dapp-accent) 36%, transparent);
+  --dapp-surface: var(--dsw-alias-bg-layer-1);
+  --dapp-surface-2: var(--dsw-alias-bg-layer-2);
+  --dapp-surface-3: var(--dsw-alias-bg-layer-3);
+  --dapp-hover: var(--dsw-alias-interactive-bg-hover);
+  --dapp-line: var(--dsw-alias-border-l3);
+  --dapp-line-soft: var(--dsw-alias-border-l2);
+  --dapp-line-strong: var(--dsw-alias-border-l4);
+  --dapp-text: var(--dsw-alias-label-primary);
+  --dapp-muted: var(--dsw-alias-label-secondary);
+  --dapp-faint: var(--dsw-alias-label-tertiary);
+  --dapp-ok: var(--dsw-alias-state-success-primary);
+  --dapp-warn: var(--dsw-alias-state-warn-primary);
+  --dapp-bad: var(--dsw-alias-state-error-primary);
+  --dapp-info: var(--dsw-alias-link);
+  --dapp-ok-soft: color-mix(in srgb, var(--dapp-ok) 10%, transparent);
+  --dapp-warn-soft: var(--dsw-alias-state-warn-tertiary);
+  --dapp-bad-soft: color-mix(in srgb, var(--dapp-bad) 10%, transparent);
+  --dapp-info-soft: color-mix(in srgb, var(--dapp-info) 10%, transparent);
+  --dapp-skeleton: var(--dsw-alias-bg-skeleton);
+  /* type scale */
+  --dapp-t-tag: 10px;
+  --dapp-t-cap: 11px;
+  --dapp-t-id: 11.5px;
+  --dapp-t-meta: 12px;
+  --dapp-t-ctl: 12.5px;
+  --dapp-t-body: 13px;
+  --dapp-t-item: 13.5px;
+  --dapp-t-head: 14px;
+  --dapp-t-stat: 18px;
+  --dapp-t-hero: 20px;
+  /* spacing scale */
+  --dapp-s1: 2px;
+  --dapp-s2: 4px;
+  --dapp-s3: 6px;
+  --dapp-s4: 8px;
+  --dapp-s5: 10px;
+  --dapp-s6: 12px;
+  --dapp-s7: 14px;
+  --dapp-s8: 16px;
+  --dapp-s9: 20px;
+  --dapp-s10: 24px;
+  /* radius — the host's own radius tokens */
+  --dapp-r-xs: var(--dsw-radius-xs);
+  --dapp-r: var(--dsw-radius-sm);
+  --dapp-r-lg: var(--dsw-radius-md);
+  --dapp-r-pill: 999px;
+  /* elevation — floating surfaces only */
+  --dapp-elev: var(--dsw-elevation-prominent);
+  /* the panel is a resizable track: the layout must react to the PANEL
+     width, never to the viewport width — that is what a container query is
+     for (the host's own pages do exactly this). */
+  container-type: inline-size;
+  container-name: dapp;
+  min-width: 0;
+  background: var(--dsw-alias-bg-base);
+  font-family: inherit;
+  color: var(--dapp-text);
+}
 .dapp *,.dapp *::before,.dapp *::after{box-sizing:border-box}
 .dapp button{font-family:inherit;color:inherit}
-.dapp-head{display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid var(--dapp-line)}
-.dapp-mark{display:grid;place-items:center;width:28px;height:28px;border-radius:9px;color:var(--dapp-accent);background:color-mix(in srgb,var(--dapp-accent) 14%,transparent);flex:0 0 auto}
-.dapp-title{font-size:13px;font-weight:600;line-height:1.25;letter-spacing:.01em}
-.dapp-sub{font-size:11px;color:var(--dapp-muted);margin-top:1px}
 .dapp-grow{flex:1 1 auto;min-width:0}
-.dapp-btn{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;line-height:1;padding:6px 10px;border-radius:8px;border:1px solid var(--dapp-line-strong);background:transparent;color:var(--dapp-text);cursor:pointer;transition:background .13s ease,border-color .13s ease,transform .08s ease}
-.dapp-btn:hover{background:var(--dapp-surface-2)}
-.dapp-btn:active{transform:scale(.985)}
-.dapp-btn:focus-visible{outline:2px solid var(--dapp-accent);outline-offset:2px}
-.dapp-btn-primary{border-color:var(--dapp-accent);color:var(--dapp-accent)}
-.dapp-btn-primary:hover{background:color-mix(in srgb,var(--dapp-accent) 12%,transparent)}
-.dapp-btn-ghost{border-color:transparent;color:var(--dapp-muted)}
-.dapp-btn-ghost:hover{color:var(--dapp-text);background:var(--dapp-surface-2)}
-.dapp-icon-btn{display:grid;place-items:center;font-size:12px;width:26px;height:26px;border-radius:7px;border:1px solid transparent;background:transparent;color:var(--dapp-muted);cursor:pointer;transition:background .13s ease,color .13s ease}
-.dapp-icon-btn:hover{background:var(--dapp-surface-2);color:var(--dapp-text)}
-.dapp-icon-btn:focus-visible{outline:2px solid var(--dapp-accent);outline-offset:2px}
-.dapp-tabs{display:flex;gap:3px;padding:8px 10px;border-bottom:1px solid var(--dapp-line);overflow-x:auto;scrollbar-width:none}
+.dapp-wrap{overflow-wrap:anywhere}
+.dapp :focus-visible{outline:var(--dsw-focus-ring-width) solid var(--dsw-alias-state-business-primary);outline-offset:2px}
+.dapp :focus:not(:focus-visible){outline:none}
+/* hover only where a pointer really is — a sticky hover on touch is a bug */
+@media (hover:hover){
+  .dapp-btn:hover{background:var(--dapp-hover)}
+  .dapp-btn-primary:hover{background:color-mix(in srgb,var(--dapp-accent) 16%,transparent)}
+  .dapp-btn-ghost:hover{color:var(--dapp-text);background:var(--dapp-hover)}
+  .dapp-icon-btn:hover{background:var(--dapp-hover);color:var(--dapp-text)}
+  .dapp-tab:hover{color:var(--dapp-text)}
+  .dapp-chipbtn:hover{color:var(--dapp-text);background:var(--dapp-hover)}
+  .dapp-item:hover{background:var(--dapp-hover)}
+  .dapp-group-head:hover{background:var(--dapp-surface-3)}
+  .dapp-fold>summary:hover{background:var(--dapp-hover)}
+  .dapp-jtable tbody tr:hover{background:var(--dapp-hover)}
+  .dapp-search-clear:hover{background:var(--dapp-surface-3);color:var(--dapp-text)}
+}
+/* a coarse pointer zooms the page when a field is focused below 16px */
+@media (pointer:coarse){
+  .dapp input,.dapp textarea,.dapp select{font-size:16px}
+}
+
+/* ── the sidebar chip's title ────────────────────────────────────────────
+   These two rules live OUTSIDE the .dapp root (the host renders the chip),
+   so they cannot use the panel's own custom properties — the values are the
+   same scale, written out. */
+.dapp-chip-title{display:inline-flex;align-items:center;gap:6px;font-size:13px;line-height:20px}
+.dapp-chip-note{font-size:11px;line-height:16px;color:var(--dsw-alias-label-tertiary);font-variant-numeric:tabular-nums}
+
+/* ── header ─────────────────────────────────────────────────────────── */
+.dapp-head{display:flex;align-items:center;gap:var(--dapp-s5);padding:var(--dapp-s5) var(--dapp-s6);border-bottom:.5px solid var(--dapp-line);background:var(--dapp-surface);flex:0 0 auto;min-width:0}
+.dapp-mark{display:grid;place-items:center;width:26px;height:26px;border-radius:var(--dapp-r);color:var(--dapp-accent);background:var(--dapp-accent-soft);flex:0 0 auto}
+.dapp-title{font-size:var(--dapp-t-item);font-weight:500;line-height:20px;letter-spacing:.01em}
+.dapp-sub{font-size:var(--dapp-t-cap);color:var(--dapp-faint);line-height:16px;margin-top:var(--dapp-s1);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dapp-icon-btn{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;padding:6px;border-radius:var(--dapp-r);border:0;background:transparent;color:var(--dapp-muted);cursor:pointer;flex:0 0 auto;transition:background .13s ease,color .13s ease}
+.dapp-icon-btn[disabled]{opacity:.5;cursor:default}
+
+/* ── tabs ───────────────────────────────────────────────────────────── */
+.dapp-tabs{display:flex;gap:var(--dapp-s1);padding:0 var(--dapp-s4);border-bottom:.5px solid var(--dapp-line);background:var(--dapp-surface);overflow-x:auto;scrollbar-width:none;flex:0 0 auto}
 .dapp-tabs::-webkit-scrollbar{display:none}
-.dapp-tab{flex:0 0 auto;display:inline-flex;align-items:center;gap:5px;font-size:12px;padding:5px 8px;border-radius:7px;border:1px solid transparent;background:transparent;color:var(--dapp-muted);cursor:pointer;transition:color .13s ease,background .13s ease,border-color .13s ease}
-.dapp-tab:hover{color:var(--dapp-text);background:var(--dapp-surface-2)}
-.dapp-tab[data-active=true]{color:var(--dapp-text);background:var(--dapp-surface-2);border-color:var(--dapp-line);font-weight:600}
-.dapp-tab:focus-visible{outline:2px solid var(--dapp-accent);outline-offset:1px}
-.dapp-tab-key{font-size:9px;opacity:.55;font-variant-numeric:tabular-nums}
-.dapp-scroll{padding:10px 12px 14px;display:grid;gap:10px;overflow-y:auto;flex:1 1 auto;min-height:0}
+.dapp-tab{position:relative;flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;height:32px;padding:0 var(--dapp-s3);font-size:var(--dapp-t-body);line-height:20px;border:0;background:transparent;color:var(--dapp-muted);cursor:pointer;white-space:nowrap;transition:color .13s ease}
+.dapp-tab[data-active=true]{color:var(--dapp-accent);font-weight:500}
+.dapp-tab[data-active=true]:after{content:'';position:absolute;left:var(--dapp-s2);right:var(--dapp-s2);bottom:-1px;height:2px;border-radius:var(--dapp-r-pill);background:var(--dapp-accent)}
+
+/* ── body + scroll viewport ─────────────────────────────────────────── */
 .dapp-body{display:flex;flex-direction:column;flex:1 1 auto;min-height:0;min-width:0}
+.dapp-scroll{padding:var(--dapp-s5) var(--dapp-s6) var(--dapp-s8);display:grid;gap:var(--dapp-s5);align-content:start;grid-auto-rows:min-content;overflow-y:auto;overflow-x:hidden;flex:1 1 auto;min-height:0;min-width:0}
 .dapp-scroll::-webkit-scrollbar{width:9px}
-.dapp-scroll::-webkit-scrollbar-thumb{background:var(--dapp-line-strong);border-radius:5px;border:2px solid transparent;background-clip:content-box}
+.dapp-scroll::-webkit-scrollbar-thumb{background:var(--dapp-line-strong);border-radius:var(--dapp-r-pill);border:2px solid transparent;background-clip:content-box}
 .dapp-scroll::-webkit-scrollbar-thumb:hover{background:var(--dapp-muted);background-clip:content-box}
-.dapp-view{animation:dapp-in .18s ease both}
+
+/* ── the view grid ──────────────────────────────────────────────────── */
+/* align-content:start is load-bearing: a grid whose container is taller
+   than its content distributes the leftover space to every auto-sized row, so
+   a search box becomes 270px tall and the gaps between rows blow up. The
+   rows must stay at their content height and the leftover space must collect
+   at the bottom. */
+.dapp-view{display:grid;gap:var(--dapp-s5);align-content:start;grid-template-columns:minmax(0,1fr);animation:dapp-in .18s ease both}
 @keyframes dapp-in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
-.dapp-card{border:1px solid var(--dapp-line);border-radius:var(--dapp-r);background:var(--dapp-surface);padding:11px 12px;display:grid;gap:9px}
-.dapp-card-title{font-size:12.5px;font-weight:600;display:flex;align-items:center;gap:7px}
-.dapp-label{font-size:10px;letter-spacing:.07em;text-transform:uppercase;color:var(--dapp-muted)}
-.dapp-kv{display:grid;grid-template-columns:88px 1fr;gap:6px 10px;font-size:12px;line-height:1.5}
-.dapp-k{color:var(--dapp-muted)}
-.dapp-v{min-width:0;word-break:break-word}
-.dapp-badges{display:flex;flex-wrap:wrap;gap:5px}
-.dapp-badge{display:inline-flex;align-items:center;gap:4px;font-size:10.5px;padding:2px 8px;border-radius:999px;border:1px solid var(--dapp-line-strong);color:var(--dapp-muted);white-space:nowrap}
-.dapp-badge-brand{color:var(--dapp-accent);border-color:color-mix(in srgb,var(--dapp-accent) 42%,transparent);background:color-mix(in srgb,var(--dapp-accent) 10%,transparent)}
-.dapp-badge-warn{color:var(--dapp-warn);border-color:color-mix(in srgb,var(--dapp-warn) 42%,transparent);background:color-mix(in srgb,var(--dapp-warn) 10%,transparent)}
-.dapp-badge-ok{color:var(--dapp-ok);border-color:color-mix(in srgb,var(--dapp-ok) 42%,transparent);background:color-mix(in srgb,var(--dapp-ok) 10%,transparent)}
-.dapp-note{border-left:2px solid var(--dapp-warn);padding:2px 0 2px 10px;font-size:11.5px;line-height:1.55}
-.dapp-list{margin:0;padding-left:16px;font-size:11.5px;line-height:1.65;color:var(--dapp-muted)}
-.dapp-list li{margin:3px 0}
+.dapp-span{grid-column:1/-1}
+/* the panel is a resizable track: the breakpoints below are the PANEL's
+   width, never the viewport's. 380 = the narrowest usable sidebar,
+   460 = comfortable, 600 = wide enough for two columns. */
+@container dapp (max-width:380px){
+  .dapp-scroll{padding:var(--dapp-s4) var(--dapp-s4) var(--dapp-s7)}
+  .dapp-card{padding:var(--dapp-s5);gap:var(--dapp-s3)}
+  .dapp-head{padding:var(--dapp-s4) var(--dapp-s4)}
+  .dapp-tabs{padding:0 var(--dapp-s3)}
+  .dapp-tab{padding:0 var(--dapp-s2)}
+  .dapp-facts{grid-template-columns:repeat(auto-fill,minmax(72px,1fr))}
+  .dapp-summary{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@container dapp (min-width:600px){
+  .dapp-cols{grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}
+  .dapp-scroll{padding:var(--dapp-s6) var(--dapp-s7) var(--dapp-s9)}
+  .dapp-card{padding:var(--dapp-s7)}
+  .dapp-facts{grid-template-columns:repeat(auto-fill,minmax(96px,1fr))}
+}
+/* ── cards ──────────────────────────────────────────────────────────── */
+.dapp-card{border:.5px solid var(--dapp-line);border-radius:var(--dapp-r);background:var(--dapp-surface);padding:var(--dapp-s6);display:grid;gap:var(--dapp-s4);min-width:0}
+.dapp-card-title{display:flex;align-items:flex-start;gap:var(--dapp-s3);font-size:var(--dapp-t-head);font-weight:500;line-height:20px;min-width:0}
+.dapp-card-title .dapp-grow{line-height:20px}
+
+/* ── section head — one quiet label for the six views ───────────────── */
+.dapp-sechead{display:flex;align-items:baseline;gap:var(--dapp-s3);min-width:0}
+.dapp-sechead-label{font-size:var(--dapp-t-tag);font-weight:600;letter-spacing:.08em;color:var(--dapp-faint);white-space:nowrap}
+.dapp-sechead-meta{margin-left:auto;font-size:var(--dapp-t-cap);color:var(--dapp-muted);font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+
+/* ── severity chip — one treatment in every view ────────────────────── */
+.dapp-sev{display:inline-flex;align-items:center;gap:var(--dapp-s2);font-size:var(--dapp-t-tag);line-height:16px;height:18px;padding:0 7px;border-radius:var(--dapp-r-pill);border:.5px solid var(--dapp-line-strong);color:var(--dapp-muted);white-space:nowrap;flex:0 0 auto}
+.dapp-sev[data-tone=bad]{color:var(--dapp-bad);border-color:color-mix(in srgb,var(--dapp-bad) 40%,transparent);background:var(--dapp-bad-soft)}
+.dapp-sev[data-tone=warn]{color:var(--dapp-warn);border-color:color-mix(in srgb,var(--dapp-warn) 40%,transparent);background:var(--dapp-warn-soft)}
+.dapp-sev[data-tone=info]{color:var(--dapp-info);border-color:color-mix(in srgb,var(--dapp-info) 40%,transparent);background:var(--dapp-info-soft)}
+
+/* ── text ───────────────────────────────────────────────────────────── */
+.dapp-rid{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:var(--dapp-t-id);color:var(--dapp-faint);overflow-wrap:anywhere;line-height:16px}
+.dapp-rule-body{font-size:var(--dapp-t-body);line-height:20px;color:var(--dapp-text)}
+.dapp-rule-body b{font-weight:600}
+.dapp-fix{font-size:var(--dapp-t-body);line-height:20px;border-left:2px solid var(--dapp-accent-line);padding:0 0 0 var(--dapp-s4);color:var(--dapp-text)}
+.dapp-src{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:var(--dapp-t-id);color:var(--dapp-faint);overflow-wrap:anywhere;line-height:16px}
+.dapp-hint{font-size:var(--dapp-t-meta);line-height:18px;color:var(--dapp-muted);overflow-wrap:anywhere}
+.dapp-hintline{font-size:var(--dapp-t-cap);line-height:16px;color:var(--dapp-faint);font-variant-numeric:tabular-nums}
+.dapp-list{margin:0;padding-left:var(--dapp-s7);font-size:var(--dapp-t-body);line-height:20px;color:var(--dapp-muted)}
+.dapp-list li{margin:var(--dapp-s2) 0}
 .dapp-list-warn li{color:var(--dapp-text)}
-.dapp-quote{margin:0 0 8px;padding-left:10px;border-left:2px solid var(--dapp-line-strong);font-size:11px;line-height:1.6;color:var(--dapp-muted)}
-.dapp-quote:last-child{margin-bottom:0}
-.dapp-scope{font-size:11.5px;line-height:1.6;color:var(--dapp-muted)}
-.dapp-select{font:inherit;font-size:12px;line-height:1.4;padding:7px 9px;border-radius:8px;border:1px solid var(--dapp-line-strong);background:var(--dapp-surface);color:var(--dapp-text);width:100%;cursor:pointer;transition:border-color .13s ease}
-.dapp-select:hover{border-color:var(--dapp-accent)}
-.dapp-select:focus-visible{outline:2px solid var(--dapp-accent);outline-offset:2px}
-.dapp-mods{display:grid;grid-template-columns:repeat(auto-fill,minmax(152px,1fr));gap:8px}
-.dapp-mod{display:grid;font-size:12px;grid-template-columns:auto 1fr auto;grid-template-rows:auto auto;gap:2px 9px;align-items:center;text-align:left;padding:9px 10px;border-radius:var(--dapp-r);border:1px solid var(--dapp-line);background:var(--dapp-surface);cursor:pointer;transition:border-color .13s ease,background .13s ease,transform .08s ease}
-.dapp-mod:hover{border-color:var(--dapp-line-strong);background:var(--dapp-surface-2)}
-.dapp-mod:active{transform:scale(.99)}
-.dapp-mod:focus-visible{outline:2px solid var(--dapp-accent);outline-offset:2px}
-.dapp-mod[data-done=true]{border-color:color-mix(in srgb,var(--dapp-ok) 55%,transparent)}
-.dapp-mod-icon{grid-row:1/3;display:grid;place-items:center;width:28px;height:28px;border-radius:9px;color:var(--dapp-accent);background:color-mix(in srgb,var(--dapp-accent) 12%,transparent)}
-.dapp-mod-name{font-size:12.5px;font-weight:600;line-height:1.25}
-.dapp-mod-hint{font-size:10.5px;color:var(--dapp-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.dapp-mod-no{grid-row:1/3;font-size:10px;color:var(--dapp-muted);font-variant-numeric:tabular-nums}
-.dapp-mod-done{grid-column:2/4;font-size:10px;color:var(--dapp-ok)}
-.dapp-check-head{display:flex;align-items:center;gap:9px;font-size:11px;color:var(--dapp-muted)}
-.dapp-track{flex:1 1 auto;height:5px;border-radius:3px;background:color-mix(in srgb,var(--dapp-muted) 18%,transparent);overflow:hidden}
+
+/* ── badges ─────────────────────────────────────────────────────────── */
+.dapp-badge{display:inline-flex;align-items:center;gap:var(--dapp-s2);font-size:var(--dapp-t-tag);line-height:16px;height:18px;padding:0 7px;border-radius:var(--dapp-r-pill);border:.5px solid var(--dapp-line-strong);color:var(--dapp-muted);white-space:nowrap}
+.dapp-badge[data-kind=skill]{color:var(--dapp-accent);border-color:var(--dapp-accent-line);background:var(--dapp-accent-soft)}
+.dapp-badge[data-kind=prompt]{color:var(--dapp-info);border-color:color-mix(in srgb,var(--dapp-info) 40%,transparent);background:var(--dapp-info-soft)}
+.dapp-badge[data-kind=prompt-en]{color:var(--dapp-muted);background:var(--dapp-surface-2)}
+.dapp-badge[data-kind=reference]{color:var(--dapp-warn);border-color:color-mix(in srgb,var(--dapp-warn) 40%,transparent);background:var(--dapp-warn-soft)}
+
+/* ── buttons ────────────────────────────────────────────────────────── */
+.dapp-btn{display:inline-flex;align-items:center;justify-content:center;gap:var(--dapp-s2);height:26px;padding:0 var(--dapp-s4);font-size:var(--dapp-t-ctl);line-height:20px;border-radius:var(--dapp-r);border:.5px solid var(--dapp-line-strong);background:var(--dapp-surface);color:var(--dapp-text);cursor:pointer;white-space:nowrap;transition:background .13s ease,border-color .13s ease,color .13s ease}
+.dapp-btn:active{transform:scale(.985)}
+.dapp-btn-primary{border-color:var(--dapp-accent);color:var(--dapp-accent);background:var(--dapp-accent-soft)}
+.dapp-btn-ghost{border-color:transparent;background:transparent;color:var(--dapp-muted)}
+.dapp-btn[disabled]{opacity:.5;cursor:default}
+.dapp-actions{display:flex;gap:var(--dapp-s3);flex-wrap:wrap;align-items:center;min-width:0}
+.dapp-search-clear{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;padding:0;border:0;border-radius:var(--dapp-r-pill);background:var(--dapp-surface-2);color:var(--dapp-muted);cursor:pointer;flex:0 0 auto;transition:background .13s ease,color .13s ease}
+/* ── forms ──────────────────────────────────────────────────────────── */
+.dapp-label{font-size:var(--dapp-t-tag);font-weight:600;letter-spacing:.08em;color:var(--dapp-faint)}
+.dapp-k{font-size:var(--dapp-t-meta);color:var(--dapp-muted)}
+.dapp-field{display:grid;grid-template-columns:72px minmax(0,1fr);gap:var(--dapp-s4);align-items:center;min-width:0}
+.dapp-select{font:inherit;font-size:var(--dapp-t-ctl);line-height:20px;height:30px;padding:0 var(--dapp-s3);border-radius:var(--dapp-r);border:.5px solid var(--dapp-line-strong);background:var(--dapp-surface-3);color:var(--dapp-text);width:100%;min-width:0;cursor:pointer;transition:border-color .13s ease}
+.dapp-textarea{width:100%;min-height:120px;height:clamp(120px,20vh,240px);max-height:320px;resize:vertical;font:inherit;font-size:var(--dapp-t-ctl);line-height:20px;padding:var(--dapp-s4);border-radius:var(--dapp-r);border:.5px solid var(--dapp-line-strong);background:var(--dapp-surface-3);color:var(--dapp-text)}
+.dapp-textarea:focus{outline:none;border-color:var(--dapp-accent);box-shadow:0 0 0 2px var(--dapp-accent-soft)}
+/* a narrow sidebar cannot afford a 72px label column next to the field */
+@container dapp (max-width:420px){
+  .dapp-field{grid-template-columns:minmax(0,1fr);gap:var(--dapp-s2)}
+}
+
+/* ── checklist ──────────────────────────────────────────────────────── */
+.dapp-check-head{display:flex;align-items:center;gap:var(--dapp-s4);font-size:var(--dapp-t-meta);color:var(--dapp-muted);min-width:0}
+.dapp-track{flex:1 1 auto;min-width:40px;height:6px;border-radius:var(--dapp-r-pill);background:var(--dapp-surface-3);overflow:hidden}
 .dapp-fill{display:block;height:100%;background:var(--dapp-accent);transition:width .25s cubic-bezier(.4,0,.2,1)}
-.dapp-groups{display:grid;gap:6px}
-.dapp-group{border:1px solid var(--dapp-line);border-radius:var(--dapp-r);overflow:hidden;background:var(--dapp-surface)}
-.dapp-group-head{display:flex;align-items:center;gap:9px;width:100%;font-size:12.5px;padding:8px 10px;background:transparent;border:0;cursor:pointer;text-align:left;transition:background .13s ease}
-.dapp-group-head:hover{background:var(--dapp-surface-2)}
-.dapp-group-head:focus-visible{outline:2px solid var(--dapp-accent);outline-offset:-2px}
-.dapp-group-key{display:grid;place-items:center;width:20px;height:20px;border-radius:6px;font-size:11px;font-weight:700;color:var(--dapp-accent);background:color-mix(in srgb,var(--dapp-accent) 12%,transparent);flex:0 0 auto}
-.dapp-group-name{font-size:12.5px;font-weight:600;line-height:1.25}
-.dapp-group-count{font-size:10.5px;color:var(--dapp-muted);font-variant-numeric:tabular-nums;margin-left:auto}
-.dapp-chevron{color:var(--dapp-muted);transition:transform .16s ease;flex:0 0 auto}
-.dapp-group[data-open=true] .dapp-chevron{transform:rotate(90deg)}
-.dapp-items{display:grid;gap:1px;padding:3px 8px 9px}
-.dapp-item{display:flex;gap:8px;align-items:flex-start;padding:4px 5px;border-radius:6px;cursor:pointer;font-size:11.5px;line-height:1.5;transition:background .13s ease}
-.dapp-item:hover{background:var(--dapp-surface-2)}
-.dapp-box{flex:0 0 auto;width:15px;height:15px;margin-top:2px;border-radius:4px;border:1.5px solid color-mix(in srgb,var(--dapp-muted) 55%,transparent);display:grid;place-items:center;color:transparent;transition:background .13s ease,border-color .13s ease,color .13s ease}
-.dapp-item[data-checked=true] .dapp-box{background:var(--dapp-accent);border-color:var(--dapp-accent);color:#fff}
-.dapp-item[data-checked=true] .dapp-item-text{text-decoration:line-through;color:var(--dapp-muted)}
-.dapp-ring{position:relative;width:26px;height:26px;flex:0 0 auto}
-.dapp-ring svg{transform:rotate(-90deg)}
-.dapp-ring-label{position:absolute;inset:0;display:grid;place-items:center;font-size:8.5px;font-variant-numeric:tabular-nums;color:var(--dapp-muted)}
-.dapp-matrix{width:100%;border-collapse:separate;border-spacing:0;font-size:11px}
-.dapp-matrix th,.dapp-matrix td{padding:6px 7px;text-align:left;border-bottom:1px solid var(--dapp-line);vertical-align:top}
-.dapp-matrix thead th{position:sticky;top:0;background:var(--dapp-surface);z-index:1;font-size:10px;color:var(--dapp-muted);font-weight:600;letter-spacing:.03em}
-.dapp-matrix tbody tr{transition:background .13s ease}
-.dapp-matrix tbody tr:hover{background:var(--dapp-surface-2)}
-.dapp-cell{display:block;width:100%;text-align:left;border:1px solid transparent;border-radius:6px;padding:3px 5px;background:transparent;cursor:pointer;font-size:11px;line-height:1.4;transition:border-color .13s ease,background .13s ease}
-.dapp-cell:hover{border-color:var(--dapp-line-strong);background:var(--dapp-surface-2)}
-.dapp-cell[data-tone=ok]{color:var(--dapp-ok)}
-.dapp-cell[data-tone=warn]{color:var(--dapp-warn)}
-.dapp-cell[data-tone=bad]{color:var(--dapp-bad)}
-.dapp-cell[data-tone=brand]{color:var(--dapp-accent)}
-.dapp-journal-cell{font-weight:600;font-size:11.5px;cursor:pointer}
-.dapp-search{display:flex;align-items:center;gap:7px;padding:7px 9px;border-radius:9px;border:1px solid var(--dapp-line-strong);background:var(--dapp-surface);transition:border-color .13s ease}
-.dapp-search:focus-within{border-color:var(--dapp-accent)}
-.dapp-search input{flex:1 1 auto;min-width:0;font:inherit;font-size:12px;border:0;outline:none;background:transparent;color:var(--dapp-text)}
-.dapp-search input::placeholder{color:var(--dapp-muted)}
-.dapp-file{display:grid;gap:2px;font-size:12px;padding:8px 10px;border-radius:9px;border:1px solid var(--dapp-line);background:var(--dapp-surface);cursor:pointer;text-align:left;transition:border-color .13s ease,background .13s ease}
-.dapp-file:hover{border-color:var(--dapp-line-strong);background:var(--dapp-surface-2)}
-.dapp-file-top{display:flex;align-items:center;gap:7px}
-.dapp-file-path{font-size:10px;color:var(--dapp-muted);font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
-.dapp-file-sub{font-size:11px;color:var(--dapp-muted);line-height:1.5}
-.dapp-file-snip{margin-top:4px;font-size:11px;line-height:1.5;color:var(--dapp-text);opacity:.85;background:var(--dapp-surface-2);border-left:2px solid var(--dapp-accent-line);border-radius:0 6px 6px 0;padding:4px 8px;word-break:break-word}
-.dapp-file-snip-no{margin-right:6px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10px;color:var(--dapp-muted);opacity:.8}
-.dapp-empty{padding:18px 12px;text-align:center;font-size:11.5px;color:var(--dapp-muted)}
-.dapp-chips{display:flex;flex-wrap:wrap;gap:6px}
-.dapp-chipbtn{font-size:11.5px;padding:5px 10px;border-radius:999px;border:1px solid var(--dapp-line-strong);background:transparent;color:var(--dapp-muted);cursor:pointer;transition:all .13s ease}
-.dapp-chipbtn:hover{border-color:var(--dapp-line-strong);color:var(--dapp-text);background:var(--dapp-surface-2)}
-.dapp-chipbtn[data-on=true]{border-color:var(--dapp-accent);color:var(--dapp-accent);background:color-mix(in srgb,var(--dapp-accent) 12%,transparent);font-weight:600}
-.dapp-field{display:grid;grid-template-columns:96px 1fr;gap:8px;align-items:center}
-.dapp-field input,.dapp-field select{font:inherit;font-size:12px;padding:6px 8px;border-radius:7px;border:1px solid var(--dapp-line-strong);background:var(--dapp-surface);color:var(--dapp-text);width:100%}
-.dapp-field input:focus,.dapp-field select:focus{outline:none;border-color:var(--dapp-accent)}
-.dapp-verdict{display:flex;gap:8px;align-items:flex-start;padding:7px 9px;border-radius:8px;border:1px solid var(--dapp-line);background:var(--dapp-surface);font-size:11.5px;line-height:1.5}
-.dapp-verdict[data-state=ok]{border-color:color-mix(in srgb,var(--dapp-ok) 40%,transparent)}
-.dapp-verdict[data-state=bad]{border-color:color-mix(in srgb,var(--dapp-bad) 45%,transparent)}
-.dapp-verdict[data-state=warn]{border-color:color-mix(in srgb,var(--dapp-warn) 45%,transparent)}
-.dapp-verdict-dot{width:7px;height:7px;border-radius:999px;margin-top:5px;flex:0 0 auto;background:var(--dapp-muted)}
-.dapp-verdict[data-state=ok] .dapp-verdict-dot{background:var(--dapp-ok)}
-.dapp-verdict[data-state=bad] .dapp-verdict-dot{background:var(--dapp-bad)}
-.dapp-verdict[data-state=warn] .dapp-verdict-dot{background:var(--dapp-warn)}
-.dapp-verdict-name{flex:0 0 84px;color:var(--dapp-muted)}
-.dapp-verdict-text{flex:1 1 auto;min-width:0}
-.dapp-verdict-note{display:block;color:var(--dapp-muted);font-size:10.5px;margin-top:2px}
-.dapp-swatch-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px}
-.dapp-swatch-card{border:1px solid var(--dapp-line);border-radius:9px;overflow:hidden;background:var(--dapp-surface);display:grid}
-.dapp-swatch-strip{display:flex;height:34px}
-.dapp-swatch-strip span{flex:1 1 0}
-.dapp-swatch-meta{padding:6px 8px;display:grid;gap:2px}
-.dapp-hex{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10.5px}
-.dapp-role{font-size:10px;color:var(--dapp-muted)}
-.dapp-rule{display:flex;gap:10px;align-items:flex-start;padding:9px 11px;border-radius:var(--dapp-r);border:1px solid var(--dapp-line);background:var(--dapp-surface)}
-.dapp-rule-no{flex:0 0 auto;display:grid;place-items:center;width:20px;height:20px;border-radius:999px;font-size:10.5px;font-weight:700;color:var(--dapp-accent);border:1px solid color-mix(in srgb,var(--dapp-accent) 40%,transparent)}
-.dapp-rule-title{font-size:12.5px;font-weight:600}
-.dapp-rule-body{font-size:11.5px;color:var(--dapp-muted);line-height:1.55;margin-top:3px}
-.dapp-hint{font-size:11px;color:var(--dapp-muted);line-height:1.55}
-.dapp-hint b{color:var(--dapp-text);font-weight:600}
-.dapp-meter{height:5px;border-radius:3px;background:color-mix(in srgb,var(--dapp-muted) 18%,transparent);overflow:hidden}
-.dapp-meter span{display:block;height:100%;border-radius:3px;transition:width .3s cubic-bezier(.4,0,.2,1)}
-.dapp-score{display:flex;align-items:center;gap:10px;font-size:12px;text-align:left;padding:9px 10px;border-radius:var(--dapp-r);border:1px solid var(--dapp-line);background:var(--dapp-surface);cursor:pointer;transition:border-color .13s ease,background .13s ease}
-.dapp-score:hover{border-color:var(--dapp-accent);background:var(--dapp-surface-2)}
-.dapp-score-name{font-size:12.5px;font-weight:600}
-.dapp-score-tags{font-size:10.5px;color:var(--dapp-muted);margin-top:2px}
-.dapp-score-bar{height:5px;border-radius:3px;background:var(--dapp-surface-2);overflow:hidden;margin-top:6px}
-.dapp-score-bar span{display:block;height:100%;background:var(--dapp-accent);transition:width .3s cubic-bezier(.4,0,.2,1)}
-@media (prefers-reduced-motion:reduce){.dapp-view{animation:none}.dapp-fill,.dapp-meter span,.dapp-score-bar span{transition:none}}
+.dapp-group{border:.5px solid var(--dapp-line);border-radius:var(--dapp-r);background:var(--dapp-surface);overflow:hidden;min-width:0}
+.dapp-group-head{display:flex;align-items:center;gap:var(--dapp-s3);width:100%;padding:var(--dapp-s3) var(--dapp-s4);background:var(--dapp-surface-2);border:0;border-bottom:.5px solid var(--dapp-line-soft);font:inherit;font-size:var(--dapp-t-head);font-weight:500;line-height:20px;color:var(--dapp-text);text-align:left;cursor:pointer;transition:background .13s ease}
+.dapp-group-name{flex:1 1 auto;min-width:0;font-size:var(--dapp-t-head);font-weight:500;line-height:20px;overflow-wrap:anywhere}
+.dapp-group-count{font-size:var(--dapp-t-cap);color:var(--dapp-muted);font-variant-numeric:tabular-nums;flex:0 0 auto}
+.dapp-chevron{color:var(--dapp-faint);transition:transform .16s ease;flex:0 0 auto}
+.dapp-items{padding:var(--dapp-s1) var(--dapp-s3) var(--dapp-s3)}
+.dapp-item{display:flex;gap:var(--dapp-s3);align-items:flex-start;padding:var(--dapp-s3) var(--dapp-s2);border-radius:var(--dapp-r);font-size:var(--dapp-t-body);line-height:20px;transition:background .13s ease;min-width:0}
+.dapp-box{flex:0 0 auto;width:16px;height:16px;margin-top:2px;padding:0;border-radius:var(--dapp-r-xs);border:1.5px solid var(--dapp-line-strong);background:transparent;display:grid;place-items:center;color:transparent;cursor:pointer;transition:background .13s ease,border-color .13s ease,color .13s ease}
+.dapp-item[data-checked=true] .dapp-box{border-color:var(--dapp-accent);background:var(--dapp-accent-soft);color:var(--dapp-accent)}
+.dapp-item[data-checked=true] .dapp-item-text{text-decoration:line-through;color:var(--dapp-faint)}
+.dapp-item-text{min-width:0;overflow-wrap:anywhere}
+.dapp-item-meta{display:flex;align-items:center;gap:var(--dapp-s2);flex-wrap:wrap;margin-top:var(--dapp-s2)}
+.dapp-status{display:flex;align-items:flex-start;gap:var(--dapp-s3);margin:0;font-size:var(--dapp-t-body);line-height:20px;color:var(--dapp-faint)}
+.dapp-status-dot{width:6px;height:6px;border-radius:var(--dapp-r-pill);flex:0 0 auto;margin-top:7px;background:var(--dapp-muted)}
+.dapp-status[data-tone=ok] .dapp-status-dot{background:var(--dapp-ok)}
+.dapp-status[data-tone=warn] .dapp-status-dot{background:var(--dapp-warn)}
+.dapp-ringp{position:relative;width:32px;height:32px;flex:0 0 auto}
+.dapp-ringp-label{position:absolute;inset:0;display:grid;place-items:center;font-size:var(--dapp-t-tag);font-weight:500;font-variant-numeric:tabular-nums;color:var(--dapp-muted)}
+/* ── search ─────────────────────────────────────────────────────────── */
+.dapp-search{display:flex;align-items:center;gap:var(--dapp-s3);padding:0 var(--dapp-s4);height:32px;border-radius:var(--dapp-r);border:.5px solid var(--dapp-line-strong);background:var(--dapp-surface);color:var(--dapp-faint);transition:border-color .13s ease,box-shadow .13s ease;min-width:0}
+.dapp-search:focus-within{border-color:var(--dapp-accent);box-shadow:0 0 0 2px var(--dapp-accent-soft)}
+.dapp-search input{flex:1 1 auto;min-width:0;height:30px;font:inherit;font-size:var(--dapp-t-ctl);border:0;outline:none;background:transparent;color:var(--dapp-text)}
+.dapp-search input::placeholder{color:var(--dapp-faint)}
 
-/* ── fact sheet ─────────────────────────────── */
-.dapp-title-row{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
-.dapp-title-name{font-size:16px;font-weight:700;letter-spacing:.01em}
-.dapp-title-full{font-size:11.5px;color:var(--dapp-muted)}
-.dapp-lead{font-size:12.5px;line-height:1.65}
-.dapp-facts{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--dapp-line);border:1px solid var(--dapp-line);border-radius:10px;overflow:hidden}
-.dapp-fact{background:var(--dapp-surface);padding:8px 10px;display:grid;gap:2px}
-.dapp-fact-k{font-size:10px;color:var(--dapp-muted)}
-.dapp-fact-v{font-size:12.5px;font-weight:600;line-height:1.35}
-.dapp-fact-v[data-tone=ok]{color:var(--dapp-ok)}
-.dapp-fact-v[data-tone=warn]{color:var(--dapp-warn)}
-.dapp-fact-v[data-tone=bad]{color:var(--dapp-bad)}
-.dapp-fact-v[data-tone=accent]{color:var(--dapp-accent)}
-.dapp-fold{border:1px solid var(--dapp-line);border-radius:10px;background:var(--dapp-surface);overflow:hidden}
-.dapp-fold>summary{display:flex;align-items:center;gap:7px;list-style:none;cursor:pointer;padding:9px 10px;font-size:12px;font-weight:600;transition:background .13s ease}
-.dapp-fold>summary::-webkit-details-marker{display:none}
-.dapp-fold>summary:hover{background:var(--dapp-surface-2)}
-.dapp-fold>summary:focus-visible{outline:2px solid var(--dapp-accent);outline-offset:-2px}
-.dapp-fold-body{padding:3px 10px 10px;border-top:1px solid var(--dapp-line)}
-.dapp-fold-count{margin-left:auto;font-size:10.5px;font-weight:500;color:var(--dapp-muted)}
-.dapp-fold[open] .dapp-chevron{transform:rotate(90deg)}
-.dapp-dims{display:flex;flex-wrap:wrap;gap:5px}
-.dapp-dim{font-size:11.5px;padding:4px 10px;border-radius:999px;border:1px solid var(--dapp-line-strong);background:var(--dapp-surface);color:var(--dapp-muted);cursor:pointer;transition:all .13s ease}
-.dapp-dim:hover{color:var(--dapp-text);background:var(--dapp-surface-2)}
-.dapp-dim[data-on=true]{color:var(--dapp-accent);border-color:var(--dapp-accent-line);background:var(--dapp-accent-soft);font-weight:600}
-.dapp-compare{display:grid;gap:6px}
-.dapp-compare-row{display:grid;font-size:12px;grid-template-columns:74px 1fr;gap:10px;align-items:start;padding:9px 10px;border-radius:10px;border:1px solid var(--dapp-line);background:var(--dapp-surface);cursor:pointer;text-align:left;transition:border-color .13s ease,background .13s ease}
-.dapp-compare-row:hover{border-color:var(--dapp-accent-line);background:var(--dapp-accent-soft)}
-.dapp-compare-name{font-size:12.5px;font-weight:650}
-.dapp-compare-value{font-size:12px;line-height:1.5}
-.dapp-compare-value[data-tone=ok]{color:var(--dapp-ok)}
-.dapp-compare-value[data-tone=warn]{color:var(--dapp-warn)}
-.dapp-compare-value[data-tone=bad]{color:var(--dapp-bad)}
-.dapp-compare-value[data-tone=accent]{color:var(--dapp-accent)}
-.dapp-badge-accent{color:var(--dapp-accent);border-color:var(--dapp-accent-line);background:var(--dapp-accent-soft)}
-.dapp-mods{grid-template-columns:1fr 1fr}
-.dapp-kv{grid-template-columns:84px 1fr;font-size:12px}
-
-
-/* ── capability dashboard ─────────────────────────────── */
-.dapp{--dapp-info:var(--dsw-alias-state-info-primary,#3b82f6);--dapp-info-soft:color-mix(in srgb,var(--dapp-info) 12%,transparent)}
-.dapp-scroll>*{min-width:0}
-.dapp-wrap{overflow-wrap:anywhere;word-break:break-word}
-.dapp-toolbar{display:grid;gap:7px}
-.dapp-chiprow{display:flex;flex-wrap:wrap;gap:5px}
-.dapp-chiprow-scroll{flex-wrap:nowrap;overflow-x:auto;padding-bottom:3px;scrollbar-width:none}
+/* ── chips ──────────────────────────────────────────────────────────── */
+.dapp-chiprow{display:flex;flex-wrap:wrap;gap:var(--dapp-s3);min-width:0}
+.dapp-chiprow-scroll{flex-wrap:nowrap;overflow-x:auto;padding-bottom:var(--dapp-s1);scrollbar-width:none}
 .dapp-chiprow-scroll::-webkit-scrollbar{display:none}
 .dapp-chiprow-scroll>*{flex:0 0 auto}
-.dapp-label+.dapp-chiprow{margin-top:-2px}
-.dapp-hintline{font-size:10.5px;color:var(--dapp-muted);line-height:1.5}
-.dapp-sev{display:inline-flex;align-items:center;gap:4px;font-size:10px;padding:2px 7px;border-radius:999px;border:1px solid var(--dapp-line-strong);white-space:nowrap;flex:0 0 auto}
-.dapp-sev[data-tone=bad]{color:var(--dapp-bad);border-color:color-mix(in srgb,var(--dapp-bad) 45%,transparent);background:var(--dapp-bad-soft)}
-.dapp-sev[data-tone=warn]{color:var(--dapp-warn);border-color:color-mix(in srgb,var(--dapp-warn) 45%,transparent);background:var(--dapp-warn-soft)}
-.dapp-sev[data-tone=info]{color:var(--dapp-info);border-color:color-mix(in srgb,var(--dapp-info) 45%,transparent);background:var(--dapp-info-soft)}
-.dapp-rid{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10px;color:var(--dapp-muted);word-break:break-all}
-.dapp-fix{font-size:11.5px;line-height:1.55;border-left:2px solid var(--dapp-accent-line);padding:2px 0 2px 8px;color:var(--dapp-text)}
-.dapp-src{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10px;color:var(--dapp-muted);word-break:break-all}
-.dapp-actions{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
-.dapp-btn[disabled]{opacity:.55;cursor:default}
-.dapp-icon-btn[disabled]{opacity:.55;cursor:default}
-.dapp-tablewrap{width:100%;max-width:100%;overflow-x:auto;border:1px solid var(--dapp-line);border-radius:var(--dapp-r);background:var(--dapp-surface)}
-.dapp-jtable{width:100%;min-width:520px;border-collapse:separate;border-spacing:0;font-size:11px}
-.dapp-jtable th,.dapp-jtable td{padding:6px 8px;text-align:left;border-bottom:1px solid var(--dapp-line);white-space:nowrap}
-.dapp-jtable th:first-child,.dapp-jtable td:first-child{max-width:158px;overflow:hidden;text-overflow:ellipsis}
-.dapp-jtable thead th{position:sticky;top:0;background:var(--dapp-surface);z-index:1;font-size:10px;color:var(--dapp-muted);font-weight:600;cursor:pointer;user-select:none}
-.dapp-jtable tbody tr{cursor:pointer;transition:background .13s ease}
-.dapp-jtable tbody tr:hover{background:var(--dapp-surface-2)}
-.dapp-jtable tbody tr[data-on=true]{background:var(--dapp-accent-soft)}
-.dapp-textarea{width:100%;min-height:150px;resize:vertical;font:inherit;font-size:12px;line-height:1.6;padding:8px 9px;border-radius:9px;border:1px solid var(--dapp-line-strong);background:var(--dapp-surface);color:var(--dapp-text)}
-.dapp-textarea:focus{outline:none;border-color:var(--dapp-accent)}
-.dapp-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
-.dapp-summary-cell{border:1px solid var(--dapp-line);border-radius:9px;padding:7px 9px;background:var(--dapp-surface);display:grid;gap:2px}
-.dapp-summary-num{font-size:17px;font-weight:700;font-variant-numeric:tabular-nums}
-.dapp-summary-num[data-tone=bad]{color:var(--dapp-bad)}
-.dapp-summary-num[data-tone=warn]{color:var(--dapp-warn)}
-.dapp-summary-num[data-tone=info]{color:var(--dapp-info)}
-.dapp-summary-k{font-size:10px;color:var(--dapp-muted)}
-.dapp-verdictbar{display:flex;gap:8px;align-items:center;padding:8px 10px;border-radius:9px;border:1px solid var(--dapp-line);background:var(--dapp-surface);font-size:12px}
-.dapp-verdictbar[data-state=ok]{border-color:color-mix(in srgb,var(--dapp-ok) 45%,transparent)}
-.dapp-verdictbar[data-state=bad]{border-color:color-mix(in srgb,var(--dapp-bad) 45%,transparent)}
-.dapp-verdictbar .dapp-grow{min-width:0}
-.dapp-state{border:1px solid var(--dapp-line);border-radius:var(--dapp-r);background:var(--dapp-surface);padding:10px 11px;font-size:11.5px;line-height:1.6;color:var(--dapp-muted);display:grid;gap:5px}
-.dapp-state[data-tone=bad]{border-color:color-mix(in srgb,var(--dapp-bad) 45%,transparent)}
-.dapp-state[data-tone=warn]{border-color:color-mix(in srgb,var(--dapp-warn) 45%,transparent)}
-.dapp-state-title{font-size:12px;font-weight:600;color:var(--dapp-text)}
-.dapp-loading{font-size:11.5px;color:var(--dapp-muted);padding:4px 2px}
-.dapp-ringp{position:relative;width:28px;height:28px;flex:0 0 auto}
-.dapp-ringp-label{position:absolute;inset:0;display:grid;place-items:center;font-size:8.5px;font-variant-numeric:tabular-nums;color:var(--dapp-muted)}
-.dapp-score-big{font-size:30px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1}
+.dapp-chipbtn{display:inline-flex;align-items:center;gap:var(--dapp-s2);height:26px;padding:0 var(--dapp-s5);font-size:var(--dapp-t-ctl);line-height:20px;border-radius:var(--dapp-r-pill);border:.5px solid var(--dapp-line-strong);background:transparent;color:var(--dapp-muted);cursor:pointer;white-space:nowrap;transition:background .13s ease,border-color .13s ease,color .13s ease}
+.dapp-chipbtn[data-on=true]{border-color:var(--dapp-accent);color:var(--dapp-accent);background:var(--dapp-accent-soft);font-weight:500}
+
+/* ── toolbar ────────────────────────────────────────────────────────── */
+.dapp-toolbar{display:grid;gap:var(--dapp-s4);min-width:0}
+.dapp-fgroup{display:grid;gap:var(--dapp-s3);min-width:0}
+
+/* ── manual ─────────────────────────────────────────────────────────── */
+.dapp-file{display:grid;gap:var(--dapp-s2);padding:var(--dapp-s5);border-bottom:.5px solid var(--dapp-line-soft);min-width:0}
+.dapp-file:last-child{border-bottom:0}
+.dapp-file-top{display:flex;align-items:flex-start;gap:var(--dapp-s3);min-width:0}
+.dapp-file-title{font-size:var(--dapp-t-item);font-weight:500;line-height:20px;min-width:0;overflow-wrap:anywhere}
+.dapp-file-path{font-size:var(--dapp-t-id);color:var(--dapp-faint);font-family:ui-monospace,SFMono-Regular,Menlo,monospace;overflow-wrap:anywhere;line-height:16px}
+.dapp-file-sub{font-size:var(--dapp-t-meta);color:var(--dapp-muted);line-height:18px;overflow-wrap:anywhere}
+.dapp-file-snip{margin-top:var(--dapp-s2);font-size:var(--dapp-t-meta);line-height:18px;color:var(--dapp-text);background:var(--dapp-surface-2);border-left:2px solid var(--dapp-accent-line);border-radius:0 var(--dapp-r) var(--dapp-r) 0;padding:var(--dapp-s3) var(--dapp-s4);overflow-wrap:anywhere}
+.dapp-file-snip-no{margin-right:var(--dapp-s3);font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:var(--dapp-t-id);color:var(--dapp-faint)}
+.dapp-chips{display:flex;flex-wrap:wrap;gap:var(--dapp-s3)}
+
+/* ── empty state ────────────────────────────────────────────────────── */
+.dapp-empty{display:grid;gap:var(--dapp-s3);justify-items:center;text-align:center;padding:var(--dapp-s9) var(--dapp-s6);border:.5px dashed var(--dapp-line-strong);border-radius:var(--dapp-r);background:var(--dapp-surface);color:var(--dapp-muted);min-width:0}
+.dapp-empty-mark{display:grid;place-items:center;width:28px;height:28px;border-radius:var(--dapp-r-pill);background:var(--dapp-surface-2);color:var(--dapp-muted)}
+.dapp-empty-title{font-size:var(--dapp-t-body);font-weight:500;color:var(--dapp-text)}
+.dapp-empty-hint{font-size:var(--dapp-t-meta);line-height:18px;max-width:30em}
+
+/* ── pattern row (句式库) ───────────────────────────────────────────── */
+.dapp-pattern{display:flex;gap:var(--dapp-s4);align-items:flex-start;padding:var(--dapp-s4) 0;border-bottom:.5px solid var(--dapp-line-soft);min-width:0}
+.dapp-pattern:last-child{border-bottom:0}
+.dapp-pattern-title{font-size:var(--dapp-t-ctl);font-weight:500;line-height:18px}
+.dapp-pattern-body{font-size:var(--dapp-t-meta);color:var(--dapp-muted);line-height:18px;margin-top:var(--dapp-s1)}
+/* ── de-AI score ────────────────────────────────────────────────────── */
+.dapp-meter{height:6px;border-radius:var(--dapp-r-pill);background:var(--dapp-surface-3);overflow:hidden}
+.dapp-meter span{display:block;height:100%;border-radius:var(--dapp-r-pill);transition:width .3s cubic-bezier(.4,0,.2,1)}
+.dapp-score-big{font-size:var(--dapp-t-hero);font-weight:600;font-variant-numeric:tabular-nums;line-height:24px}
 .dapp-score-big[data-tone=ok]{color:var(--dapp-ok)}
 .dapp-score-big[data-tone=warn]{color:var(--dapp-warn)}
 .dapp-score-big[data-tone=bad]{color:var(--dapp-bad)}
-.dapp-match{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;background:var(--dapp-surface-2);border-radius:5px;padding:2px 6px;display:inline-block;word-break:break-word}
-.dapp-toast{flex:0 0 auto;padding:7px 10px;border-radius:9px;font-size:11.5px;line-height:1.5;border:1px solid var(--dapp-line-strong);background:var(--dapp-surface-2);color:var(--dapp-text)}
+.dapp-match{justify-self:start;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:var(--dapp-t-id);background:var(--dapp-surface-2);border-radius:var(--dapp-r-xs);padding:var(--dapp-s1) var(--dapp-s3);display:inline-block;max-width:100%;overflow-wrap:anywhere}
+@media (prefers-reduced-motion:reduce){.dapp-view{animation:none}.dapp-fill,.dapp-meter span{transition:none}}
+
+/* ── journal detail ─────────────────────────────────────────────────── */
+.dapp-facts{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:.5px;background:var(--dapp-line-soft);border:.5px solid var(--dapp-line-soft);border-radius:var(--dapp-r);overflow:hidden}
+.dapp-fact{background:var(--dapp-surface);padding:var(--dapp-s4);display:grid;gap:var(--dapp-s1);min-width:0}
+.dapp-fact-k{font-size:var(--dapp-t-tag);color:var(--dapp-faint)}
+.dapp-fact-v{font-size:var(--dapp-t-ctl);font-weight:600;line-height:18px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.dapp-kv{display:grid;grid-template-columns:minmax(72px,36%) minmax(0,1fr);gap:var(--dapp-s3) var(--dapp-s4);font-size:var(--dapp-t-body);line-height:20px}
+.dapp-kv dt{color:var(--dapp-muted);overflow-wrap:anywhere}
+.dapp-kv dd{margin:0;overflow-wrap:anywhere}
+
+/* ── fold (句式库) ──────────────────────────────────────────────────── */
+.dapp-fold{border:.5px solid var(--dapp-line);border-radius:var(--dapp-r);background:var(--dapp-surface);overflow:hidden;min-width:0}
+.dapp-fold>summary{display:flex;align-items:center;gap:var(--dapp-s3);list-style:none;cursor:pointer;padding:var(--dapp-s4) var(--dapp-s5);font-size:var(--dapp-t-head);font-weight:500;line-height:20px;transition:background .13s ease}
+.dapp-fold>summary::-webkit-details-marker{display:none}
+.dapp-fold-body{padding:var(--dapp-s3) var(--dapp-s5) var(--dapp-s5);border-top:.5px solid var(--dapp-line-soft);display:grid;gap:var(--dapp-s4)}
+.dapp-fold-count{margin-left:auto;font-size:var(--dapp-t-cap);font-weight:400;color:var(--dapp-faint);font-variant-numeric:tabular-nums}
+.dapp-fold[open] .dapp-chevron{transform:rotate(90deg)}
+
+
+/* ── capability dashboard ───────────────────────────────────────────── */
+.dapp-scroll>*{min-width:0}
+.dapp-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--dapp-s3)}
+.dapp-summary-cell{border:.5px solid var(--dapp-line);border-radius:var(--dapp-r);padding:var(--dapp-s4);background:var(--dapp-surface);display:grid;gap:var(--dapp-s1);min-width:0}
+.dapp-summary-num{font-size:var(--dapp-t-stat);font-weight:600;line-height:24px;font-variant-numeric:tabular-nums}
+.dapp-summary-num[data-tone=bad]{color:var(--dapp-bad)}
+.dapp-summary-num[data-tone=warn]{color:var(--dapp-warn)}
+.dapp-summary-num[data-tone=info]{color:var(--dapp-info)}
+.dapp-summary-k{font-size:var(--dapp-t-tag);color:var(--dapp-faint);white-space:nowrap}
+.dapp-verdictbar{display:flex;align-items:center;gap:var(--dapp-s3);padding:var(--dapp-s4) var(--dapp-s5);border-radius:var(--dapp-r);border:.5px solid var(--dapp-line);background:var(--dapp-surface-2);font-size:var(--dapp-t-body);font-weight:500;line-height:20px}
+.dapp-verdictbar[data-state=ok]{border-color:color-mix(in srgb,var(--dapp-ok) 40%,transparent)}
+.dapp-verdictbar[data-state=bad]{border-color:color-mix(in srgb,var(--dapp-bad) 40%,transparent)}
+.dapp-verdict-dot{width:7px;height:7px;border-radius:var(--dapp-r-pill);flex:0 0 auto;background:var(--dapp-muted)}
+.dapp-verdictbar[data-state=ok] .dapp-verdict-dot{background:var(--dapp-ok)}
+.dapp-verdictbar[data-state=bad] .dapp-verdict-dot{background:var(--dapp-bad)}
+.dapp-verdictbar .dapp-grow{min-width:0}
+
+/* ── journal table ──────────────────────────────────────────────────── */
+/* The table scrolls horizontally inside .dapp-tablewrap — the columns stay
+   reachable at every width, and the FIRST column (the journal name) wraps
+   instead of being clipped. */
+.dapp-tablewrap{width:100%;max-width:100%;overflow-x:auto;border:.5px solid var(--dapp-line);border-radius:var(--dapp-r);background:var(--dapp-surface)}
+.dapp-jtable{width:100%;min-width:100%;border-collapse:separate;border-spacing:0;font-size:var(--dapp-t-body)}
+.dapp-jtable th,.dapp-jtable td{padding:var(--dapp-s3) var(--dapp-s4);text-align:left;border-bottom:.5px solid var(--dapp-line-soft);vertical-align:top}
+.dapp-jtable td{white-space:nowrap;font-variant-numeric:tabular-nums}
+.dapp-jtable th:first-child,.dapp-jtable td:first-child{white-space:normal;min-width:140px;font-weight:500;color:var(--dapp-text)}
+.dapp-jtable td[data-sort=publisher]{white-space:normal;max-width:160px}
+.dapp-jtable td[data-sort=structure]{white-space:normal;max-width:200px}
+.dapp-jtable thead th{position:sticky;top:0;background:var(--dapp-surface);z-index:1;font-size:var(--dapp-t-cap);color:var(--dapp-muted);font-weight:600;cursor:pointer;user-select:none;white-space:nowrap}
+.dapp-jtable tbody tr{cursor:pointer;transition:background .13s ease}
+.dapp-jtable tbody tr[data-on=true]{background:var(--dapp-accent-soft)}
+.dapp-jtable tbody tr:last-child td{border-bottom:0}
+
+/* ── loading / error ────────────────────────────────────────────────── */
+/* the host's loading visual: a skeleton bar on the real line height */
+.dapp-skel{display:grid;gap:var(--dapp-s4);padding:var(--dapp-s6);border:.5px solid var(--dapp-line);border-radius:var(--dapp-r);background:var(--dapp-surface)}
+.dapp-skel-text{display:flex;flex-direction:column;height:1lh}
+.dapp-skel-bar{width:100%;height:12px;border-radius:var(--dapp-r-xs);background:var(--dapp-skeleton);animation:dapp-skeleton 2s cubic-bezier(.36,0,.64,1) infinite}
+@keyframes dapp-skeleton{0%,100%{opacity:.6}50%{opacity:1}}
+.dapp-state{display:grid;gap:var(--dapp-s3);padding:var(--dapp-s5) var(--dapp-s6);border:.5px solid var(--dapp-line);border-left:2px solid var(--dapp-line-strong);border-radius:var(--dapp-r);background:var(--dapp-surface);font-size:var(--dapp-t-body);line-height:20px;color:var(--dapp-muted);min-width:0}
+.dapp-state[data-tone=bad]{border-left-color:var(--dapp-bad)}
+.dapp-state[data-tone=warn]{border-left-color:var(--dapp-warn)}
+.dapp-state-head{display:flex;align-items:center;gap:var(--dapp-s3);min-width:0}
+.dapp-state-title{font-size:var(--dapp-t-ctl);font-weight:600;color:var(--dapp-text)}
+.dapp-state-mark{display:grid;place-items:center;flex:0 0 auto;color:var(--dapp-muted)}
+.dapp-state[data-tone=bad] .dapp-state-mark{color:var(--dapp-bad)}
+.dapp-state[data-tone=warn] .dapp-state-mark{color:var(--dapp-warn)}
+.dapp-state-body{overflow-wrap:anywhere}
+
+/* ── toast ──────────────────────────────────────────────────────────── */
+.dapp-toast{flex:0 0 auto;padding:var(--dapp-s3) var(--dapp-s5);border-radius:var(--dapp-r);font-size:var(--dapp-t-body);line-height:20px;border:.5px solid var(--dapp-line-strong);background:var(--dapp-surface-2);color:var(--dapp-text);box-shadow:var(--dapp-elev)}
 .dapp-toast[data-tone=bad]{border-color:color-mix(in srgb,var(--dapp-bad) 50%,transparent)}
 .dapp-toast[data-tone=warn]{border-color:color-mix(in srgb,var(--dapp-warn) 50%,transparent)}
 .dapp-toast[data-tone=ok]{border-color:color-mix(in srgb,var(--dapp-ok) 50%,transparent)}
-.dapp-group[data-open=true] .dapp-box{align-self:flex-start}
-.dapp .dapp-box{color:transparent}
-@media (prefers-reduced-motion:reduce){.dapp-jtable tbody tr{transition:none}}
+
+@media (prefers-reduced-motion:reduce){
+  .dapp-view{animation:none}
+  .dapp-fill,.dapp-meter span{transition:none}
+  .dapp-skel-bar{animation:none}
+  .dapp-btn:active{transform:none}
+  .dapp-chevron{transition:none}
+  .dapp-jtable tbody tr{transition:none}
+}
 `;
 
     // ── registration ────────────────────────────────────────────────────
@@ -3657,6 +3969,7 @@ window.__ModuleLoader__.load({
                 scope.sidebarRightTabs.register({
                   id: TAB_ID,
                   kind: TAB_KIND,
+                  priority: 'extension',
                   title: () => translate('type.label'),
                   guide: [
                     {
@@ -3670,6 +3983,25 @@ window.__ModuleLoader__.load({
                 }),
               'dsh-academic-paper-polish: right sidebar tab type',
             );
+
+            // The chip's live title. The host renders it outside this
+            // component's tree, so it is a second registration under the
+            // same key — exactly what the host's own sidebar-files package
+            // does. It is registered FIRST so that the tab BODY stays the
+            // last registration under this key.
+            try {
+              scope.slots.inject('sidebar.right.pane.tab.title', () =>
+                scope.slots.register(
+                  {
+                    name: 'sidebar.right.pane.tab.title',
+                    key: TAB_ID,
+                  },
+                  PanelTitle,
+                ),
+              );
+            } catch {
+              /* the host does not offer the title slot — the chip keeps the tab title */
+            }
 
             scope.slots.inject('sidebar.right.pane.tab', () =>
               scope.slots.register(

@@ -353,7 +353,16 @@
             inject: (deps, cb) => { cb(ctx); return { dispose() {} }; },
           };
           plugin.apply(ctx);
-          check('the panel registers only in the right sidebar', registrations.length === 1, `${registrations.length} registrations`);
+          // The panel owns two seats under the same key: the body
+          // (`sidebar.right.pane.tab`) and the live chip title
+          // (`sidebar.right.pane.tab.title`). Both must be in the right
+          // sidebar — nothing may land in the composer dock.
+          check(
+            'the panel registers only in the right sidebar',
+            registrations.length === 2 &&
+              registrations.every((r) => r.def.name.startsWith('sidebar.right.pane.tab')),
+            registrations.map((r) => r.def.name).join('/'),
+          );
           check(
             'no composer-dock registration',
             !registrations.some((item) => item.def && item.def.name === 'conversation.composer.dock'),

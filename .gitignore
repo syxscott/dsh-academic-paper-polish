@@ -12,3 +12,7 @@ preview/dump-*.html
 # OS / editor
 Thumbs.db
 .DS_Store
+
+# upstream host sources, fetched by scripts/extract-host-css.mjs / gh api
+preview/host-reference/
+preview/host-*.css

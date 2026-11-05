@@ -15,19 +15,30 @@ import { readFile } from "node:fs/promises";
 import { readFileSync, statSync, readdirSync } from "node:fs";
 import { randomUUID } from "node:crypto";
 import { fileURLToPath } from "node:url";
-import { join, relative, sep } from "node:path";
+import { basename, extname, join, relative, sep } from "node:path";
 
 import { createCommandDefinitions } from "./lib/commands.mjs";
 import { allChecklists, allSentences, meta } from "./lib/data.mjs";
 import {
   LIMITS,
   createToolDefinitions,
+  resolvePath,
   runPaperCheck,
   runPaperDeai,
   runPaperJournals,
   runPaperOutline,
   runPaperRules,
 } from "./lib/tools.mjs";
+import {
+  assertInsideCwd,
+  discoverManuscripts,
+  pickLatestAgent,
+  resolveService,
+  resolveSession,
+  toPosix,
+} from "./lib/session.mjs";
+import { extractText, formatOf, isExtractable, unsupportedMessage } from "./lib/docx.mjs";
+import { analyzeManuscript } from "./lib/analyze.mjs";
 
 /** Cordis plugin identity. */
 export const name = "skill-academic-paper-polish";
@@ -49,6 +60,9 @@ const ROUTE_PREFIX = "/dsh-academic-paper-polish";
 
 /** Hard cap for a JSON request body (2 MB). */
 const MAX_BODY_BYTES = 2 * 1024 * 1024;
+
+/** Hard cap for the manuscript the analyzer reads (8 MB). */
+const MAX_ANALYZE_BYTES = 8 * 1024 * 1024;
 
 export function apply(ctx, config = {}) {
   const assetRoot = config.assetRoot ?? fileURLToPath(new URL("./skill/", import.meta.url));
@@ -558,48 +572,6 @@ async function readJsonBody(req) {
   }
 }
 
-/** The most recently active live agent, by the newest session event. */
-function pickLatestAgent(agents) {
-  let best = null;
-  let bestTime = -Infinity;
-  const list = typeof agents?.list === "function" ? agents.list() : [];
-  for (const agent of list ?? []) {
-    if (!agent) continue;
-    let time = -Infinity;
-    try {
-      const events = agent.session?.snapshotEvents?.();
-      for (const event of events ?? []) {
-        const type = event?.type;
-        if (type !== "turn/start" && type !== "user/message") continue;
-        const value = Number(event?.time);
-        if (Number.isFinite(value) && value > time) time = value;
-      }
-    } catch {
-      /* an agent without a readable session log is not a candidate */
-    }
-    if (time > bestTime) {
-      bestTime = time;
-      best = agent;
-    }
-  }
-  return best;
-}
-
-/** Resolve an optional host service from a context. */
-function resolveService(scope, name) {
-  if (!scope) return undefined;
-  const direct = Reflect.get(scope, name);
-  if (direct) return direct;
-  if (typeof scope.get === "function") {
-    try {
-      return scope.get(name);
-    } catch {
-      return undefined;
-    }
-  }
-  return undefined;
-}
-
 /** The agent's effective working directory, or the process cwd. */
 function resolveWorkingDirectory(scope, agent) {
   const service = resolveService(scope, "workingDirectory");
@@ -771,6 +743,67 @@ const API_ROUTES = {
         throw httpError(500, "followup-failed", String(error?.message ?? error));
       }
       return { ok: true, sessionId: String(agent.id ?? sessionId), mode: "followup" };
+    },
+  },
+  // The manuscript of the session: the files that could be the paper, the
+  // one that was auto-selected and — when the choice is ambiguous — the
+  // reason why the human has to choose.
+  "/api/session/files": {
+    method: "GET",
+    handler: async (params, context) => {
+      const sessionId = params.get("sessionId") ?? "";
+      const resolved = await resolveSession(context.scope, sessionId);
+      const discovery = discoverManuscripts(resolved.cwd);
+      return {
+        sessionId: resolved.sessionId,
+        cwd: toPosix(resolved.cwd),
+        files: discovery.files,
+        best: discovery.best,
+      };
+    },
+  },
+  // The analysis of one manuscript, section by section.
+  "/api/analyze": {
+    method: "POST",
+    handler: async (body, context) => {
+      const rawPath = typeof body.path === "string" ? body.path.trim() : "";
+      if (!rawPath) throw httpError(400, "bad-request", "需要 path");
+      const sessionId = typeof body.sessionId === "string" ? body.sessionId.trim() : "";
+      const resolved = await resolveSession(context.scope, sessionId);
+      // Only files INSIDE the session's working directory may be read.
+      const target = assertInsideCwd(resolved.cwd, resolvePath(rawPath, resolved.cwd));
+      let stats;
+      try {
+        stats = statSync(target);
+      } catch {
+        throw httpError(404, "file-not-found", `找不到文件：${rawPath}`);
+      }
+      if (!stats.isFile()) throw httpError(400, "bad-request", "目标不是文件");
+      if (stats.size > MAX_ANALYZE_BYTES) {
+        throw httpError(413, "payload-too-large", "文件超过 8 MB 上限");
+      }
+      const format = formatOf(target);
+      if (format === null) {
+        throw httpError(415, "unsupported-format", `暂不支持的文件格式：${extname(target)}`);
+      }
+      if (!isExtractable(format)) {
+        throw httpError(415, "unsupported-format", unsupportedMessage(format));
+      }
+      let extracted;
+      try {
+        extracted = extractText(target);
+      } catch (error) {
+        throw httpError(415, "unsupported-format", `无法读取正文：${error?.message ?? error}`);
+      }
+      return analyzeManuscript({
+        text: extracted.text,
+        format,
+        path: toPosix(target),
+        name: basename(target),
+        bytes: stats.size,
+        journal: typeof body.journal === "string" ? body.journal : undefined,
+        section: typeof body.section === "string" ? body.section : undefined,
+      });
     },
   },
 };
