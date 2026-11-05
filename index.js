@@ -13,8 +13,21 @@
 
 import { readFile } from "node:fs/promises";
 import { readFileSync, statSync, readdirSync } from "node:fs";
+import { randomUUID } from "node:crypto";
 import { fileURLToPath } from "node:url";
 import { join, relative, sep } from "node:path";
+
+import { createCommandDefinitions } from "./lib/commands.mjs";
+import { allChecklists, allSentences, meta } from "./lib/data.mjs";
+import {
+  LIMITS,
+  createToolDefinitions,
+  runPaperCheck,
+  runPaperDeai,
+  runPaperJournals,
+  runPaperOutline,
+  runPaperRules,
+} from "./lib/tools.mjs";
 
 /** Cordis plugin identity. */
 export const name = "skill-academic-paper-polish";
@@ -30,6 +43,12 @@ const PLACEHOLDER = "{{SKILL_DIR}}";
 
 const DEFAULT_DESCRIPTION =
   "学术论文写作、润色、选刊投稿与审稿回复全流程助手：10 个模块覆盖摘要、引言、文献综述、方法、结果、讨论、结论、去 AI 化、投稿选刊与审稿回复；内置地学 SCI 硬规则（期刊结构与引文密度、图表硬参数、图件设计体系、微体古生物与系统描述类论文规范）。";
+
+/** The same-origin route prefix — no trailing slash, the runtime requires it. */
+const ROUTE_PREFIX = "/dsh-academic-paper-polish";
+
+/** Hard cap for a JSON request body (2 MB). */
+const MAX_BODY_BYTES = 2 * 1024 * 1024;
 
 export function apply(ctx, config = {}) {
   const assetRoot = config.assetRoot ?? fileURLToPath(new URL("./skill/", import.meta.url));
@@ -58,7 +77,7 @@ export function apply(ctx, config = {}) {
             // `pathname === prefix || pathname.startsWith(prefix + '/')`, so a
             // registered path ending in "/" can never match a request.
             path: "/dsh-academic-paper-polish",
-            handler: (req, res) => {
+            handler: async (req, res) => {
               try {
                 if (connection) {
                   const rejection = connection.requestRejection(req);
@@ -68,30 +87,41 @@ export function apply(ctx, config = {}) {
                     return;
                   }
                 }
-                if (req.method !== "GET") {
-                  res.writeHead(405, { "content-type": "text/plain; charset=utf-8" });
-                  res.end("method not allowed");
-                  return;
-                }
                 // Node always sets url on server requests; String keeps that fact local.
                 const requestUrl = new URL(String(req.url), "http://localhost");
                 const pathname = requestUrl.pathname;
-                if (!pathname.endsWith("skill-index")) {
-                  res.writeHead(404, { "content-type": "text/plain; charset=utf-8" });
-                  res.end("not found");
+                const tail = pathname.startsWith(ROUTE_PREFIX)
+                  ? pathname.slice(ROUTE_PREFIX.length)
+                  : pathname;
+                if (tail === "/skill-index" || tail.endsWith("/skill-index")) {
+                  if (req.method !== "GET") {
+                    res.writeHead(405, { "content-type": "text/plain; charset=utf-8" });
+                    res.end("method not allowed");
+                    return;
+                  }
+                  // `?q=` turns the route into a full-text search over the files
+                  // currently on disk. The scan happens here so the browser never
+                  // has to download the ~600 KB corpus and no agent token is spent.
+                  const query = (requestUrl.searchParams.get("q") || "").trim();
+                  const index = buildSkillIndex(directory);
+                  const payload = query ? searchIndex(index, directory, query) : index;
+                  res.writeHead(200, {
+                    "content-type": "application/json; charset=utf-8",
+                    "cache-control": "no-store",
+                  });
+                  res.end(JSON.stringify(payload));
                   return;
                 }
-                // `?q=` turns the route into a full-text search over the files
-                // currently on disk. The scan happens here so the browser never
-                // has to download the ~600 KB corpus and no agent token is spent.
-                const query = (requestUrl.searchParams.get("q") || "").trim();
-                const index = buildSkillIndex(directory);
-                const payload = query ? searchIndex(index, directory, query) : index;
-                res.writeHead(200, {
-                  "content-type": "application/json; charset=utf-8",
-                  "cache-control": "no-store",
-                });
-                res.end(JSON.stringify(payload));
+                // The panel API lives under the SAME prefix and behind the SAME
+                // trust fence, so the browser and the tools always read one data
+                // set. `credentials: 'same-origin'` sends the session cookie
+                // automatically — no CORS headers are involved.
+                if (tail === "/api" || tail.startsWith("/api/")) {
+                  await handleApiRequest(req, res, tail, requestUrl, scope);
+                  return;
+                }
+                res.writeHead(404, { "content-type": "text/plain; charset=utf-8" });
+                res.end("not found");
               } catch (error) {
                 res.writeHead(500, { "content-type": "text/plain; charset=utf-8" });
                 res.end(String(error && error.message));
@@ -103,6 +133,75 @@ export function apply(ctx, config = {}) {
     });
   } catch {
     /* webServer absent — the client falls back to the bundled index */
+  }
+
+  // ── the capability layer ────────────────────────────────────────────
+  //
+  // The skill alone is a manual the model may never read. These three
+  // registrations turn it into capabilities the agent can CALL. Every one of
+  // them is optional: a composition without `tools`, `commands` or
+  // `systemPrompt` simply keeps the skill provider.
+
+  // 1. Five model-facing tools: paper_check / paper_rules / paper_journals /
+  //    paper_outline / paper_deai. Registered GLOBALLY — this is a capability
+  //    plugin, not a per-agent one.
+  try {
+    ctx.inject(["tools"], (scope) => {
+      if (!scope.tools || typeof scope.tools.register !== "function") return;
+      const definitions = createToolDefinitions({
+        resolveCwd: (agent) => resolveWorkingDirectory(scope, agent),
+      });
+      scope.effect(() => {
+        const disposers = definitions.map((definition) => scope.tools.register(definition));
+        return () => {
+          for (const dispose of disposers) dispose();
+        };
+      }, "dsh-academic-paper-polish: paper_* tools");
+    });
+  } catch {
+    /* tools absent — the skill provider still works */
+  }
+
+  // 2. Five slash commands the human can trigger from the composer.
+  try {
+    ctx.inject(["commands"], (scope) => {
+      if (!scope.commands || typeof scope.commands.register !== "function") return;
+      const definitions = createCommandDefinitions({
+        resolveCwd: (agent) => resolveWorkingDirectory(scope, agent),
+        getAttachments: () => resolveService(scope, "attachments"),
+      });
+      scope.effect(() => {
+        const disposers = definitions.map((definition) => scope.commands.register(definition));
+        return () => {
+          for (const dispose of disposers) dispose();
+        };
+      }, "dsh-academic-paper-polish: paper-* commands");
+    });
+  } catch {
+    /* commands absent — the tools still work */
+  }
+
+  // 3. One short always-on prompt section that tells the model these
+  //    capabilities exist, so the plugin is used without the user asking.
+  //    The text lives HERE and nowhere else: it is injected into EVERY model
+  //    request, so it only announces the capabilities — the rules live in
+  //    the tools and in the `academic-paper-polish` skill.
+  try {
+    ctx.inject(["systemPrompt"], (scope) => {
+      if (!scope.systemPrompt || typeof scope.systemPrompt.section !== "function") return;
+      scope.effect(
+        () =>
+          scope.systemPrompt.section({
+            name: "plugin:academic-paper-polish",
+            order: 2950,
+            text:
+              "paper_check 体检、paper_rules 查规则、paper_journals 选刊、paper_outline 拟结构、paper_deai 去AI化；写改稿请调用，勿凭记忆套规则。手册：academic-paper-polish 技能。",
+          }),
+        "dsh-academic-paper-polish: system prompt section",
+      );
+    });
+  } catch {
+    /* systemPrompt absent — the skill provider still works */
   }
 
   const candidates = [
@@ -367,4 +466,350 @@ function buildSkillIndex(root) {
         bytes: statSync(file).size,
       };
     });
+}
+
+// ── the panel API ─────────────────────────────────────────────────────
+//
+// Every route answers JSON and stays behind the `connection.requestRejection`
+// fence that the prefix route already applies. GET routes read query
+// parameters, POST routes read a JSON body (2 MB cap).
+
+/** Build an error carrying the HTTP status the API must answer. */
+function httpError(status, code, message) {
+  const error = new Error(message);
+  error.status = status;
+  error.code = code;
+  return error;
+}
+
+/** Recursively freeze a value — the mirror of the harness' `deepFreeze`. */
+function deepFreeze(value) {
+  if (value === null || typeof value !== "object" || Object.isFrozen(value)) return value;
+  for (const key of Object.keys(value)) deepFreeze(value[key]);
+  return Object.freeze(value);
+}
+
+/**
+ * Mirrors `createUserMessage()` from @deepseek-ai/dsh-llm without taking the
+ * dependency: `brandString` is a runtime no-op and `deepFreeze` is a freeze
+ * over a structured clone. The id must be fresh — a duplicate message id is
+ * rejected by the inbox.
+ */
+function createUserMessage(input) {
+  return deepFreeze(structuredClone({ ...input, id: randomUUID(), role: "user" }));
+}
+
+function sendJson(res, status, payload) {
+  const body = JSON.stringify(payload ?? null);
+  res.writeHead(status, {
+    "content-type": "application/json; charset=utf-8",
+    "cache-control": "no-store",
+  });
+  res.end(body);
+}
+
+/** Read the request body as UTF-8 with a hard size cap. */
+function readBody(req) {
+  return new Promise((resolvePromise, rejectPromise) => {
+    if (!req || typeof req.on !== "function") {
+      resolvePromise("");
+      return;
+    }
+    const chunks = [];
+    let size = 0;
+    let settled = false;
+    const fail = (error) => {
+      if (settled) return;
+      settled = true;
+      rejectPromise(error);
+    };
+    req.on("data", (chunk) => {
+      if (settled) return;
+      const buffer = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
+      size += buffer.length;
+      if (size > MAX_BODY_BYTES) {
+        try {
+          req.destroy?.();
+        } catch {
+          /* the socket may already be gone */
+        }
+        fail(httpError(413, "payload-too-large", "请求体超过 2 MB 上限"));
+        return;
+      }
+      chunks.push(buffer);
+    });
+    req.on("end", () => {
+      if (settled) return;
+      settled = true;
+      resolvePromise(Buffer.concat(chunks).toString("utf8"));
+    });
+    req.on("error", (error) => fail(error));
+  });
+}
+
+async function readJsonBody(req) {
+  const raw = await readBody(req);
+  if (!raw.trim()) return {};
+  try {
+    const parsed = JSON.parse(raw);
+    return parsed && typeof parsed === "object" ? parsed : {};
+  } catch {
+    throw httpError(400, "bad-request", "请求体不是合法的 JSON");
+  }
+}
+
+/** The most recently active live agent, by the newest session event. */
+function pickLatestAgent(agents) {
+  let best = null;
+  let bestTime = -Infinity;
+  const list = typeof agents?.list === "function" ? agents.list() : [];
+  for (const agent of list ?? []) {
+    if (!agent) continue;
+    let time = -Infinity;
+    try {
+      const events = agent.session?.snapshotEvents?.();
+      for (const event of events ?? []) {
+        const type = event?.type;
+        if (type !== "turn/start" && type !== "user/message") continue;
+        const value = Number(event?.time);
+        if (Number.isFinite(value) && value > time) time = value;
+      }
+    } catch {
+      /* an agent without a readable session log is not a candidate */
+    }
+    if (time > bestTime) {
+      bestTime = time;
+      best = agent;
+    }
+  }
+  return best;
+}
+
+/** Resolve an optional host service from a context. */
+function resolveService(scope, name) {
+  if (!scope) return undefined;
+  const direct = Reflect.get(scope, name);
+  if (direct) return direct;
+  if (typeof scope.get === "function") {
+    try {
+      return scope.get(name);
+    } catch {
+      return undefined;
+    }
+  }
+  return undefined;
+}
+
+/** The agent's effective working directory, or the process cwd. */
+function resolveWorkingDirectory(scope, agent) {
+  const service = resolveService(scope, "workingDirectory");
+  if (!service) return process.cwd();
+  try {
+    if (agent && typeof service.get === "function") {
+      const value = service.get(agent);
+      if (typeof value === "string" && value.length > 0) return value;
+    }
+    if (typeof service.defaultDirectory === "string" && service.defaultDirectory.length > 0) {
+      return service.defaultDirectory;
+    }
+  } catch {
+    /* fall through to the process cwd */
+  }
+  return process.cwd();
+}
+
+/** The API route table. `GET` routes read the query, `POST` routes the body. */
+const API_ROUTES = {
+  "/api/meta": {
+    method: "GET",
+    handler: () => meta(),
+  },
+  "/api/rules": {
+    method: "GET",
+    handler: (params) =>
+      runPaperRules({
+        query: params.get("query") ?? params.get("q") ?? "",
+        section: params.get("section") ?? undefined,
+        severity: params.get("severity") ?? undefined,
+        journal: params.get("journal") ?? undefined,
+        limit: params.get("limit") ?? LIMITS.rulesMax,
+      }),
+  },
+  "/api/journals": {
+    method: "GET",
+    handler: (params) =>
+      runPaperJournals({
+        query: params.get("query") ?? params.get("q") ?? "",
+        field: params.get("field") ?? undefined,
+        openAccess:
+          params.get("openAccess") === null
+            ? undefined
+            : /^(1|true|yes)$/iu.test(params.get("openAccess")),
+        maxApc: params.get("maxApc") === null ? undefined : Number(params.get("maxApc")),
+        limit: params.get("limit") ?? LIMITS.journalsMax,
+      }),
+  },
+  "/api/sentences": {
+    method: "GET",
+    handler: (params) => {
+      const needle = (params.get("query") ?? params.get("q") ?? "").trim().toLowerCase();
+      const patterns = allSentences().filter((pattern) => {
+        if (!needle) return true;
+        return [pattern.id, pattern.zh, pattern.en, pattern.category, pattern.why, pattern.suggestion]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase()
+          .includes(needle);
+      });
+      return {
+        patterns: patterns.slice(0, LIMITS.sentences).map((pattern) => ({
+          id: pattern.id ?? "",
+          zh: pattern.zh ?? "",
+          en: pattern.en ?? "",
+          pattern: pattern.pattern ?? "",
+          flags: pattern.flags ?? "",
+          severity: pattern.severity ?? "info",
+          category: pattern.category ?? null,
+          why: pattern.why ?? null,
+          suggestion: pattern.suggestion ?? null,
+        })),
+        total: patterns.length,
+      };
+    },
+  },
+  "/api/checklists": {
+    method: "GET",
+    handler: (params) => {
+      const stage = (params.get("stage") ?? "").trim().toLowerCase();
+      const stages = allChecklists().filter(
+        (entry) => !stage || String(entry.id ?? "").toLowerCase() === stage,
+      );
+      return { stages: stages.slice(0, LIMITS.checklists), total: stages.length };
+    },
+  },
+  "/api/check": {
+    method: "POST",
+    handler: (body) => {
+      const text = typeof body.text === "string" ? body.text : "";
+      if (!text.trim()) throw httpError(400, "bad-request", "需要 text");
+      const result = runPaperCheck({
+        text,
+        section: typeof body.section === "string" ? body.section : undefined,
+        journal: typeof body.journal === "string" ? body.journal : undefined,
+      });
+      return {
+        violations: result.violations,
+        advice: result.advice,
+        summary: result.summary,
+        truncated: result.truncated,
+      };
+    },
+  },
+  "/api/deai": {
+    method: "POST",
+    handler: (body) => {
+      const text = typeof body.text === "string" ? body.text : "";
+      if (!text.trim()) throw httpError(400, "bad-request", "需要 text");
+      const result = runPaperDeai({ text });
+      return { hits: result.hits, score: result.score, total: result.total };
+    },
+  },
+  "/api/outline": {
+    method: "POST",
+    handler: (body) =>
+      runPaperOutline({
+        journal: typeof body.journal === "string" ? body.journal : undefined,
+        section: typeof body.section === "string" ? body.section : undefined,
+      }),
+  },
+  "/api/send": {
+    method: "POST",
+    handler: async (body, context) => {
+      const text = typeof body.text === "string" ? body.text : "";
+      if (!text.trim()) throw httpError(400, "bad-request", "消息不能为空");
+      if (text.length > 20000) throw httpError(400, "bad-request", "消息超过 20000 字符上限");
+      const agents = resolveService(context.scope, "agents");
+      if (!agents) throw httpError(503, "agents-unavailable", "当前环境没有可用的 agents 服务");
+      const sessionId = typeof body.sessionId === "string" ? body.sessionId.trim() : "";
+      let agent = null;
+      if (sessionId) {
+        if (typeof agents.get === "function") agent = agents.get(sessionId);
+        if (!agent) {
+          // A session that is not resumed in this process is COLD: `agents.get`
+          // returns undefined and does not resume it. The session controller
+          // resolves (or resumes) it.
+          const controller = resolveService(context.scope, "sessionController");
+          if (controller && typeof controller.resolveAgent === "function") {
+            try {
+              const resolved = await controller.resolveAgent(sessionId);
+              agent = resolved?.agent ?? resolved ?? undefined;
+            } catch (error) {
+              throw httpError(409, "no-live-session", `会话 ${sessionId} 无法恢复：${error?.message ?? error}`);
+            }
+          }
+        }
+      } else {
+        agent = pickLatestAgent(agents);
+      }
+      if (!agent || typeof agent.followup !== "function") {
+        throw httpError(409, "no-live-session", "没有可用的活动会话");
+      }
+      const message = createUserMessage({
+        content: [{ type: "text", text }],
+        // A custom source kind: the Web UI renders it as an inject / context
+        // row with its provenance instead of a human chat bubble, and the goal
+        // tools never treat a plugin-authored message as direct human input.
+        source: { kind: "academic-paper-polish" },
+      });
+      try {
+        // `followup` targets the next turn and wakes the driver: a new turn
+        // when the agent is idle, the next turn when it is busy. `steer`
+        // (inbox target `next-step`) would land inside the running turn —
+        // deliberately not exposed here.
+        await agent.followup(message);
+      } catch (error) {
+        throw httpError(500, "followup-failed", String(error?.message ?? error));
+      }
+      return { ok: true, sessionId: String(agent.id ?? sessionId), mode: "followup" };
+    },
+  },
+};
+
+/** Dispatch one API request. */
+async function handleApiRequest(req, res, tail, requestUrl, scope) {
+  const route = tail.replace(/\/+$/u, "") || "/api";
+  const spec = API_ROUTES[route];
+  if (!spec) {
+    sendJson(res, 404, { error: "not-found", message: `未知接口 ${route}` });
+    return;
+  }
+  const method = String(req.method ?? "GET").toUpperCase();
+  if (method !== spec.method) {
+    res.writeHead(405, {
+      "content-type": "application/json; charset=utf-8",
+      "cache-control": "no-store",
+      allow: spec.method,
+    });
+    res.end(
+      JSON.stringify({ error: "method-not-allowed", message: `${route} 只接受 ${spec.method}` }),
+    );
+    return;
+  }
+  try {
+    const context = { scope, params: requestUrl.searchParams };
+    const payload =
+      spec.method === "POST"
+        ? await spec.handler(await readJsonBody(req), context)
+        : await spec.handler(requestUrl.searchParams, context);
+    sendJson(res, 200, payload);
+  } catch (error) {
+    if (error && typeof error.status === "number") {
+      sendJson(res, error.status, {
+        error: error.code ?? "error",
+        message: String(error.message ?? error),
+      });
+      return;
+    }
+    sendJson(res, 500, { error: "internal-error", message: String(error?.message ?? error) });
+  }
 }

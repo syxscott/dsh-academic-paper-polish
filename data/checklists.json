@@ -1,0 +1,901 @@
+{
+  "version": "1.0.0",
+  "stages": [
+    {
+      "id": "writing-prep",
+      "title": "A. 写作前（不满足则不要动笔）",
+      "sections": ["title", "abstract", "introduction", "methods", "results", "discussion", "conclusion", "figures", "tables", "references"],
+      "items": [
+        {
+          "id": "writing-prep-01",
+          "text": "我能回答 Why / What / What did you find / What does it mean",
+          "severity": "hard",
+          "ruleId": "",
+          "tags": ["preparation", "framing"]
+        },
+        {
+          "id": "writing-prep-02",
+          "text": "已确定目标期刊（查过 Aims & Scope + 近期 3 篇作者指南）",
+          "severity": "hard",
+          "ruleId": "S-83",
+          "tags": ["preparation", "journal-fit"]
+        },
+        {
+          "id": "writing-prep-03",
+          "text": "已确认该刊 Results 与 Discussion 是分离还是合并",
+          "severity": "hard",
+          "ruleId": "W-RES-10",
+          "tags": ["preparation", "structure"]
+        },
+        {
+          "id": "writing-prep-04",
+          "text": "已确认该刊有无独立结论段",
+          "severity": "hard",
+          "ruleId": "W-CONC-09",
+          "tags": ["preparation", "structure"]
+        },
+        {
+          "id": "writing-prep-05",
+          "text": "所有图表已制作完成，配色统一",
+          "severity": "soft",
+          "ruleId": "F-45",
+          "tags": ["preparation", "figures"]
+        },
+        {
+          "id": "writing-prep-06",
+          "text": "已建文献库（Zotero / EndNote）",
+          "severity": "soft",
+          "ruleId": "W-CRAFT-08",
+          "tags": ["preparation", "references"]
+        }
+      ]
+    },
+    {
+      "id": "title-abstract",
+      "title": "B. 题目 · 署名 · 摘要",
+      "sections": ["title", "abstract", "keywords"],
+      "items": [
+        {
+          "id": "title-abstract-01",
+          "text": "题名准确、简洁、清楚",
+          "severity": "soft",
+          "ruleId": "S-47",
+          "tags": ["title"]
+        },
+        {
+          "id": "title-abstract-02",
+          "text": "核心内容的关键词放在题名开头",
+          "severity": "soft",
+          "ruleId": "W-CRAFT-12",
+          "tags": ["title"]
+        },
+        {
+          "id": "title-abstract-03",
+          "text": "题名长度/缩写/大小写符合该刊格式",
+          "severity": "soft",
+          "ruleId": "S-47",
+          "tags": ["title", "journal-fit"]
+        },
+        {
+          "id": "title-abstract-04",
+          "text": "署名按实际贡献大小确定，每人都能对自己的论点/数据/结果答辩",
+          "severity": "soft",
+          "ruleId": "W-CRAFT-13",
+          "tags": ["authors"]
+        },
+        {
+          "id": "title-abstract-05",
+          "text": "贡献很少者已放入致谢而非署名",
+          "severity": "soft",
+          "ruleId": "",
+          "tags": ["authors", "acknowledgements"]
+        },
+        {
+          "id": "title-abstract-06",
+          "text": "共同一作已注明 \"These authors contributed equally to the work\"",
+          "severity": "soft",
+          "ruleId": "",
+          "tags": ["authors"]
+        },
+        {
+          "id": "title-abstract-07",
+          "text": "地址：详细通讯地址 + 邮政编码；多地址按作者顺序上标标注",
+          "severity": "soft",
+          "ruleId": "S-86",
+          "tags": ["authors", "affiliation"]
+        },
+        {
+          "id": "title-abstract-08",
+          "text": "出版时已调离 → 脚注 Present address",
+          "severity": "soft",
+          "ruleId": "",
+          "tags": ["authors", "affiliation"]
+        },
+        {
+          "id": "title-abstract-09",
+          "text": "兼聘/客座 → 同时标注实际单位与受聘单位，明确有效通讯地址",
+          "severity": "soft",
+          "ruleId": "",
+          "tags": ["authors", "affiliation"]
+        },
+        {
+          "id": "title-abstract-10",
+          "text": "摘要含 背景 / 科学问题 / 研究结果 / 研究意义 四部分",
+          "severity": "soft",
+          "ruleId": "W-ABS-01",
+          "tags": ["abstract", "structure"]
+        },
+        {
+          "id": "title-abstract-11",
+          "text": "摘要无引用、无图表、无缩写、无化学式/数学式/角标/希腊文",
+          "severity": "soft",
+          "ruleId": "W-ABS-02",
+          "tags": ["abstract"]
+        },
+        {
+          "id": "title-abstract-12",
+          "text": "摘要有 However / We found that / Based on we suggest that 等分层指示词",
+          "severity": "soft",
+          "ruleId": "W-ABS-06",
+          "tags": ["abstract", "cohesion"]
+        },
+        {
+          "id": "title-abstract-13",
+          "text": "摘要语法错误 ≤ 6 处  ★硬红线",
+          "severity": "hard",
+          "ruleId": "W-ABS-07",
+          "tags": ["abstract", "language", "red-line"]
+        },
+        {
+          "id": "title-abstract-14",
+          "text": "摘要未重复引言背景（结论不是引言的复述）",
+          "severity": "soft",
+          "ruleId": "W-ABS-10",
+          "tags": ["abstract", "redundancy"]
+        }
+      ]
+    },
+    {
+      "id": "introduction",
+      "title": "C. 引言",
+      "sections": ["introduction", "literature"],
+      "items": [
+        {
+          "id": "introduction-01",
+          "text": "四大内容齐：研究背景 / 研究现状（引出问题）/ 问题剖析 / 目的与手段",
+          "severity": "soft",
+          "ruleId": "W-INT-03",
+          "tags": ["introduction", "structure"]
+        },
+        {
+          "id": "introduction-02",
+          "text": "先大背景大意义，再逐渐聚焦，肯定前人贡献",
+          "severity": "soft",
+          "ruleId": "W-INT-19",
+          "tags": ["introduction", "logic"]
+        },
+        {
+          "id": "introduction-03",
+          "text": "已充分引用与本文相关的重要文献（不充分 → 审稿人认为阅读不够）",
+          "severity": "soft",
+          "ruleId": "W-INT-04",
+          "tags": ["introduction", "citations"]
+        },
+        {
+          "id": "introduction-04",
+          "text": "用 However 引出不足，而非直接批评前人",
+          "severity": "soft",
+          "ruleId": "W-INT-05",
+          "tags": ["introduction", "tone"]
+        },
+        {
+          "id": "introduction-05",
+          "text": "避免点名批评：\"The deficiency of Wang's approach is…\"",
+          "severity": "soft",
+          "ruleId": "W-INT-05",
+          "tags": ["introduction", "tone"]
+        },
+        {
+          "id": "introduction-06",
+          "text": "避免 for the first time / 首次提出 / 首次发现 / 国际先进水平",
+          "severity": "soft",
+          "ruleId": "W-INT-06",
+          "tags": ["introduction", "language"]
+        },
+        {
+          "id": "introduction-07",
+          "text": "未故意制造悬念（读者没耐心读到结尾）",
+          "severity": "soft",
+          "ruleId": "W-INT-11",
+          "tags": ["introduction", "style"]
+        },
+        {
+          "id": "introduction-08",
+          "text": "结构为倒金字塔：由大到小收拢",
+          "severity": "soft",
+          "ruleId": "W-INT-01",
+          "tags": ["introduction", "structure"]
+        },
+        {
+          "id": "introduction-09",
+          "text": "★ opening（提出的问题）与 resolution（给出的答案）对齐；开口 > 收口 = overpromising ❌；开口 = 收口 = on target ✅；收口 > 开口 = underpromising ❌",
+          "severity": "hard",
+          "ruleId": "W-INT-02",
+          "tags": ["introduction", "red-line", "framing"]
+        }
+      ]
+    },
+    {
+      "id": "methods",
+      "title": "D. 材料与方法",
+      "sections": ["methods", "geological-setting"],
+      "items": [
+        {
+          "id": "methods-01",
+          "text": "客观描述区域地质背景、气候背景、环境参数",
+          "severity": "soft",
+          "ruleId": "W-METH-02",
+          "tags": ["methods", "geological-setting"]
+        },
+        {
+          "id": "methods-02",
+          "text": "样品采样方法与样品数量",
+          "severity": "soft",
+          "ruleId": "W-METH-04",
+          "tags": ["methods", "sampling"]
+        },
+        {
+          "id": "methods-03",
+          "text": "实验方法、仪器检测条件、软件版本",
+          "severity": "soft",
+          "ruleId": "W-METH-05",
+          "tags": ["methods", "reproducibility"]
+        },
+        {
+          "id": "methods-04",
+          "text": "读者看完能知道如何开展、如何重现实验",
+          "severity": "soft",
+          "ruleId": "W-METH-01",
+          "tags": ["methods", "reproducibility"]
+        }
+      ]
+    },
+    {
+      "id": "results-discussion",
+      "title": "E. 结果与讨论",
+      "sections": ["results", "discussion"],
+      "items": [
+        {
+          "id": "results-discussion-01",
+          "text": "Results 按产物/表征手段平行铺开",
+          "severity": "soft",
+          "ruleId": "W-RES-11",
+          "tags": ["results"]
+        },
+        {
+          "id": "results-discussion-02",
+          "text": "Discussion 按机理收拢",
+          "severity": "soft",
+          "ruleId": "W-RES-11",
+          "tags": ["discussion"]
+        },
+        {
+          "id": "results-discussion-03",
+          "text": "结果陈述能让人感觉出\"关键影响因素是啥\"",
+          "severity": "soft",
+          "ruleId": "W-RES-12",
+          "tags": ["results", "message"]
+        },
+        {
+          "id": "results-discussion-04",
+          "text": "讨论走完 6 步：①引言空白 ②重述发现(用数据/图) ③解释并比较 ④局限性 ⑤未来启示 ⑥结论",
+          "severity": "soft",
+          "ruleId": "W-DISC-01",
+          "tags": ["discussion", "structure"]
+        },
+        {
+          "id": "results-discussion-05",
+          "text": "已说明局限性对结果的潜在影响",
+          "severity": "soft",
+          "ruleId": "W-DISC-02",
+          "tags": ["discussion", "limitations"]
+        },
+        {
+          "id": "results-discussion-06",
+          "text": "已给出环境/地学意义（\"知道了这些有什么用？\"）",
+          "severity": "soft",
+          "ruleId": "W-DISC-09",
+          "tags": ["discussion", "implication"]
+        },
+        {
+          "id": "results-discussion-07",
+          "text": "结果与讨论的合并/分离方式符合目标期刊要求",
+          "severity": "hard",
+          "ruleId": "W-RES-10",
+          "tags": ["structure", "journal-fit"]
+        },
+        {
+          "id": "results-discussion-08",
+          "text": "ES&T：结论并入 R&D，未另设 Conclusion 段",
+          "severity": "hard",
+          "ruleId": "W-CRAFT-03",
+          "tags": ["structure", "journal-fit", "es-t"]
+        }
+      ]
+    },
+    {
+      "id": "conclusion",
+      "title": "F. 结论",
+      "sections": ["conclusion"],
+      "items": [
+        {
+          "id": "conclusion-01",
+          "text": "总结要点、突出亮点（创新点）",
+          "severity": "soft",
+          "ruleId": "W-CONC-01",
+          "tags": ["conclusion"]
+        },
+        {
+          "id": "conclusion-02",
+          "text": "指明理论意义/实际意义（implication）",
+          "severity": "soft",
+          "ruleId": "W-CONC-01",
+          "tags": ["conclusion", "implication"]
+        },
+        {
+          "id": "conclusion-03",
+          "text": "指明局限性与尚未解决的问题",
+          "severity": "soft",
+          "ruleId": "W-CONC-01",
+          "tags": ["conclusion", "limitations"]
+        },
+        {
+          "id": "conclusion-04",
+          "text": "提出今后研究方向",
+          "severity": "soft",
+          "ruleId": "W-CONC-01",
+          "tags": ["conclusion", "outlook"]
+        },
+        {
+          "id": "conclusion-05",
+          "text": "局限性用了 \"First… Second… Further research should…\" 句式",
+          "severity": "soft",
+          "ruleId": "W-CONC-06",
+          "tags": ["conclusion", "language"]
+        },
+        {
+          "id": "conclusion-06",
+          "text": "以有力的一句收尾",
+          "severity": "soft",
+          "ruleId": "W-CONC-05",
+          "tags": ["conclusion", "style"]
+        },
+        {
+          "id": "conclusion-07",
+          "text": "未重复引言背景",
+          "severity": "soft",
+          "ruleId": "W-CONC-03",
+          "tags": ["conclusion", "redundancy"]
+        },
+        {
+          "id": "conclusion-08",
+          "text": "未引入新论点或新证据",
+          "severity": "soft",
+          "ruleId": "W-CONC-02",
+          "tags": ["conclusion", "logic"]
+        },
+        {
+          "id": "conclusion-09",
+          "text": "未下数据不支持的结论",
+          "severity": "hard",
+          "ruleId": "W-CONC-04",
+          "tags": ["conclusion", "evidence"]
+        }
+      ]
+    },
+    {
+      "id": "references",
+      "title": "G. 参考文献",
+      "sections": ["references"],
+      "items": [
+        {
+          "id": "references-01",
+          "text": "全面：背景 / 方法参考 / 支持证据 / 冲突证据 / 论据比较",
+          "severity": "soft",
+          "ruleId": "",
+          "tags": ["references", "coverage"]
+        },
+        {
+          "id": "references-02",
+          "text": "精选：近年文献，且已引 Science、Nature、Annual Reviews 系列",
+          "severity": "soft",
+          "ruleId": "W-CRAFT-07",
+          "tags": ["references", "recency"]
+        },
+        {
+          "id": "references-03",
+          "text": "尽量读了原文（尤其直接引用的数据）",
+          "severity": "soft",
+          "ruleId": "W-LIT-19",
+          "tags": ["references", "quality"]
+        },
+        {
+          "id": "references-04",
+          "text": "书写规范、逐条核对",
+          "severity": "soft",
+          "ruleId": "S-60",
+          "tags": ["references", "format"]
+        },
+        {
+          "id": "references-05",
+          "text": "无五误区：1 知而不引 2 断章取义 3 引而不确 4 来源不实 5 盲目自引",
+          "severity": "soft",
+          "ruleId": "W-CRAFT-06",
+          "tags": ["references", "ethics"]
+        },
+        {
+          "id": "references-06",
+          "text": "用文献管理器保证引文与参考文献一致",
+          "severity": "soft",
+          "ruleId": "W-CRAFT-08",
+          "tags": ["references", "consistency"]
+        },
+        {
+          "id": "references-07",
+          "text": "综述：约 100 篇量级；近 5 年（最好 1–3 年）；尽量一次文献",
+          "severity": "soft",
+          "ruleId": "W-LIT-14",
+          "tags": ["references", "review-article"]
+        },
+        {
+          "id": "references-08",
+          "text": "综述：未引用非公开发表文献、教材、专科书内容",
+          "severity": "soft",
+          "ruleId": "W-LIT-16",
+          "tags": ["references", "review-article"]
+        }
+      ]
+    },
+    {
+      "id": "acknowledgements",
+      "title": "H. 致谢",
+      "sections": ["acknowledgements"],
+      "items": [
+        {
+          "id": "acknowledgements-01",
+          "text": "致谢了学术/科学问题上有帮助或启发的人员",
+          "severity": "soft",
+          "ruleId": "",
+          "tags": ["acknowledgements"]
+        },
+        {
+          "id": "acknowledgements-02",
+          "text": "致谢了提供仪器、设备、实验材料、协作实验者",
+          "severity": "soft",
+          "ruleId": "",
+          "tags": ["acknowledgements"]
+        },
+        {
+          "id": "acknowledgements-03",
+          "text": "致谢了外部基金资助，并附注项目号 / 合同书编号",
+          "severity": "soft",
+          "ruleId": "W-CRAFT-14",
+          "tags": ["acknowledgements", "funding"]
+        },
+        {
+          "id": "acknowledgements-04",
+          "text": "贡献很少但不宜署名者在致谢中体现",
+          "severity": "soft",
+          "ruleId": "",
+          "tags": ["acknowledgements", "authors"]
+        }
+      ]
+    },
+    {
+      "id": "submission",
+      "title": "I. 投稿",
+      "sections": ["cover-letter", "declarations", "figures", "tables", "references", "review"],
+      "items": [
+        {
+          "id": "submission-01",
+          "text": "ACCEPTANCE 十点：Attention to details / Check and double check / Consider the reviews / English must be as good as possible / Presentation is important / Take your time with revision / Acknowledge those who helped / New, original and previously unpublished / Critically evaluate own manuscript / Ethical rules must be obeyed",
+          "severity": "hard",
+          "ruleId": "S-66",
+          "tags": ["submission", "acceptance", "checklist"]
+        },
+        {
+          "id": "submission-02",
+          "text": "已推荐 3-5 位审稿人（未找领域大牛）",
+          "severity": "hard",
+          "ruleId": "S-08",
+          "tags": ["submission", "reviewers"]
+        },
+        {
+          "id": "submission-03",
+          "text": "Cover Letter 说明为何适合该刊",
+          "severity": "hard",
+          "ruleId": "S-02",
+          "tags": ["submission", "cover-letter"]
+        },
+        {
+          "id": "submission-04",
+          "text": "Cover Letter 披露潜在利益冲突",
+          "severity": "hard",
+          "ruleId": "S-03",
+          "tags": ["submission", "cover-letter", "declarations"]
+        },
+        {
+          "id": "submission-05",
+          "text": "GCA：已提供 3 位 Associate Editors 姓名",
+          "severity": "hard",
+          "ruleId": "S-04",
+          "tags": ["submission", "cover-letter", "gca"]
+        },
+        {
+          "id": "submission-06",
+          "text": "上下标、字体大小、参考文献前后一致、格式统一",
+          "severity": "hard",
+          "ruleId": "W-CRAFT-09",
+          "tags": ["submission", "format"]
+        },
+        {
+          "id": "submission-07",
+          "text": "已按审稿人 8 项关注点反向自查",
+          "severity": "soft",
+          "ruleId": "W-CRAFT-18",
+          "tags": ["submission", "self-check", "review"]
+        }
+      ]
+    },
+    {
+      "id": "review-article",
+      "title": "J. 综述专项",
+      "sections": ["title", "abstract", "introduction", "literature", "conclusion", "figures"],
+      "items": [
+        {
+          "id": "review-article-01",
+          "text": "题目收窄，定义了少量研究问题或假设",
+          "severity": "soft",
+          "ruleId": "",
+          "tags": ["review-article", "title"]
+        },
+        {
+          "id": "review-article-02",
+          "text": "已确定 take-home message",
+          "severity": "soft",
+          "ruleId": "",
+          "tags": ["review-article", "message"]
+        },
+        {
+          "id": "review-article-03",
+          "text": "已选定结构化原则（时间/方法/模型理论/正反对比/地理）",
+          "severity": "soft",
+          "ruleId": "W-LIT-11",
+          "tags": ["review-article", "structure"]
+        },
+        {
+          "id": "review-article-04",
+          "text": "小标题至少三级",
+          "severity": "soft",
+          "ruleId": "W-LIT-12",
+          "tags": ["review-article", "structure"]
+        },
+        {
+          "id": "review-article-05",
+          "text": "覆盖 Summary of major issues / Model and discussion / Perspective on future study",
+          "severity": "soft",
+          "ruleId": "W-LIT-08",
+          "tags": ["review-article", "coverage"]
+        },
+        {
+          "id": "review-article-06",
+          "text": "引言占正文核心部分 10%-20%",
+          "severity": "soft",
+          "ruleId": "W-LIT-09",
+          "tags": ["review-article", "introduction"]
+        },
+        {
+          "id": "review-article-07",
+          "text": "引言三段：Subject background → Problem → Motivation/justification（含全文组织方式）",
+          "severity": "soft",
+          "ruleId": "W-LIT-07",
+          "tags": ["review-article", "introduction"]
+        },
+        {
+          "id": "review-article-08",
+          "text": "文献加工四步：筛选 / 鉴别 / 分类 / 归纳",
+          "severity": "soft",
+          "ruleId": "W-LIT-17",
+          "tags": ["review-article", "method"]
+        },
+        {
+          "id": "review-article-09",
+          "text": "用了问句式小标题（信息量高于\"XX 研究现状\"）",
+          "severity": "soft",
+          "ruleId": "W-LIT-13",
+          "tags": ["review-article", "headings"]
+        },
+        {
+          "id": "review-article-10",
+          "text": "有 1-2 张机制总览图替代大段文字",
+          "severity": "soft",
+          "ruleId": "W-LIT-18",
+          "tags": ["review-article", "figures"]
+        },
+        {
+          "id": "review-article-11",
+          "text": "遵循 18 步顺序：主体(11)→结论(12)→引言(13)→摘要(14)",
+          "severity": "soft",
+          "ruleId": "W-LIT-21",
+          "tags": ["review-article", "workflow"]
+        },
+        {
+          "id": "review-article-12",
+          "text": "查文献用了滚雪球法 + 检索工具（Connected Papers），避免单一方法遗漏",
+          "severity": "soft",
+          "ruleId": "",
+          "tags": ["review-article", "literature-search"]
+        },
+        {
+          "id": "review-article-13",
+          "text": "二次文献中的数据已回溯原文查证",
+          "severity": "soft",
+          "ruleId": "W-LIT-19",
+          "tags": ["review-article", "verification"]
+        },
+        {
+          "id": "review-article-14",
+          "text": "综述正文一气呵成，发现旁的问题用便签备注、未中断",
+          "severity": "soft",
+          "ruleId": "",
+          "tags": ["review-article", "workflow"]
+        }
+      ]
+    },
+    {
+      "id": "methods-ai-paper",
+      "title": "K. 方法类（AI / 数据驱动）论文专项 · 体裁判定",
+      "sections": ["introduction", "geological-setting", "methods", "results", "discussion", "systematic"],
+      "items": [
+        {
+          "id": "methods-ai-paper-01",
+          "text": "已判定体装：方法类（有独立 Results / Discussion ）还是描述类（有 Systematic 段）",
+          "severity": "soft",
+          "ruleId": "",
+          "tags": ["ai-paper", "genre"]
+        },
+        {
+          "id": "methods-ai-paper-02",
+          "text": "方法类论文：没有搭“Geological setting / Repository / Systematic”三件套",
+          "severity": "soft",
+          "ruleId": "",
+          "tags": ["ai-paper", "structure"]
+        },
+        {
+          "id": "methods-ai-paper-03",
+          "text": "方法类论文：有独立 Results 段（实测 46% 有）",
+          "severity": "soft",
+          "ruleId": "S-83",
+          "tags": ["ai-paper", "structure"]
+        },
+        {
+          "id": "methods-ai-paper-04",
+          "text": "方法类论文：有独立 Discussion 段（实测 48% 有）",
+          "severity": "soft",
+          "ruleId": "S-83",
+          "tags": ["ai-paper", "structure"]
+        }
+      ]
+    },
+    {
+      "id": "methods-ai-dataset",
+      "title": "K. 方法类论文专项 · 【数据集】",
+      "sections": ["methods"],
+      "items": [
+        {
+          "id": "methods-ai-dataset-01",
+          "text": "数据来源写清（检索式/分类群名 + 下载日期）",
+          "severity": "soft",
+          "ruleId": "W-METH-14",
+          "tags": ["ai-paper", "dataset"]
+        },
+        {
+          "id": "methods-ai-dataset-02",
+          "text": "初样本 → 清洗规则 → 终样本 三段都有",
+          "severity": "soft",
+          "ruleId": "W-METH-14",
+          "tags": ["ai-paper", "dataset"]
+        },
+        {
+          "id": "methods-ai-dataset-03",
+          "text": "每类样本量进表（含占比列）",
+          "severity": "soft",
+          "ruleId": "",
+          "tags": ["ai-paper", "dataset", "tables"]
+        },
+        {
+          "id": "methods-ai-dataset-04",
+          "text": "标注方式写清（专业实务员标注 / 公开数据库标注）",
+          "severity": "soft",
+          "ruleId": "W-METH-14",
+          "tags": ["ai-paper", "dataset", "annotation"]
+        },
+        {
+          "id": "methods-ai-dataset-05",
+          "text": "划分比例写清（跨验校验 / train-test split / 三分法）",
+          "severity": "soft",
+          "ruleId": "W-METH-15",
+          "tags": ["ai-paper", "dataset", "split"]
+        },
+        {
+          "id": "methods-ai-dataset-06",
+          "text": "类别不平衡已显式承认，并说明用什么补偿",
+          "severity": "soft",
+          "ruleId": "W-METH-16",
+          "tags": ["ai-paper", "dataset", "imbalance"]
+        },
+        {
+          "id": "methods-ai-dataset-07",
+          "text": "数据量级已写出（本领域常见：几百至几万张图）",
+          "severity": "soft",
+          "ruleId": "W-METH-14",
+          "tags": ["ai-paper", "dataset"]
+        }
+      ]
+    },
+    {
+      "id": "methods-ai-env",
+      "title": "K. 方法类论文专项 · 【方法与环境】",
+      "sections": ["methods"],
+      "items": [
+        {
+          "id": "methods-ai-env-01",
+          "text": "架构已指名（+ 架构图）",
+          "severity": "soft",
+          "ruleId": "",
+          "tags": ["ai-paper", "model"]
+        },
+        {
+          "id": "methods-ai-env-02",
+          "text": "超参说法自涉（进表 / 写在正文散口）",
+          "severity": "soft",
+          "ruleId": "W-METH-18",
+          "tags": ["ai-paper", "hyperparameters"]
+        },
+        {
+          "id": "methods-ai-env-03",
+          "text": "环境版本全写（Python / PyTorch / CUDA / GPU 型号）",
+          "severity": "soft",
+          "ruleId": "W-METH-17",
+          "tags": ["ai-paper", "environment", "reproducibility"]
+        },
+        {
+          "id": "methods-ai-env-04",
+          "text": "训练细节写清（batch / optimizer / epoch / 冻结策略）",
+          "severity": "soft",
+          "ruleId": "",
+          "tags": ["ai-paper", "training"]
+        },
+        {
+          "id": "methods-ai-env-05",
+          "text": "有基线对比（尽量写出机器类基线数字，如多数类 148/781 = 0.190）",
+          "severity": "soft",
+          "ruleId": "",
+          "tags": ["ai-paper", "baseline"]
+        }
+      ]
+    },
+    {
+      "id": "methods-ai-eval",
+      "title": "K. 方法类论文专项 · 【评估】",
+      "sections": ["results", "tables", "figures"],
+      "items": [
+        {
+          "id": "methods-ai-eval-01",
+          "text": "指标名写出了（accuracy / precision / recall / F1 / AUC）",
+          "severity": "soft",
+          "ruleId": "",
+          "tags": ["ai-paper", "metrics"]
+        },
+        {
+          "id": "methods-ai-eval-02",
+          "text": "类别不平衡时，已说明为何不以 accuracy 为主指标",
+          "severity": "soft",
+          "ruleId": "",
+          "tags": ["ai-paper", "metrics", "imbalance"]
+        },
+        {
+          "id": "methods-ai-eval-03",
+          "text": "混淆矩阵图注用固定句式（行=真值、列=预测、单元格=百分比、对角线=100 %）",
+          "severity": "soft",
+          "ruleId": "F-90",
+          "tags": ["ai-paper", "figures", "caption"]
+        },
+        {
+          "id": "methods-ai-eval-04",
+          "text": "表注写了“最佳值加粗”声明",
+          "severity": "soft",
+          "ruleId": "F-83",
+          "tags": ["ai-paper", "tables"]
+        },
+        {
+          "id": "methods-ai-eval-05",
+          "text": "训练/推理时间与精度指标并列为列",
+          "severity": "soft",
+          "ruleId": "",
+          "tags": ["ai-paper", "metrics", "tables"]
+        }
+      ]
+    },
+    {
+      "id": "methods-ai-limitations",
+      "title": "K. 方法类论文专项 · 【局限与结论】",
+      "sections": ["discussion", "conclusion"],
+      "items": [
+        {
+          "id": "methods-ai-limitations-01",
+          "text": "局限落到对象本身（标本残缺 / 纹理破坏 / 类别不平衡 / 寿命期形态差异）",
+          "severity": "soft",
+          "ruleId": "W-DISC-16",
+          "tags": ["ai-paper", "limitations"]
+        },
+        {
+          "id": "methods-ai-limitations-02",
+          "text": "局限不是“模型不够强”",
+          "severity": "soft",
+          "ruleId": "W-DISC-16",
+          "tags": ["ai-paper", "limitations"]
+        },
+        {
+          "id": "methods-ai-limitations-03",
+          "text": "结论里写了适用边界（什么情况不该用 AI）",
+          "severity": "soft",
+          "ruleId": "W-CONC-11",
+          "tags": ["ai-paper", "conclusion", "scope"]
+        },
+        {
+          "id": "methods-ai-limitations-04",
+          "text": "讨论有独立 Threats to validity 或 Strengths+Limitations 段",
+          "severity": "soft",
+          "ruleId": "",
+          "tags": ["ai-paper", "discussion", "structure"]
+        }
+      ]
+    },
+    {
+      "id": "methods-ai-declarations",
+      "title": "K. 方法类论文专项 · 【声明块】",
+      "sections": ["declarations"],
+      "items": [
+        {
+          "id": "methods-ai-declarations-01",
+          "text": "Data availability（实物标本在哪 + 数据集 DOI，两件都有）",
+          "severity": "hard",
+          "ruleId": "S-14",
+          "tags": ["ai-paper", "declarations", "data"]
+        },
+        {
+          "id": "methods-ai-declarations-02",
+          "text": "Code availability（GitHub + Zenodo DOI）",
+          "severity": "hard",
+          "ruleId": "S-15",
+          "tags": ["ai-paper", "declarations", "code"]
+        },
+        {
+          "id": "methods-ai-declarations-03",
+          "text": "Author contributions / Competing interest / Funding",
+          "severity": "soft",
+          "ruleId": "S-16",
+          "tags": ["ai-paper", "declarations"]
+        },
+        {
+          "id": "methods-ai-declarations-04",
+          "text": "声明块顺序与目标刊最近 3 篇一致",
+          "severity": "soft",
+          "ruleId": "S-21",
+          "tags": ["ai-paper", "declarations", "order"]
+        }
+      ]
+    }
+  ]
+}

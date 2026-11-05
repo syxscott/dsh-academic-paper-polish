@@ -1,0 +1,4285 @@
+{
+  "version": "1.0.0",
+  "domain": "figures",
+  "rules": [
+    {
+      "id": "F-01",
+      "title": "照片（半调图）最低分辨率 300 dpi",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "Halftones 照片（灰度/彩色照片）最低分辨率 **300 dpi**（TIFF/JPG）；Elsevier 系（Palaeoworld / Revue de Micropaléontologie / Marine Micropaleontology / Geobios）与 PPP 同口径。",
+      "fix": "把照片导出为 TIFF 或 JPG，最终尺寸下分辨率 ≥ 300 dpi；若目标刊要求更高（见 F-04 / F-06 / F-08），按最高标准重导。",
+      "check": {
+        "type": "numeric",
+        "params": {
+          "pattern": "(?<![\\d.])(\\d{3,4})(?![\\d.])\\s*(?:dpi|ppi)",
+          "min": 300,
+          "max": 1200,
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "resolution",
+        "dpi",
+        "photo"
+      ],
+      "source": {
+        "file": "references/格式硬参数与文献检索实操.md",
+        "line": 188
+      }
+    },
+    {
+      "id": "F-02",
+      "title": "位图线条图最低分辨率 1000 dpi",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "Bitmapped line drawings（位图线条图）最低分辨率 **1000 dpi**；单栏最小宽 **3543 px**，整页宽 **7480 px**。",
+      "fix": "线条图用矢量格式（EPS/PDF/AI）提交；若必须位图，按 1000 dpi 在最终排版宽度下导出，保证单栏宽 ≥ 3543 px。",
+      "check": {
+        "type": "numeric",
+        "params": {
+          "pattern": "(?<![\\d.])(\\d{3,4})(?![\\d.])\\s*(?:dpi|ppi)",
+          "min": 1000,
+          "max": 2400,
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "resolution",
+        "dpi",
+        "line-art"
+      ],
+      "source": {
+        "file": "references/格式硬参数与文献检索实操.md",
+        "line": 189
+      }
+    },
+    {
+      "id": "F-03",
+      "title": "线条+照片混合图最低分辨率 500 dpi",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "Combination art（线条+照片混合图）最低分辨率 **500 dpi**。",
+      "fix": "混合图按 500 dpi 导出；若图内含文字或大量标注，改按 600–900 dpi（PNAS）/ 800 dpi（Paleobiology）准备。",
+      "check": {
+        "type": "numeric",
+        "params": {
+          "pattern": "(?<![\\d.])(\\d{3,4})(?![\\d.])\\s*(?:dpi|ppi)",
+          "min": 500,
+          "max": 1200,
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "resolution",
+        "dpi",
+        "combination"
+      ],
+      "source": {
+        "file": "references/格式硬参数与文献检索实操.md",
+        "line": 190
+      }
+    },
+    {
+      "id": "F-04",
+      "title": "化石标本照片按 600 dpi 准备可通吃各大刊",
+      "severity": "soft",
+      "sections": [
+        "figures"
+      ],
+      "statement": "标本照片按 **600 dpi** 准备可通吃各大刊（Paleobiology 要 600 dpi，APP 要 400 dpi，PNAS 要 300 dpi，Elsevier 要 300 dpi；按最高标准 600 dpi 最安全）。",
+      "fix": "所有化石标本照片统一导出为 600 dpi at final size 的 TIFF，再按目标刊的更低要求缩放提交，不要反向升采样。",
+      "check": {
+        "type": "numeric",
+        "params": {
+          "pattern": "(?<![\\d.])(\\d{3,4})(?![\\d.])\\s*(?:dpi|ppi)",
+          "min": 600,
+          "max": 1200,
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "resolution",
+        "dpi",
+        "fossil",
+        "specimen"
+      ],
+      "source": {
+        "file": "references/figure-specs.md",
+        "line": 13
+      }
+    },
+    {
+      "id": "F-05",
+      "title": "Paleobiology 线条图 1200 dpi",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "Paleobiology 终稿（Figures for Production）线条图（Line Artwork）分辨率 **1200 dpi**，色彩模式 1-bit 黑白或 CMYK。",
+      "fix": "按 Paleobiology 的 Line Artwork 口径导出：1200 dpi、1-bit 黑白或 CMYK；线图另存矢量（.eps/.pdf/.ai）时无 dpi 要求但须嵌入字体。",
+      "check": {
+        "type": "numeric",
+        "params": {
+          "pattern": "(?<![\\d.])(\\d{3,4})(?![\\d.])\\s*(?:dpi|ppi)",
+          "min": 1200,
+          "max": 2400,
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "resolution",
+        "dpi",
+        "paleobiology"
+      ],
+      "source": {
+        "file": "references/paleobiology-journal.md",
+        "line": 38
+      },
+      "journals": [
+        "paleobiology"
+      ]
+    },
+    {
+      "id": "F-06",
+      "title": "Paleobiology 半调图 600 dpi",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "Paleobiology 终稿半调图（Halftone Artwork，照片或有精细明暗的艺术图）分辨率 **600 dpi**，色彩模式 Grayscale(8-bit) 或 CMYK。",
+      "fix": "照片类面板按 600 dpi、8-bit 灰度或 CMYK 导出；不要用 1-bit 模式导出照片。",
+      "check": {
+        "type": "numeric",
+        "params": {
+          "pattern": "(?<![\\d.])(\\d{3,4})(?![\\d.])\\s*(?:dpi|ppi)",
+          "min": 600,
+          "max": 1200,
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "resolution",
+        "dpi",
+        "paleobiology",
+        "photo"
+      ],
+      "source": {
+        "file": "references/paleobiology-journal.md",
+        "line": 40
+      },
+      "journals": [
+        "paleobiology"
+      ]
+    },
+    {
+      "id": "F-07",
+      "title": "Paleobiology 组合图 800 dpi",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "Paleobiology 终稿组合图（Combination Artwork：半调+线绘+大量文字+阴影图）分辨率 **800 dpi**，色彩模式 Grayscale(8-bit) 或 CMYK。",
+      "fix": "照片+标注复合面板按 800 dpi 导出；这是本领域最常见的图型，务必按 800 而非 600 dpi 准备。",
+      "check": {
+        "type": "numeric",
+        "params": {
+          "pattern": "(?<![\\d.])(\\d{3,4})(?![\\d.])\\s*(?:dpi|ppi)",
+          "min": 800,
+          "max": 1200,
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "resolution",
+        "dpi",
+        "paleobiology",
+        "combination"
+      ],
+      "source": {
+        "file": "references/paleobiology-journal.md",
+        "line": 39
+      },
+      "journals": [
+        "paleobiology"
+      ]
+    },
+    {
+      "id": "F-08",
+      "title": "APP 位图线条图与照片均 400 dpi",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "Acta Palaeontologica Polonica：line art（位图）**400 dpi**；照片 **≥400 dpi at final size**，非插值、不压缩（如不用 JPEG）。",
+      "fix": "APP 投稿的位图一律按 400 dpi at final size 导出，且不得使用 JPEG 压缩或任何插值放大。",
+      "check": {
+        "type": "numeric",
+        "params": {
+          "pattern": "(?<![\\d.])(\\d{3,4})(?![\\d.])\\s*(?:dpi|ppi)",
+          "min": 400,
+          "max": 1200,
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "resolution",
+        "dpi",
+        "app"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 565
+      },
+      "journals": [
+        "acta-palaeontologica-polonica"
+      ]
+    },
+    {
+      "id": "F-09",
+      "title": "PNAS 含文字的灰度/彩图 600–900 dpi",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "PNAS：灰度或彩色图像**不含文字**时 300 dpi；**含文字**时 **600–900 dpi**。",
+      "fix": "图内带任何标注文字的位图按 600–900 dpi 导出；纯无字照片可 300 dpi。",
+      "check": {
+        "type": "numeric",
+        "params": {
+          "pattern": "(?<![\\d.])(\\d{3,4})(?![\\d.])\\s*(?:dpi|ppi)",
+          "min": 600,
+          "max": 900,
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "resolution",
+        "dpi",
+        "pnas"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 298
+      },
+      "journals": [
+        "pnas"
+      ]
+    },
+    {
+      "id": "F-10",
+      "title": "PNAS 线绘 1000–1200 dpi",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "PNAS：**line art（如柱状图）1000–1200 dpi**。",
+      "fix": "柱状图/折线图等线条类位图按 1000–1200 dpi 导出，或改用矢量（PDF/EPS/PPT）。",
+      "check": {
+        "type": "numeric",
+        "params": {
+          "pattern": "(?<![\\d.])(\\d{3,4})(?![\\d.])\\s*(?:dpi|ppi)",
+          "min": 1000,
+          "max": 1200,
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "resolution",
+        "dpi",
+        "pnas",
+        "line-art"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 299
+      },
+      "journals": [
+        "pnas"
+      ]
+    },
+    {
+      "id": "F-11",
+      "title": "Copernicus / J. Micropalaeontology 位图 300 dpi 且矢量优先",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "Copernicus 平台（JM）：图件格式 pdf / ps / eps / jpg / png / tif，**分辨率 300 dpi**，**矢量优先**（eps/pdf），**字体须嵌入**。",
+      "fix": "JM 投稿优先提交 eps/pdf 矢量图并嵌入字体；若为位图则按 300 dpi 导出。",
+      "check": {
+        "type": "numeric",
+        "params": {
+          "pattern": "(?<![\\d.])(\\d{3,4})(?![\\d.])\\s*(?:dpi|ppi)",
+          "min": 300,
+          "max": 1200,
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "resolution",
+        "dpi",
+        "jm",
+        "copernicus",
+        "vector"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 853
+      },
+      "journals": [
+        "j-micropalaeontology"
+      ]
+    },
+    {
+      "id": "F-12",
+      "title": "Palaeontologia Electronica 300 dpi（首次 PDF 投稿可 150 ppi）",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "PE：**300 dpi**（可 **150 ppi** 首投）—— 位图线绘与照片同档；首次 PDF 投稿可降到 150 ppi。",
+      "fix": "PE 终稿按 300 dpi 出图；仅第一次 PDF 投稿可用 150 ppi。",
+      "check": {
+        "type": "numeric",
+        "params": {
+          "pattern": "(?<![\\d.])(\\d{3,4})(?![\\d.])\\s*(?:dpi|ppi)",
+          "min": 150,
+          "max": 600,
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "resolution",
+        "dpi",
+        "pe"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 911
+      },
+      "journals": [
+        "palaeontologia-electronica"
+      ]
+    },
+    {
+      "id": "F-13",
+      "title": "单张图文件 <10 MB",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "单图大小 **<10 MB**（PPP / Elsevier 通用硬参数）。",
+      "fix": "导出后检查单个图文件体积，超过 10 MB 时改用 PNG 无损或降低分辨率（不得低于期刊 dpi 下限），或把复合图拆分。",
+      "check": {
+        "type": "numeric",
+        "params": {
+          "pattern": "(?<![\\d.])(\\d{1,3})(?![\\d.])\\s*MB",
+          "min": 0,
+          "max": 10,
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "file-size",
+        "limit"
+      ],
+      "source": {
+        "file": "references/figure-specs.md",
+        "line": 14
+      }
+    },
+    {
+      "id": "F-14",
+      "title": "全部图件文件总和 <50 MB",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "总文件大小 **<50 MB**（PPP / Elsevier 通用硬参数）。",
+      "fix": "投稿前统计全部图件文件总大小，控制在 50 MB 以内。",
+      "check": {
+        "type": "numeric",
+        "params": {
+          "pattern": "(?<![\\d.])(\\d{1,3})(?![\\d.])\\s*MB",
+          "min": 0,
+          "max": 50,
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "file-size",
+        "limit"
+      ],
+      "source": {
+        "file": "references/figure-specs.md",
+        "line": 15
+      }
+    },
+    {
+      "id": "F-15",
+      "title": "JM 单图 <5 MB、全部文件 <30 MB",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "JM / Copernicus：单张图 **<5 MB**，全部投稿文件（不含补充材料）**<30 MB**；补充材料上限 **50 MB**。",
+      "fix": "JM 投稿单图控制在 5 MB 内、总量 30 MB 内；supplement ≤50 MB。",
+      "check": {
+        "type": "numeric",
+        "params": {
+          "pattern": "(?<![\\d.])(\\d{1,3})(?![\\d.])\\s*MB",
+          "min": 0,
+          "max": 30,
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "file-size",
+        "limit",
+        "jm"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 856
+      },
+      "journals": [
+        "j-micropalaeontology"
+      ]
+    },
+    {
+      "id": "F-16",
+      "title": "禁止使用屏幕优化格式 GIF / BMP / PICT / WPG",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "🔴 禁用格式 **GIF / BMP / PICT / WPG**（屏幕优化，分辨率太低）。",
+      "fix": "把 GIF/BMP/PICT/WPG 全部转换为 TIFF 或 JPG（必要时 PNG），再按期刊 dpi 下限重新导出。",
+      "check": {
+        "type": "forbidden",
+        "params": {
+          "patterns": [
+            "\\.gif\\b",
+            "\\.bmp\\b",
+            "\\.pict\\b",
+            "\\.wpg\\b",
+            "\\bGIF format\\b",
+            "\\bBMP format\\b"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "format",
+        "forbidden"
+      ],
+      "source": {
+        "file": "references/figure-specs.md",
+        "line": 20
+      }
+    },
+    {
+      "id": "F-17",
+      "title": "图件格式 TIFF / JPG（EPS 不推荐）",
+      "severity": "soft",
+      "sections": [
+        "figures"
+      ],
+      "statement": "格式 **TIFF / JPG**（🔴 EPS 不推荐；多面板图先单图转 PDF 再合并）。",
+      "fix": "统一交付 TIFF 或 JPG；多面板图先各自导出，再合并为一个 PDF/复合文件。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "\\.tiff?\\b",
+            "\\.jpe?g\\b"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "format"
+      ],
+      "source": {
+        "file": "references/figure-specs.md",
+        "line": 12
+      }
+    },
+    {
+      "id": "F-18",
+      "title": "矢量图必须嵌入字体",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "🔴 矢量图（EPS/PDF/AI）**字体必须嵌入**，否则编辑部无法正确排版；改字体时要改原字体而不是叠加文本框。",
+      "fix": "提交前在矢量软件中执行“嵌入字体（Embed Fonts）”，不要用文本框替代原字体对象。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "embed(?:ded|ding)?\\s+(?:the\\s+)?fonts?|字体嵌入|嵌入字体"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "font",
+        "vector",
+        "embed"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 857
+      }
+    },
+    {
+      "id": "F-19",
+      "title": "不得把低分辨率图重采样/升采样成高分辨率",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "🔴 不要把低分辨率图（如 300 dpi）**重采样/升采样**到高分辨率（如 600 dpi）——不会提升真实质量；应在原生软件中直接生成/转换为目标 dpi。",
+      "fix": "回到原生工程文件按目标 dpi 重新导出，不要对导出后的 PNG/TIFF 做插值放大。",
+      "check": {
+        "type": "forbidden",
+        "params": {
+          "patterns": [
+            "resampl(?:e|ed|ing)|upsampl(?:e|ed|ing)|重采样|升采样|插值(?:放大|增强)"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "resolution",
+        "workflow",
+        "forbidden"
+      ],
+      "source": {
+        "file": "references/paleobiology-journal.md",
+        "line": 106
+      },
+      "journals": [
+        "paleobiology"
+      ]
+    },
+    {
+      "id": "F-20",
+      "title": "PE 文件名遵守 ISO 9660（主文件名 ≤8 字符、扩展名 ≤3 字符、无空格）",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "PE 文件名只允许小写字母、数字 0-9、下划线 `_`、句点 `.`；禁止 **超过 8 个字符的主文件名**、**超过 3 个字符的扩展名**、**空格**及其他字符。",
+      "fix": "把图文件重命名为 8 字符以内的小写名（如 fig01.tif、fig1a1.tif），扩展名不超过 3 字符。",
+      "check": {
+        "type": "forbidden",
+        "params": {
+          "patterns": [
+            "[^\\s]{9,}\\.[a-z0-9]{1,3}",
+            "\\.[a-z0-9]{4,}"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "naming",
+        "pe",
+        "iso9660"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 700
+      },
+      "journals": [
+        "palaeontologia-electronica"
+      ]
+    },
+    {
+      "id": "F-21",
+      "title": "图文件按出现顺序命名",
+      "severity": "soft",
+      "sections": [
+        "figures"
+      ],
+      "statement": "🔴 **给图文件按顺序编号命名**（PPP 原文建议 `Smith-Figure1.tif`；JM 用 `fig01`、`fig02`；Elsevier 用 `Figure_1`、`Figure_2`）。",
+      "fix": "按正文出现顺序统一命名：fig01/fig02…、Figure_1/Figure_2… 或 姓-FigureN.tif，全稿只用一种风格。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "(?:fig|figure)[ _-]?\\d+"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "naming"
+      ],
+      "source": {
+        "file": "references/figure-specs.md",
+        "line": 168
+      }
+    },
+    {
+      "id": "F-22",
+      "title": "单栏图宽 <85 mm",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "PPP（双栏刊）单栏宽度 **<85 mm**。",
+      "fix": "按单栏 85 mm 以内设定画布宽度导出，不要在 Word 里缩放。",
+      "check": {
+        "type": "numeric",
+        "params": {
+          "pattern": "(?:单栏|single[- ]?column)[^\\d]{0,15}(?<![\\d.])(\\d{2,3})(?![\\d.])\\s*mm",
+          "min": 0,
+          "max": 85,
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "width",
+        "size",
+        "ppp"
+      ],
+      "source": {
+        "file": "references/figure-specs.md",
+        "line": 17
+      },
+      "journals": [
+        "palaeogeography-palaeoclimatology-palaeoecology"
+      ]
+    },
+    {
+      "id": "F-23",
+      "title": "双栏图宽 <180 mm",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "PPP（双栏刊）双栏宽度 **<180 mm**；制图设计尺寸 **≤180 mm（宽）× 230 mm（高）**。",
+      "fix": "双栏图按 180 mm 以内宽度制图，插入 Word 时不做任何缩放。",
+      "check": {
+        "type": "numeric",
+        "params": {
+          "pattern": "(?:双栏|double[- ]?column|full[- ]?width|通栏)[^\\d]{0,15}(?<![\\d.])(\\d{2,3})(?![\\d.])\\s*mm",
+          "min": 0,
+          "max": 180,
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "width",
+        "size",
+        "ppp"
+      ],
+      "source": {
+        "file": "references/figure-specs.md",
+        "line": 17
+      },
+      "journals": [
+        "palaeogeography-palaeoclimatology-palaeoecology"
+      ]
+    },
+    {
+      "id": "F-24",
+      "title": "制图设计尺寸 ≤180 mm × 230 mm",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "设计尺寸 **≤180 mm（宽）× 230 mm（高）**；图表版面要求 **160–180 mm × 210–230 mm**。",
+      "fix": "新建制图画布时直接设定 180 mm × 230 mm（按目标刊版面再收窄），不要事后拉伸。",
+      "check": {
+        "type": "numeric",
+        "params": {
+          "pattern": "(?<![\\d.])(\\d{2,3})(?![\\d.])\\s*mm\\s*(?:×|x|X|\\*)\\s*(?<![\\d.])(\\d{2,3})(?![\\d.])\\s*mm",
+          "min": 0,
+          "max": 230,
+          "flags": ""
+        }
+      },
+      "tags": [
+        "figures",
+        "size",
+        "layout"
+      ],
+      "source": {
+        "file": "references/figure-specs.md",
+        "line": 95
+      }
+    },
+    {
+      "id": "F-25",
+      "title": "Nature 图宽 90 mm（单栏）/ 180 mm（双栏），页全深 170 mm",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "Nature 标准图幅 **90 mm（单栏）与 180 mm（双栏）**，页面全深 **170 mm**。",
+      "fix": "Nature 投稿按 90/180 mm 宽制图，版面总高不超过 170 mm。",
+      "check": {
+        "type": "numeric",
+        "params": {
+          "pattern": "(?:图宽|宽度|width)[^\\d]{0,15}(?<![\\d.])(\\d{2,3})(?![\\d.])\\s*mm",
+          "min": 0,
+          "max": 180,
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "width",
+        "size",
+        "nature"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 205
+      },
+      "journals": [
+        "nature"
+      ]
+    },
+    {
+      "id": "F-26",
+      "title": "APP 单栏 89 mm / 双栏 183 mm / 最大长 237 mm",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "APP：双栏宽 **183 mm**、单栏宽 **89 mm**、最大长 **237 mm**。",
+      "fix": "APP 投稿按 89 mm（单栏）或 183 mm（双栏）制图，高 ≤237 mm。",
+      "check": {
+        "type": "numeric",
+        "params": {
+          "pattern": "(?:图宽|宽度|width)[^\\d]{0,15}(?<![\\d.])(\\d{2,3})(?![\\d.])\\s*mm",
+          "min": 0,
+          "max": 237,
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "width",
+        "size",
+        "app"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 559
+      },
+      "journals": [
+        "acta-palaeontologica-polonica"
+      ]
+    },
+    {
+      "id": "F-27",
+      "title": "PE 单栏 84 mm / 双栏 175 mm",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "PE：**84 mm** 单栏 / **175 mm** 双栏（\"Figures should normally be created with widths equal to 175 mm or 84 mm at 300 ppi or higher\"）。",
+      "fix": "PE 制图宽度只能是 175 mm 或 84 mm 两档，不要用中间值。",
+      "check": {
+        "type": "numeric",
+        "params": {
+          "pattern": "(?:图宽|宽度|width)[^\\d]{0,15}(?<![\\d.])(\\d{2,3})(?![\\d.])\\s*mm",
+          "min": 84,
+          "max": 175,
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "width",
+        "size",
+        "pe"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 911
+      },
+      "journals": [
+        "palaeontologia-electronica"
+      ]
+    },
+    {
+      "id": "F-28",
+      "title": "Paleobiology 单栏 9 cm / 双栏 18 cm，最大高 24 cm",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "Paleobiology：单栏 **9 cm**、双栏 **18 cm**，最大高度 **24 cm**。",
+      "fix": "Paleobiology 投稿按 9 cm / 18 cm 宽制图，高 ≤24 cm；文件名须标明栏宽（如 Fig1_2col.tif）。",
+      "check": {
+        "type": "numeric",
+        "params": {
+          "pattern": "(?:单栏|双栏|栏宽|width)[^\\d]{0,15}(?<![\\d.])(\\d{1,2})(?![\\d.])\\s*cm",
+          "min": 9,
+          "max": 24,
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "width",
+        "size",
+        "paleobiology"
+      ],
+      "source": {
+        "file": "references/journal-constraints.md",
+        "line": 126
+      },
+      "journals": [
+        "paleobiology"
+      ]
+    },
+    {
+      "id": "F-29",
+      "title": "PNAS 图件尺寸 Small 9×6 cm / Medium 11×11 cm / Large 18×22 cm",
+      "severity": "soft",
+      "sections": [
+        "figures"
+      ],
+      "statement": "PNAS 图件尺寸：Small ≈ **9×6 cm**；Medium ≈ **11×11 cm**；Large ≈ **18×22 cm**。",
+      "fix": "按 PNAS 三档标准尺寸制图，避免出现编辑部无法套用的任意尺寸。",
+      "check": {
+        "type": "numeric",
+        "params": {
+          "pattern": "(?<![\\d.])(\\d{1,2})(?![\\d.])\\s*×\\s*(?<![\\d.])(\\d{1,2})(?![\\d.])\\s*cm",
+          "min": 6,
+          "max": 22,
+          "flags": ""
+        }
+      },
+      "tags": [
+        "figures",
+        "size",
+        "pnas"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 296
+      },
+      "journals": [
+        "pnas"
+      ]
+    },
+    {
+      "id": "F-30",
+      "title": "JM 最小图宽 ≥8 cm",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "Copernicus / JM：图宽 **不得小于 8 cm**（宽度 should not be less than 8 cm）。",
+      "fix": "JM 投稿的每张图（含子图拼版）宽度不小于 8 cm。",
+      "check": {
+        "type": "numeric",
+        "params": {
+          "pattern": "(?:最小图宽|图宽|width)[^\\d]{0,15}(?<![\\d.])(\\d{1,2}(?:\\.\\d+)?)(?![\\d.])\\s*cm",
+          "min": 8,
+          "max": 30,
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "width",
+        "size",
+        "jm"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 854
+      },
+      "journals": [
+        "j-micropalaeontology"
+      ]
+    },
+    {
+      "id": "F-31",
+      "title": "JM / Copernicus 版心宽 177.0 mm，通栏图宽 175.0 mm",
+      "severity": "soft",
+      "sections": [
+        "figures"
+      ],
+      "statement": "JM 使用 `copernicus.cls`，**单栏**，版心宽 **177.0 mm**（A4 595.3×785.2 pt）；实测通栏最大图宽 **175.0 mm**。",
+      "fix": "JM 图按 175.0 mm 以内宽度制图，不超过 177.0 mm 版心。",
+      "check": {
+        "type": "numeric",
+        "params": {
+          "pattern": "(?:版心|通栏|栏宽)[^\\d]{0,15}(?<![\\d.])(\\d{3}(?:\\.\\d+)?)(?![\\d.])\\s*mm",
+          "min": 170,
+          "max": 177,
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "width",
+        "size",
+        "jm"
+      ],
+      "source": {
+        "file": "references/figure-design-system.md",
+        "line": 22
+      },
+      "journals": [
+        "j-micropalaeontology"
+      ]
+    },
+    {
+      "id": "F-32",
+      "title": "Graphical Abstract 最小 531×1328 px（高×宽）",
+      "severity": "soft",
+      "sections": [
+        "figures"
+      ],
+      "statement": "Graphical Abstract（可选）：最小 **531×1328 px（高×宽）**，缩至 5×13 cm 用 96 dpi（屏幕）或 300 dpi（TIFF/PDF）仍可读；须作为**独立文件**上传。",
+      "fix": "按 531×1328 px 起步制作图形摘要，并在 5×13 cm 尺寸下自检可读性。",
+      "check": {
+        "type": "numeric",
+        "params": {
+          "pattern": "(?<![\\d.])(\\d{3,4})(?![\\d.])\\s*(?:×|x)\\s*(?<![\\d.])(\\d{3,4})(?![\\d.])\\s*px",
+          "min": 531,
+          "max": 1328,
+          "flags": ""
+        }
+      },
+      "tags": [
+        "figures",
+        "graphical-abstract",
+        "px",
+        "size"
+      ],
+      "source": {
+        "file": "references/figure-specs.md",
+        "line": 57
+      }
+    },
+    {
+      "id": "F-33",
+      "title": "照片最小像素宽度 1063 px（单栏）/ 2244 px（整页）",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "Elsevier 系：Photographs（彩色或灰度）最小分辨率 300 dpi，**单栏最小宽 1063 px，整页 2244 px**。",
+      "fix": "在最终栏宽下计算像素宽：照片单栏宽 ≥1063 px，整页宽 ≥2244 px。",
+      "check": {
+        "type": "numeric",
+        "params": {
+          "pattern": "(?<![\\d.])(\\d{3,4})(?![\\d.])\\s*px",
+          "min": 1063,
+          "max": 7480,
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "resolution",
+        "px",
+        "photo"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 495
+      }
+    },
+    {
+      "id": "F-34",
+      "title": "位图线条图最小像素宽度 3543 px（单栏）/ 7480 px（整页）",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "Elsevier 系：Bitmapped line drawings 最小分辨率 1000 dpi，**单栏最小宽 3543 px，整页 7480 px**。",
+      "fix": "线绘图位图按 1000 dpi 在目标栏宽下导出，保证像素宽不低于 3543 px。",
+      "check": {
+        "type": "numeric",
+        "params": {
+          "pattern": "(?<![\\d.])(\\d{3,4})(?![\\d.])\\s*px",
+          "min": 3543,
+          "max": 7480,
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "resolution",
+        "px",
+        "line-art"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 496
+      }
+    },
+    {
+      "id": "F-35",
+      "title": "送审图文件 <40 兆像素（Paleobiology）",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "Paleobiology 送审阶段：文件必须 **<40 兆像素**（宽×高 < 40,000,000 px）才能生成 PDF proof；录用后终稿不限此限。",
+      "fix": "上传前检查像素总数 <40,000,000，必要时先降采样到送审版并另存终稿版。",
+      "check": {
+        "type": "numeric",
+        "params": {
+          "pattern": "(?<![\\d.])(\\d{1,3})(?![\\d.])\\s*(?:megapixel|MP|兆像素)",
+          "min": 0,
+          "max": 40,
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "file-size",
+        "paleobiology"
+      ],
+      "source": {
+        "file": "references/paleobiology-journal.md",
+        "line": 19
+      },
+      "journals": [
+        "paleobiology"
+      ]
+    },
+    {
+      "id": "F-36",
+      "title": "图内字号下限 8 pt（终版尺寸）",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "🔴 图内字号下限 **8 pt（终版尺寸）**（Paleobiology、PE、APP 同口径）；PNAS 口径为 6 pt。",
+      "fix": "所有图内文字（轴标签、刻度、图例、面板字母）在最终印刷尺寸下不小于 8 pt。",
+      "check": {
+        "type": "numeric",
+        "params": {
+          "pattern": "(?:字号|字体大小|font\\s*size)[^\\d]{0,15}(?<![\\d.])(\\d{1,2}(?:\\.\\d+)?)(?![\\d.])\\s*pt",
+          "min": 8,
+          "max": 72,
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "font-size",
+        "typography"
+      ],
+      "source": {
+        "file": "references/paleobiology-journal.md",
+        "line": 84
+      },
+      "journals": [
+        "paleobiology",
+        "pnas",
+        "acta-palaeontologica-polonica",
+        "palaeontologia-electronica"
+      ]
+    },
+    {
+      "id": "F-37",
+      "title": "图内数字文字严禁小于 4 号",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "🔴 数字文字下限：严禁出现 **小于 4 号**；数字文字上限：**不推荐大于 12 号**。",
+      "fix": "制图前把图内字号设定在 4–12 号区间，优先使用 10&6 或 12&8 组合。",
+      "check": {
+        "type": "numeric",
+        "params": {
+          "pattern": "(?:字号|数字文字|font\\s*size)[^\\d]{0,15}(?<![\\d.])(\\d{1,2}(?:\\.\\d+)?)(?![\\d.])\\s*(?:pt|号)",
+          "min": 4,
+          "max": 12,
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "font-size",
+        "typography"
+      ],
+      "source": {
+        "file": "references/figure-specs.md",
+        "line": 98
+      }
+    },
+    {
+      "id": "F-38",
+      "title": "图内字号采用 10&6 或 12&8 组合",
+      "severity": "soft",
+      "sections": [
+        "figures"
+      ],
+      "statement": "字号大小：**10 号与 6 号组合** ／ **12 号与 8 号组合**（两级字号，避免全部同级造成视觉噪声）。",
+      "fix": "把图内文字分成两级：一级标题/轴标题用大号（10 或 12），数据标注/图例用小号（6 或 8），全图统一。",
+      "check": {
+        "type": "numeric",
+        "params": {
+          "pattern": "(?:字号|数字文字|font\\s*size)[^\\d]{0,15}(?<![\\d.])(\\d{1,2})(?![\\d.])\\s*(?:&|与|和)\\s*(?<![\\d.])(\\d{1,2})(?![\\d.])\\s*(?:号|pt)",
+          "min": 6,
+          "max": 12,
+          "flags": ""
+        }
+      },
+      "tags": [
+        "figures",
+        "font-size",
+        "typography"
+      ],
+      "source": {
+        "file": "references/figure-specs.md",
+        "line": 97
+      }
+    },
+    {
+      "id": "F-39",
+      "title": "字号层级：面板字母 > 面板标题 > 统计标注 > 轴标签 > 刻度",
+      "severity": "soft",
+      "sections": [
+        "figures"
+      ],
+      "statement": "字号层级：**面板字母 > 面板标题 > 统计标注（R²/Slope） > 轴标签 > 刻度**。",
+      "fix": "按该层级分配图内字号，保证读者一眼区分标注类型。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "figures",
+        "font-size",
+        "hierarchy"
+      ],
+      "source": {
+        "file": "references/figure-design-system.md",
+        "line": 263
+      }
+    },
+    {
+      "id": "F-40",
+      "title": "线条粗细 0.25 与 0.5 mm 组合",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "**线条粗细：0.25 与 0.5 mm 组合** —— 太细看不清，太粗显粗莽。",
+      "fix": "主曲线用 0.5 mm，辅助线/边框用 0.25 mm，全图只用这两档线宽。",
+      "check": {
+        "type": "numeric",
+        "params": {
+          "pattern": "(?:线宽|线条粗细|line\\s*width)[^\\d]{0,15}(?<![\\d.])(\\d{1,2}(?:\\.\\d+)?)(?![\\d.])\\s*mm",
+          "min": 0.25,
+          "max": 0.5,
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "line-width",
+        "stroke"
+      ],
+      "source": {
+        "file": "references/figure-specs.md",
+        "line": 96
+      }
+    },
+    {
+      "id": "F-41",
+      "title": "线条最小宽度 0.3 pt（0.11 mm），突出线 0.75–1.0 pt",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "Paleobiology：所有线条至少 **0.11 mm（0.3 pt）** 宽；突出线条（如图表主线）**0.75–1.0 pt（0.25–0.35 mm）**。",
+      "fix": "检查所有描边与边框：最细不得低于 0.3 pt，主线用 0.75–1.0 pt。",
+      "check": {
+        "type": "numeric",
+        "params": {
+          "pattern": "(?:线宽|线条宽|line\\s*width)[^\\d]{0,15}(?<![\\d.])(\\d{1,2}(?:\\.\\d+)?)(?![\\d.])\\s*pt",
+          "min": 0.3,
+          "max": 1,
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "line-width",
+        "paleobiology"
+      ],
+      "source": {
+        "file": "references/paleobiology-journal.md",
+        "line": 43
+      },
+      "journals": [
+        "paleobiology"
+      ]
+    },
+    {
+      "id": "F-42",
+      "title": "APP 线粗 0.2 mm、比例尺 0.7 mm",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "APP：线粗细 **0.2 mm**；比例尺 **0.7 mm**。",
+      "fix": "APP 投稿的线绘按 0.2 mm 线宽、比例尺条按 0.7 mm 粗细制作。",
+      "check": {
+        "type": "numeric",
+        "params": {
+          "pattern": "(?:线粗|线宽|line\\s*width)[^\\d]{0,15}(?<![\\d.])(\\d{1,2}(?:\\.\\d+)?)(?![\\d.])\\s*mm",
+          "min": 0.2,
+          "max": 0.7,
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "line-width",
+        "scale-bar",
+        "app"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 563
+      },
+      "journals": [
+        "acta-palaeontologica-polonica"
+      ]
+    },
+    {
+      "id": "F-43",
+      "title": "图中字体优先 sans serif（Arial / Helvetica）",
+      "severity": "soft",
+      "sections": [
+        "figures"
+      ],
+      "statement": "图中字体 **sans serif 优先：Arial、Helvetica**；或 Times New Roman、Symbol、Courier；同类型图的字号与样式须一致。",
+      "fix": "全稿图内统一 Arial 或 Helvetica（符号用 Symbol），确保同类图字号样式一致。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "Arial|Helvetica|Times\\s+New\\s+Roman|Symbol|Courier"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "font",
+        "typography"
+      ],
+      "source": {
+        "file": "references/figure-specs.md",
+        "line": 16
+      }
+    },
+    {
+      "id": "F-44",
+      "title": "图内文字不用全大写、不用粗体",
+      "severity": "soft",
+      "sections": [
+        "figures"
+      ],
+      "statement": "图内文字用**大小写混排**，不要全大写；**不要用粗体**（面板字母除外）；终端字号 ≥8。",
+      "fix": "把图内全大写与粗体改为大小写混排正体，仅面板字母用粗体大写。",
+      "check": {
+        "type": "forbidden",
+        "params": {
+          "patterns": [
+            "all[- ]?caps\\b",
+            "全大写",
+            "\\bbold\\s+(?:face\\s+)?(?:text|type|labels?)\\b"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "typography",
+        "panel-label"
+      ],
+      "source": {
+        "file": "references/paleobiology-journal.md",
+        "line": 86
+      },
+      "journals": [
+        "paleobiology"
+      ]
+    },
+    {
+      "id": "F-45",
+      "title": "同一色相在全稿只承载一个含义",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "🔴 同一色相全篇只承载一个含义 —— 本文中「紫」只可能是 AI；拿掉图例只看颜色，应能在所有面板一致判断组别。",
+      "fix": "建立“颜色 = 角色”字典（如红=人工、紫=AI），全稿每张图按同一字典取色，冲突处改形状/线型做第二重线索。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "figures",
+        "colour",
+        "semantics",
+        "consistency"
+      ],
+      "source": {
+        "file": "references/figure-design-system.md",
+        "line": 244
+      }
+    },
+    {
+      "id": "F-46",
+      "title": "红/绿等高危色对必须配第二重线索",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "🔴 区分色**始终配第二重线索** —— 形状（● / ▲ / ■）、线型（实线 / 虚线）或直接在图上标文字；约 8% 男性有色觉缺陷，红绿并置对他们完全等价。",
+      "fix": "凡用红/绿、蓝/黄等区分色，必同时加形状、线型或直接标注中的至少一种。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "second\\s+discriminative|形状|线型|dashed\\s+line|虚线|different\\s+symbols?|open\\s+circles?"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "colour",
+        "colourblind",
+        "accessibility"
+      ],
+      "source": {
+        "file": "references/color-system.md",
+        "line": 174
+      }
+    },
+    {
+      "id": "F-47",
+      "title": "避开红/蓝、红/绿、蓝/绿、蓝/黄四组危险色对",
+      "severity": "soft",
+      "sections": [
+        "figures"
+      ],
+      "statement": "Paleobiology 色彩避坑：当色彩差异是理解图的关键因素时（如图表），**避免以下颜色对：红/蓝 · 红/绿 · 蓝/绿 · 蓝/黄**。",
+      "fix": "换用蓝-橙、深蓝-浅黄等明度差大的组合；地学图若必须用红绿区分古环境，必须配花纹或线型。",
+      "check": {
+        "type": "forbidden",
+        "params": {
+          "patterns": [
+            "red\\s*(?:/|and|vs\\.?|-)\\s*(?:green|blue)",
+            "blue\\s*(?:/|and|vs\\.?|-)\\s*(?:green|yellow)",
+            "红\\s*(?:/|和|与)\\s*(?:绿|蓝)",
+            "蓝\\s*(?:/|和|与)\\s*(?:绿|黄)"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "colour",
+        "colourblind",
+        "paleobiology"
+      ],
+      "source": {
+        "file": "references/paleobiology-journal.md",
+        "line": 94
+      },
+      "journals": [
+        "paleobiology"
+      ]
+    },
+    {
+      "id": "F-48",
+      "title": "须用 Coblis 色觉障碍模拟器自查配色",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "🔴 Copernicus / JM 明确要求：配色必须让色觉障碍读者能正确解读，须用 **Coblis 色觉模拟器**检查并据此修改配色。",
+      "fix": "定稿前用 Coblis 模拟红/绿/蓝色盲三种视图逐图检查，必要时重排配色。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "Coblis|colou?r\\s*blindness\\s*simulator|色觉(?:障碍)?模拟|色盲模拟"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "colour",
+        "colourblind",
+        "jm",
+        "copernicus"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 869
+      },
+      "journals": [
+        "j-micropalaeontology"
+      ]
+    },
+    {
+      "id": "F-49",
+      "title": "全部图转灰度后组别仍须可区分",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "🔴 全部转**灰度**后，两组是否仍可区分？（打印前必查）—— 灰度不可分的配色在黑白印刷中失效。",
+      "fix": "定稿前把全部图转灰度打印一遍；若组别混淆，改用明度差或加形状/线型第二重线索。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "gr[ea]y-?scale|灰度"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "colour",
+        "greyscale",
+        "print"
+      ],
+      "source": {
+        "file": "references/color-system.md",
+        "line": 313
+      }
+    },
+    {
+      "id": "F-50",
+      "title": "连续型数据用感知均匀色阶，不用彩虹色阶",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "🔴 连续量用**感知均匀色阶**（viridis / Blues / RdBu），不用彩虹色阶（jet）与红-绿渐变；彩虹色阶在中间区产生**人为的假边界**。",
+      "fix": "把热图/表达量矩阵的配色换成 viridis / Blues / RdBu 等感知均匀色阶。",
+      "check": {
+        "type": "forbidden",
+        "params": {
+          "patterns": [
+            "rainbow\\s*(?:colou?r\\s*)?(?:scale|palette|map)?",
+            "\\bjet\\s*(?:colou?r\\s*)?(?:scale|palette|map)?"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "colour",
+        "heatmap",
+        "colourblind"
+      ],
+      "source": {
+        "file": "references/color-system.md",
+        "line": 185
+      }
+    },
+    {
+      "id": "F-51",
+      "title": "发散色阶必须以 0（或中位数）为中性色中心",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "🔴 发散色阶必须以 **0（或中位数）为中性色中心**，两侧用**同饱和度的两个色相**，而不是深浅同一色相（蓝—白—红）。",
+      "fix": "比较两类数据（KO vs WT）的色阶改为以 0 为中心的蓝-白-红发散色阶。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "diverging|发散",
+            "\\bzero[- ]cent(?:re|ered)\\b|以\\s*0\\s*为(?:中性)?中心|中性色"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "colour",
+        "heatmap",
+        "diverging-scale"
+      ],
+      "source": {
+        "file": "references/color-system.md",
+        "line": 192
+      }
+    },
+    {
+      "id": "F-52",
+      "title": "每张热图必须带色标条 + 两端数值 + 变量名与单位",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "每张热图**右侧或下方**必须有：**色标条（渐变条）**、**两端数值**（如 `1.9 ← 0 → −2.5`）、**变量名与单位**。",
+      "fix": "为每张热图补上色标条并标出数值方向与变量单位；没有色标条的热图直接扣分。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "colour\\s*bar|color\\s*bar|色标条|色标",
+            "scale\\s*bar|色阶"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "colour",
+        "heatmap",
+        "legend"
+      ],
+      "source": {
+        "file": "references/color-system.md",
+        "line": 206
+      }
+    },
+    {
+      "id": "F-53",
+      "title": "色彩模式用 RGB，不用 CMYK",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "PE：🔴 **色彩模式 RGB，不用 CMYK**；PNAS：\"Color mode should be RGB.\"",
+      "fix": "导出前把色彩模式切换为 RGB；CMYK 文件会被编辑部退回或转换失真。",
+      "check": {
+        "type": "forbidden",
+        "params": {
+          "patterns": [
+            "CMYK"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "colour",
+        "rgb",
+        "cmyk"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 675
+      },
+      "journals": [
+        "pnas",
+        "palaeontologia-electronica"
+      ]
+    },
+    {
+      "id": "F-54",
+      "title": "地层柱状图同色同明度，颜色只编码时代不编码岩性",
+      "severity": "soft",
+      "sections": [
+        "figures"
+      ],
+      "statement": "地层柱状图：同一地层单元在全图必须**同色同明度**；颜色编码地层时代，**绝不编码岩性**（岩性用花纹）；若同时用颜色 + 花纹编码两种维度，印刷后极易糊成一团 —— 优先只用一种。",
+      "fix": "统一地层配色表，岩性改用点填充/斜线/实心灰花纹表达。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "hatch(?:ing)?|pattern(?:ed)?\\s*fill|花纹|点填充|斜线填充"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "colour",
+        "stratigraphy",
+        "hatching"
+      ],
+      "source": {
+        "file": "references/color-system.md",
+        "line": 340
+      }
+    },
+    {
+      "id": "F-55",
+      "title": "化石标本照片底色必须纯黑或纯白",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "⚠️ 化石标本照片底色必须**纯黑或纯白**，不用浅灰 —— 标本本身的颜色就是数据，任何色偏都会污染判读；APP 更规定**照片须黑背景**，白背景可接受但最亮区不得全白。",
+      "fix": "标本照片统一用纯黑或纯白背景拍摄；线绘、plot、sketch 背景白色。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "black\\s+background|white\\s+background|纯黑|纯白|白背景|黑背景"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "colour",
+        "background",
+        "specimen"
+      ],
+      "source": {
+        "file": "references/color-system.md",
+        "line": 228
+      },
+      "journals": [
+        "acta-palaeontologica-polonica"
+      ]
+    },
+    {
+      "id": "F-56",
+      "title": "一个视觉通道只能承载一个变量",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "一张图里同一视觉通道**只能承载一个变量**；柱/折线图里颜色深浅表示数值大小属于重复编码（数值已由 Y 轴表达）→ 是噪音。",
+      "fix": "列出图中每个颜色的含义，同一颜色若对应两条不同含义就重画。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "figures",
+        "colour",
+        "encoding"
+      ],
+      "source": {
+        "file": "references/color-system.md",
+        "line": 115
+      }
+    },
+    {
+      "id": "F-57",
+      "title": "背景色块只表类别，不参与数值编码",
+      "severity": "soft",
+      "sections": [
+        "figures"
+      ],
+      "statement": "🔴 色块只表示\"这一段属于哪一类\"，不代表数值、不参与图例色阶；判断标准：把色块去掉，信息应减少（类别归属丢失）而非改变。",
+      "fix": "把背景色带与数据编码分离，图例单独解释两种底色。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "figures",
+        "colour",
+        "background",
+        "legend"
+      ],
+      "source": {
+        "file": "references/color-system.md",
+        "line": 143
+      }
+    },
+    {
+      "id": "F-58",
+      "title": "四组及以上用色相编码主变量、明度编码次变量",
+      "severity": "soft",
+      "sections": [
+        "figures"
+      ],
+      "statement": "4 组及以上：🔴 **色相编码主变量，明度编码次变量**（橙 PBS-WT / 橙浅 CM-WT / 绿 PBS-KO / 绿浅 CM-KO），避免四色平铺；三组时三色须在明度上等距。",
+      "fix": "把多组配色改成“色相两两成对 + 深浅区分”，保证灰度打印后仍可分。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "hue|色相",
+            "lightness|brightness|明度"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "colour",
+        "groups",
+        "greyscale"
+      ],
+      "source": {
+        "file": "references/color-system.md",
+        "line": 108
+      }
+    },
+    {
+      "id": "F-59",
+      "title": "显著性星号与 p 值必须用中性色",
+      "severity": "soft",
+      "sections": [
+        "figures"
+      ],
+      "statement": "显著性星号 `****` 放数据点/柱顶上方，**用黑色或深灰**，不随组别变色；p 值同样深色，横线（bracket）用灰；染色后读者会误以为它属于某个组别。",
+      "fix": "把星号、p 值、括号线统一改为黑/深灰/灰，不使用组别色。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "neutral\\s*colou?r|中性色|black\\s+(?:or\\s+dark\\s+gr[ae]y)?|深灰"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "colour",
+        "statistics"
+      ],
+      "source": {
+        "file": "references/color-system.md",
+        "line": 237
+      }
+    },
+    {
+      "id": "F-60",
+      "title": "双组对比图全篇只用一对颜色",
+      "severity": "soft",
+      "sections": [
+        "figures"
+      ],
+      "statement": "🔴 铁律：双组对比图，**全篇只用这一对颜色**（如人工=红 #D30203、AI=紫 #75489A），跨越多张图、多种图元一次都不能例外。",
+      "fix": "为“双方法对比”建立唯一色对，所有相关图统一取色；不得临时新增第三色。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "figures",
+        "colour",
+        "semantics",
+        "consistency"
+      ],
+      "source": {
+        "file": "references/figure-design-system.md",
+        "line": 214
+      }
+    },
+    {
+      "id": "F-61",
+      "title": "多面板图底色用极浅冷色而非纯白",
+      "severity": "soft",
+      "sections": [
+        "figures"
+      ],
+      "statement": "顶刊多面板图的底色**极少用纯白**，常用**极浅冷灰/浅蓝**（通用面板底 #F7F7F7 或 #F2F2F2；左右分屏用冷蓝灰 #F0F4F8 / 暖红灰 #FAF0F0）；化石标本照片例外（须纯黑/纯白）。",
+      "fix": "多面板图统一设置极浅冷色底，分屏用色温相反的两种极浅色；照片面板保持纯黑/纯白。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "figures",
+        "colour",
+        "background",
+        "layout"
+      ],
+      "source": {
+        "file": "references/color-system.md",
+        "line": 221
+      }
+    },
+    {
+      "id": "F-62",
+      "title": "坐标轴标题必填且单位写在轴标题内",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "坐标轴标题：无衬线正体、不加粗；**轴标签单位写在轴标题里**（例：Relative abundance (%)），不写进图注；学位论文口径要求曲线图纵横坐标必须标注\"量、标准符号、单位\"（如 m³/s）。",
+      "fix": "为每根坐标轴写出“量 + 标准符号 + 单位”的完整轴标题，单位用圆括号括在标题末尾。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "\\([^()]{1,12}\\)"
+          ],
+          "flags": ""
+        }
+      },
+      "tags": [
+        "figures",
+        "axis",
+        "units",
+        "labels"
+      ],
+      "source": {
+        "file": "references/figure-design-system.md",
+        "line": 259
+      }
+    },
+    {
+      "id": "F-63",
+      "title": "对数轴必须在图注或轴标题中声明",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "数值轴使用对数刻度时必须在图注或轴标题中声明（log scale / log10 / 对数坐标），并给出底数。",
+      "fix": "在轴标题或图注中写明“log10 scale（对数坐标）”等声明。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "log(?:arithmic)?(?:\\s*scale|\\s*axis|\\s*coordinate)?",
+            "对数(?:坐标|轴|刻度)"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "axis",
+        "log-scale"
+      ],
+      "source": {
+        "file": "references/figure-design-system.md",
+        "line": 258
+      }
+    },
+    {
+      "id": "F-64",
+      "title": "数值轴必须从 0 开始（对数轴除外）",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "🔴 PNAS：**所有 graph 的数值轴须从 0 开始**（log 轴除外）；截断坐标轴必须用断轴符号并在图注说明。",
+      "fix": "把数值轴起点改回 0；确需截断时在轴上画断轴符号并在图注注明“轴已截断”。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "axis[^.\\n]{0,40}\\bfrom\\s+0\\b",
+            "starting\\s+(?:at|from)\\s+0",
+            "轴[^。\\n]{0,20}(?:从|起点)\\s*0"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "axis",
+        "pnas",
+        "truncation"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 309
+      },
+      "journals": [
+        "pnas"
+      ]
+    },
+    {
+      "id": "F-65",
+      "title": "回归图必须给 1:1 参考线与 R²",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "每张回归图都要有 **1:1 参考线** + **R²**；1:1 线用**虚线**（与拟合实线区分），R² 写在左上角，大号字体、不带边框。",
+      "fix": "给每张回归/一致性图补 1:1 虚线与 R² 标注；1:1 线一律用虚线、拟合线用实线。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "R\\s*\\^?\\s*2|R²|R2",
+            "1\\s*[:：]\\s*1|perfect[- ]agreement|完全一致"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "regression",
+        "statistics",
+        "reference-line"
+      ],
+      "source": {
+        "file": "references/figure-design-system.md",
+        "line": 311
+      }
+    },
+    {
+      "id": "F-66",
+      "title": "统计标注必须同时给点估计与 p 值",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "🔴 统计标注必须给 **点估计 + p 值**（不只是 R²）；Bland–Altman 图左下角写 Slope 与 p 值、R²。",
+      "fix": "把每处统计标注补齐为“斜率/差值 + p 值 + R²”的组合。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "p\\s*[=<>≤≥]\\s*0?\\.\\d+|p-value|p\\s*value|\\*\\*\\*"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "statistics",
+        "p-value"
+      ],
+      "source": {
+        "file": "references/figure-design-system.md",
+        "line": 313
+      }
+    },
+    {
+      "id": "F-67",
+      "title": "误差棒必须在图注中说明其含义与数据点数",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "PNAS：所有 error bars 须明确标注并在 legend 中描述；用 ± 须说明是 SEM 还是 SD；须注明独立数据点数 N。",
+      "fix": "在图注中写清误差棒代表 SD 还是 SEM（或具体定义），并给出独立重复数 N。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "error\\s*bars?|误差棒",
+            "\\b(?:SEM|SD|S\\.D\\.|standard\\s+deviation|standard\\s+error)\\b",
+            "\\bN\\s*=\\s*\\d+"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "caption",
+        "error-bar",
+        "statistics"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 308
+      },
+      "journals": [
+        "pnas"
+      ]
+    },
+    {
+      "id": "F-68",
+      "title": "图注必须写明样本量与数据划分",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "图注要写出**样本量与划分比例**：\"1690 images for M-1 ... with 80 % used for training and 20 % for validation\"；并写出数据集大小、单位与误差棒含义。",
+      "fix": "在图注中补上 n = X、划分比例、计量单位三要素。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "\\bn\\s*=\\s*\\d+",
+            "\\b\\d+\\s*(?:images?|samples?|specimens?|individuals?)\\b",
+            "\\d+\\s*%"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "caption",
+        "sample-size"
+      ],
+      "source": {
+        "file": "references/figure-design-system.md",
+        "line": 319
+      }
+    },
+    {
+      "id": "F-69",
+      "title": "图例必须画在图内，不能靠图注解释符号",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "🔴 Copernicus / JM：**图例必须画在图里**，虚线、空心圆、颜色、形状都要在图内出现并在图内解释；图注**不许**再靠 \"the dashed line means …\" 定义符号。",
+      "fix": "把符号说明移进图内图例框，图注只描述内容；反过来 Nature 鼓励把符号说明放图注 —— 两者必须以目标刊为准。",
+      "check": {
+        "type": "forbidden",
+        "params": {
+          "patterns": [
+            "(?:dashed|dotted|solid)\\s+line\\s+(?:means|indicates|denotes|represents)",
+            "(?:open|closed|hollow|solid)\\s+\\w+\\s+(?:circles?|squares?|triangles?|symbols?)\\s+(?:mean|indicate|represent)"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "legend",
+        "jm",
+        "copernicus"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 855
+      },
+      "journals": [
+        "j-micropalaeontology"
+      ]
+    },
+    {
+      "id": "F-70",
+      "title": "图例位置与顺序全稿一致，小倍数图共用一个图例",
+      "severity": "soft",
+      "sections": [
+        "figures"
+      ],
+      "statement": "多面板图的图例放**图底居中**，一次讲完、不重复；小倍数图**只放最右侧一个**图例；图例中同一颜色的顺序在**所有面板**中必须一致；图像阵列的组别顺序必须与图例颜色顺序完全一致。",
+      "fix": "统一图例位置与条目顺序；照片阵列按图例顺序排列标签。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "legend|图例"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "legend",
+        "consistency"
+      ],
+      "source": {
+        "file": "references/color-system.md",
+        "line": 312
+      }
+    },
+    {
+      "id": "F-71",
+      "title": "图注必须自明（只看图注就能把图看明白）",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "🔴 图注：**只看图注就能把图看明白**；自明性要求图注解释所有符号缩写、单位标在图注、来源在图注。",
+      "fix": "把图注写成独立可读的短文：一句描述性标题 + 面板逐条说明 + 符号缩写 + 单位 + 统计口径。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "figures",
+        "caption",
+        "self-contained"
+      ],
+      "source": {
+        "file": "references/figure-specs.md",
+        "line": 18
+      }
+    },
+    {
+      "id": "F-72",
+      "title": "图注不重复图内已有信息",
+      "severity": "soft",
+      "sections": [
+        "figures"
+      ],
+      "statement": "🔴 图注**不要重复图内已含的信息**（duplicated information may confuse readers）；同一地层柱在多图中**不要重复出现**。",
+      "fix": "删掉图注里对图内可见元素的复述，只保留图外信息（方法、统计、来源、缩写）。",
+      "check": {
+        "type": "forbidden",
+        "params": {
+          "patterns": [
+            "duplicated?\\s+information|redundant[^.\\n]{0,30}caption|重复(?:图内|正文|图外)"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "caption",
+        "redundancy"
+      ],
+      "source": {
+        "file": "references/figure-specs.md",
+        "line": 54
+      }
+    },
+    {
+      "id": "F-73",
+      "title": "图注须解释所有缩写与符号（多次出现须逐图重复）",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "🔴 所有子图与图中使用的缩写都必须在图注中解释；在多个图中使用的缩写，**须在每张图的图注中解释**，或引用已解释的图注。",
+      "fix": "逐图核对缩写清单，未解释的一律补上全拼 + 缩写。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "\\b[A-Z][A-Za-z]+\\s*\\(\\s*[A-Z]{2,}\\s*\\)"
+          ],
+          "flags": ""
+        }
+      },
+      "tags": [
+        "figures",
+        "caption",
+        "abbreviation"
+      ],
+      "source": {
+        "file": "references/paleobiology-journal.md",
+        "line": 99
+      },
+      "journals": [
+        "paleobiology"
+      ]
+    },
+    {
+      "id": "F-74",
+      "title": "图注须写明生成该图所用的方法与统计口径",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "🔴 生成该图所用的**方法必须在图注中说明**（公式、假设、正文引用等）；图注须解释非常规记号（菱形、凸包、Stress）。",
+      "fix": "在图注中补一句方法说明（如“均值以菱形表示，见 Methods 2.3”）。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "see\\s+Methods?|Methods?\\s*(?:§|\\d)|方法"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "caption",
+        "method"
+      ],
+      "source": {
+        "file": "references/paleobiology-journal.md",
+        "line": 101
+      },
+      "journals": [
+        "paleobiology"
+      ]
+    },
+    {
+      "id": "F-75",
+      "title": "图注首句讲 message 而非 content",
+      "severity": "soft",
+      "sections": [
+        "figures"
+      ],
+      "statement": "📌 所有图注，尤其是来自文献的图，必须说明**图的 message**（传达什么），而不只是陈述其内容（画了什么）；Micropaleontology 原文要求图注第一句说明\"这张图传达什么\"。",
+      "fix": "把图注首句从“图中显示了 X”改写为“本图说明 Y 结论”。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "figures",
+        "caption",
+        "message"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 118
+      }
+    },
+    {
+      "id": "F-76",
+      "title": "非线性（gamma）调整必须在图题中声明",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "亮度/对比度/色彩平衡调整不得遮蔽或消除原始信息；**非线性调整（如 gamma）须在图题中声明**。",
+      "fix": "凡做过 gamma/曲线调整，在图注中写明调整方式。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "gamma",
+            "non-?linear",
+            "非线性"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "caption",
+        "image-processing",
+        "compliance"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 504
+      }
+    },
+    {
+      "id": "F-77",
+      "title": "图注置于图下方并另附单独文件",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "🔴 图注必须置于图下方（outside of the image area itself），并同时作为单独文件提交；Nature 终稿要求 figure legends 作为文本单独列出、置于参考文献之后。",
+      "fix": "准备两份：图下方的一段式图注 + 独立的 Figure Captions 文件。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "figures",
+        "caption",
+        "submission",
+        "layout"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 115
+      },
+      "journals": [
+        "nature"
+      ]
+    },
+    {
+      "id": "F-78",
+      "title": "图注 9 pt Roman 且表题在表上方、图题在图下方（CVPR）",
+      "severity": "soft",
+      "sections": [
+        "figures"
+      ],
+      "statement": "CVPR：**表题在表上方，图题在图下方**；图注 9 pt Roman，短题注居中；避免把文字嵌入图形。",
+      "fix": "CVPR 投稿按 9 pt Roman 设置图注字号，位置放在图下方并居中。",
+      "check": {
+        "type": "numeric",
+        "params": {
+          "pattern": "(?:图注|caption)[^\\d]{0,15}(?<![\\d.])(\\d{1,2}(?:\\.\\d+)?)(?![\\d.])\\s*pt",
+          "min": 9,
+          "max": 12,
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "caption",
+        "font-size",
+        "cvpr"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 362
+      },
+      "journals": [
+        "cvpr"
+      ]
+    },
+    {
+      "id": "F-79",
+      "title": "表不得有竖线与单元格底纹",
+      "severity": "hard",
+      "sections": [
+        "tables"
+      ],
+      "statement": "🔴 表格**避免竖线（vertical rules）与单元格底纹（shading）**；Copernicus 规定水平线只出现在表上方、表下方与表头分隔处；Paleobiology 同样禁止竖排边框。",
+      "fix": "删除表格全部竖线与底纹，只保留三条水平线（顶线、表头分隔线、底线）。",
+      "check": {
+        "type": "forbidden",
+        "params": {
+          "patterns": [
+            "vertical\\s+(?:rules?|lines?|borders?)|竖线|竖边框|竖排标题"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "tables",
+        "format",
+        "rule",
+        "forbidden"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 127
+      }
+    },
+    {
+      "id": "F-80",
+      "title": "表题置于表格正上方且与表同页",
+      "severity": "hard",
+      "sections": [
+        "tables"
+      ],
+      "statement": "表题（表名）必须**在表上**（而非只在上方）或置于**表格正上方**，且与表格同页；学位论文规范同样要求表题在表上方居中。",
+      "fix": "把表名移到表格正上方并确保不与表体分页。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "tables",
+        "caption",
+        "layout"
+      ],
+      "source": {
+        "file": "references/figure-specs.md",
+        "line": 174
+      }
+    },
+    {
+      "id": "F-81",
+      "title": "表注位置按目标刊（上方或表体下方）",
+      "severity": "soft",
+      "sections": [
+        "tables"
+      ],
+      "statement": "表注位置按刊：MEPS / Deep-Sea Res / NM Museum / NOM 的表注**一律在表上方**；Elsevier / Nature / APP 规定表注置于**表体下方**（Place any table notes below the table body）。",
+      "fix": "投稿前查目标刊近 3 篇已刊论文的表注位置，统一处理。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "tables",
+        "caption",
+        "note",
+        "journal-specific"
+      ],
+      "source": {
+        "file": "references/figure-conventions-evidence.md",
+        "line": 119
+      }
+    },
+    {
+      "id": "F-82",
+      "title": "表头必须写单位（逗号简写）",
+      "severity": "hard",
+      "sections": [
+        "tables"
+      ],
+      "statement": "表头单位写法：**\"Event | depth, cm | age, kyr | sed. rate cm kyr⁻¹\"**（逗号简写单位）；表格单位是否写进表头/行头是交稿自查项。",
+      "fix": "把单位统一写进表头，用逗号分隔量与单位（如 depth, cm）；行头量同理。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "\\b(?:depth|age|rate|abundance|thickness|length|density|concentration)\\s*,\\s*(?:cm|mm|m|km|kyr|ka|Myr|Ma|Ga|%|ppm|mol)"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "tables",
+        "units",
+        "header"
+      ],
+      "source": {
+        "file": "references/figure-conventions-evidence.md",
+        "line": 113
+      }
+    },
+    {
+      "id": "F-83",
+      "title": "表注必须写「最佳值加粗」声明",
+      "severity": "hard",
+      "sections": [
+        "tables"
+      ],
+      "statement": "🔴 表注一律含「**最佳值加粗**」声明 + 脚注式脚标（a/b 说明输入尺寸等）；自查清单亦要求“表注写了最佳值加粗声明”。",
+      "fix": "在表注第一句写明：Bold values indicate the best performance in each row。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "bold|加粗|粗体"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "tables",
+        "caption",
+        "note",
+        "convention"
+      ],
+      "source": {
+        "file": "references/checklist.md",
+        "line": 182
+      }
+    },
+    {
+      "id": "F-84",
+      "title": "表内数值小数点对齐",
+      "severity": "soft",
+      "sections": [
+        "tables"
+      ],
+      "statement": "表格数值列按**小数点对齐**（decimal alignment），小数点使用句点不用逗号；千位以上用空格或逗号分隔（按刊）。",
+      "fix": "用制表位把小数点纵向对齐；小数分隔符统一为英文句点。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "tables",
+        "format",
+        "alignment",
+        "numbers"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 459
+      }
+    },
+    {
+      "id": "F-85",
+      "title": "表格必须以可编辑文本提交，不得作为图片",
+      "severity": "hard",
+      "sections": [
+        "tables"
+      ],
+      "statement": "🔴 **Tables must be submitted as editable text, not as images**；Copernicus 亦规定以 PDF 或图片提交的表无法处理；Paleobiology 要求用 Excel 或 Word 的“创建表格”功能，不用制表符+空格。",
+      "fix": "把表以 Word/Excel 可编辑表格交付，禁用制表符排版。",
+      "check": {
+        "type": "forbidden",
+        "params": {
+          "patterns": [
+            "table[^.\\n]{0,40}\\bas\\s+(?:an?\\s+)?image",
+            "表格[^。\\n]{0,12}(?:截图|图片|图像)"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "tables",
+        "format",
+        "submission",
+        "forbidden"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 127
+      }
+    },
+    {
+      "id": "F-86",
+      "title": "避免 multipart tables（Table 1A / 1B）",
+      "severity": "soft",
+      "sections": [
+        "tables"
+      ],
+      "statement": "PNAS：**避免 multipart tables**（如 Table 1A / Table 1B）；一张表只讲一件事。",
+      "fix": "把拆分的 A/B 表合并为一张完整表，或拆成独立的 Table 1 与 Table 2。",
+      "check": {
+        "type": "forbidden",
+        "params": {
+          "patterns": [
+            "Table\\s*\\d+[A-Z]\\b",
+            "表\\s*\\d+[A-Z]"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "tables",
+        "format",
+        "pnas"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 311
+      },
+      "journals": [
+        "pnas"
+      ]
+    },
+    {
+      "id": "F-87",
+      "title": "表号前 “Table” 不得缩写",
+      "severity": "soft",
+      "sections": [
+        "tables"
+      ],
+      "statement": "Copernicus：**\"Table\" 从不缩写**，且后接编号时首字母大写（如 Table 4）。",
+      "fix": "全文统一写 “Table 1”“Table 2”，不写 “Tab. 1”。",
+      "check": {
+        "type": "forbidden",
+        "params": {
+          "patterns": [
+            "\\bTab\\.\\s*\\d",
+            "\\bTab\\s+\\d"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "tables",
+        "naming",
+        "jm",
+        "copernicus"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 876
+      }
+    },
+    {
+      "id": "F-88",
+      "title": "表格不得重复正文已叙述的结果",
+      "severity": "soft",
+      "sections": [
+        "tables",
+        "results"
+      ],
+      "statement": "Elsevier：**Use tables sparingly**，表内数据不得与正文已描述的结果重复（any data presented in tables is not duplicating results described elsewhere in the article）。",
+      "fix": "删去正文已叙述的同一组数字，表中只保留正文未逐条叙述的汇总与对比数据。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "tables",
+        "results",
+        "redundancy"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 127
+      }
+    },
+    {
+      "id": "F-89",
+      "title": "丰度符号体系按目标刊约定",
+      "severity": "info",
+      "sections": [
+        "tables"
+      ],
+      "statement": "丰度符号按刊：英文刊 **X**（对位矩阵）、**♦**、**?**；俄文刊 **Р / Ч / О**；另有 \"+ (single specimen), R (rare), F (few), C (common), A (abundant)\"；**星号系统 * / ** 在本组 30 篇中零出现**。",
+      "fix": "查目标刊近 3 篇已刊论文的丰度符号写法并照抄；不要自创符号体系。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "tables",
+        "symbols",
+        "abundance",
+        "journal-specific"
+      ],
+      "source": {
+        "file": "references/figure-conventions-evidence.md",
+        "line": 121
+      }
+    },
+    {
+      "id": "F-90",
+      "title": "混淆矩阵图注使用固定句式（行=真值、列=预测、单元格=百分比、对角线=100%）",
+      "severity": "soft",
+      "sections": [
+        "figures",
+        "results"
+      ],
+      "statement": "混淆矩阵图注用固定句式：**行=真值、列=预测、单元格=百分比、对角线=100 %**（Fig 4 原文：\"rows 真值 / columns 预测，diagonal 100 %\"）。",
+      "fix": "混淆矩阵图注按固定句式写：行是真实类别、列是预测类别、单元格为百分比、对角线为 100 %。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "rows?[^.]{0,80}(?:true|actual|ground)",
+            "columns?[^.]{0,80}(?:predic|classif)",
+            "diagonal"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "caption",
+        "confusion-matrix"
+      ],
+      "source": {
+        "file": "references/checklist.md",
+        "line": 181
+      }
+    },
+    {
+      "id": "F-91",
+      "title": "PPP 不允许 Plates，化石标本图像集一律按 Figure 提交",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "🔴 **PPP 不允许 Plates** —— 过去作为图版的内容（如化石标本图像集）一律作为 \"Figure\" 提交。",
+      "fix": "把 Plate 1 / PLATE II 全部改写为 Figure N，并按 Figure 规则准备图件。",
+      "check": {
+        "type": "forbidden",
+        "params": {
+          "patterns": [
+            "\\bPLATE\\s+[IVXLC\\d]+\\b",
+            "\\bPlate\\s+[IVXLC\\d]+\\b",
+            "图版\\s*[IVX\\d一二三四五六七八九十]"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "plate",
+        "ppp",
+        "forbidden"
+      ],
+      "source": {
+        "file": "references/figure-specs.md",
+        "line": 55
+      },
+      "journals": [
+        "palaeogeography-palaeoclimatology-palaeoecology"
+      ]
+    },
+    {
+      "id": "F-92",
+      "title": "标本照片必须带比例尺",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "🔴 **标本照片必须带比例尺**；野外照可用标尺或已知尺寸物体；**比例尺尺寸的数值说明**须随比例尺或在图注中给出；PE 同样要求照片图须在图内有比例尺。",
+      "fix": "在每张标本照片上画比例尺条并在图注给出其代表的实际长度（μm/mm）。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "scale\\s*bar|比例尺|scalebar",
+            "µm|μm|\\bmm\\b|\\bcm\\b"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "scale-bar",
+        "specimen",
+        "required"
+      ],
+      "source": {
+        "file": "references/paleobiology-journal.md",
+        "line": 70
+      },
+      "journals": [
+        "palaeontologia-electronica",
+        "paleobiology"
+      ]
+    },
+    {
+      "id": "F-93",
+      "title": "不可用放大倍数代替比例尺",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "🔴 **不可用放大倍数（如 ×40）代替比例尺** —— 因为终版印刷时图可能被缩放；图件设计体系同样规定“必须有比例尺，不能用放大倍数代替（Fig 2 用 200 µm 横条）”。",
+      "fix": "把 ×N magn. 标注换成带数值说明的比例尺条。",
+      "check": {
+        "type": "forbidden",
+        "params": {
+          "patterns": [
+            "[×x]\\s*\\d{2,4}\\s*(?:magn\\.?|magnification)?",
+            "\\d{2,4}\\s*[×x]\\s*magn",
+            "\\d+\\s*magn\\.?\\b"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "scale-bar",
+        "magnification",
+        "forbidden"
+      ],
+      "source": {
+        "file": "references/paleobiology-journal.md",
+        "line": 72
+      },
+      "journals": [
+        "paleobiology"
+      ]
+    },
+    {
+      "id": "F-94",
+      "title": "比例尺条必须写全句并粗细统一",
+      "severity": "soft",
+      "sections": [
+        "figures"
+      ],
+      "statement": "比例尺条写全句：\"All scale bars equal 1 μm\"、\"All scale bars indicate 100 µm\"；🔴 **比例尺粗细须统一**；中文刊亦统一用比例尺（不用 × magn.）。",
+      "fix": "在图注统一声明所有比例尺的数值含义，并保证所有比例尺条线宽一致。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "all\\s+scale\\s+bars?\\s+(?:equal|indicate|represent)",
+            "所有比例尺|比例尺(?:条)?\\s*(?:均|统一)"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "scale-bar",
+        "caption"
+      ],
+      "source": {
+        "file": "references/figure-conventions-evidence.md",
+        "line": 107
+      }
+    },
+    {
+      "id": "F-95",
+      "title": "地图必须含比例尺 + 指北针或经纬网 + 底图来源",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "地理图三件套：**主图 + 插图定位小图（inset）+ km 比例尺**；地质图须有**指北针 + 比例尺**（如 \"0 — 50 km\"）、经纬度刻度；地图须给比例尺 + 指北针或经纬网 + 底图来源。",
+      "fix": "给每张地图补齐比例尺、指北针或经纬网、插图定位图与底图来源。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "scale\\s*bar|比例尺",
+            "north\\s*arrow|指北针|经纬|lat(?:itude)?|lon(?:gitude)?"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "map",
+        "scale-bar",
+        "north-arrow"
+      ],
+      "source": {
+        "file": "references/figure-conventions-evidence.md",
+        "line": 136
+      }
+    },
+    {
+      "id": "F-96",
+      "title": "照片不得改动（除色调、对比度、加标注/轮廓线）",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "🔴 **照片不得改动**，除非色调、对比度、以及添加要素标注或轮廓线；不得增强、遮蔽、移动、移除或引入图像中任何特征。",
+      "fix": "回到原始显微/野外照片重新制图，只做允许的色调与对比度处理与叠加标注。",
+      "check": {
+        "type": "forbidden",
+        "params": {
+          "patterns": [
+            "(?:image|photograph|photo|micrograph)[^.\\n]{0,60}(?:has been|was)\\s+(?:enhanced|altered|obscured|manipulated|retouched)",
+            "features?\\s+(?:were|have been)\\s+(?:removed|moved|added)\\s+(?:in|from|to)\\s+(?:the\\s+)?(?:image|photograph)"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "photo",
+        "compliance",
+        "integrity"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 502
+      }
+    },
+    {
+      "id": "F-97",
+      "title": "标本从左上斜向照射并按分类群标准惯例摆放",
+      "severity": "soft",
+      "sections": [
+        "figures"
+      ],
+      "statement": "Lighting 光照：**从左上斜向照射**标本，除非是原位（in situ）拍摄；Orientation 朝向：按该分类群的**标准惯例**摆放标本；🔴 关键特征必须清晰可见。",
+      "fix": "布光时固定左上 45° 斜射；摆放角度与同分类群已刊图一致；保证诊断特征在焦。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "figures",
+        "photo",
+        "specimen",
+        "workflow"
+      ],
+      "source": {
+        "file": "references/paleobiology-journal.md",
+        "line": 67
+      },
+      "journals": [
+        "paleobiology"
+      ]
+    },
+    {
+      "id": "F-98",
+      "title": "图版字母从左上到右下连续编号，同一标本多视图用同字母加数字下标",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "🔴 **字母从左上到右下连续**；同一标本的多个视图用**同一字母 + 数字下标**（A1, A2, A3…）；每个视图单独编号（A、A1、A2、A3…）。",
+      "fix": "按“先上后下、先左后右”重排面板字母，并把同一标本的多个视图统一为 A1/A2/A3。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "\\b[A-H]\\d\\b"
+          ],
+          "flags": ""
+        }
+      },
+      "tags": [
+        "figures",
+        "plate",
+        "panel-label",
+        "specimen"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 568
+      }
+    },
+    {
+      "id": "F-99",
+      "title": "图内标注用全称而非缩写",
+      "severity": "soft",
+      "sections": [
+        "figures"
+      ],
+      "statement": "标注用**全称**而非缩写（线绘必用，照片有空间时也用）；图内文字足够清晰、不被线条或底纹遮挡。",
+      "fix": "把图内的缩写标注改成全称（如 “calyx” 而非 “cx”）。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "figures",
+        "labels",
+        "abbreviation",
+        "legibility"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 570
+      }
+    },
+    {
+      "id": "F-100",
+      "title": "复杂解剖物体的立体照片对须并排且间距 ≤65 mm",
+      "severity": "soft",
+      "sections": [
+        "figures"
+      ],
+      "statement": "复杂解剖物体**推荐立体照片对**，配解释性线绘；立体对**并排**（非上下），间距**最大 65 mm**。",
+      "fix": "把立体照片对改为左右并排，两图间距控制在 65 mm 以内。",
+      "check": {
+        "type": "numeric",
+        "params": {
+          "pattern": "(?:图宽|宽度|width)[^\\d]{0,15}(?<![\\d.])(\\d{1,3})(?![\\d.])\\s*mm",
+          "min": 0,
+          "max": 65,
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "plate",
+        "layout",
+        "app"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 572
+      }
+    },
+    {
+      "id": "F-101",
+      "title": "每个标本必须标注标本号（馆藏号）",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "标本号：**PIN no. / CPC / GSCU / F2489(#61) / (HB07, sl.1, DS1/0)** —— 无一例外；所有图示和描述的化石**须存于合适博物馆**，引用馆藏号并前置机构缩写。",
+      "fix": "在每个标本的图注条目中写全机构缩写 + 馆藏号（例：PIN 12345）。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "catalogue\\s*number|catalog\\s*number|cat\\.\\s*no\\.|PIN\\s*no|馆藏号|藏号|repository"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "specimen",
+        "museum",
+        "taxonomy"
+      ],
+      "source": {
+        "file": "references/figure-conventions-evidence.md",
+        "line": 105
+      }
+    },
+    {
+      "id": "F-102",
+      "title": "标本存放机构（Repository）必须写明",
+      "severity": "hard",
+      "sections": [
+        "figures",
+        "systematic"
+      ],
+      "statement": "Repository（存放机构）两种放法：① **单列一节**放在系统描述之前；② 写在系统描述段第一句（\"All specimens described in this paper are deposited in …\"）；所有描述和图示的化石必须**注册并存放于具永久保存能力的正规公立机构**。",
+      "fix": "在系统描述前加 Repository 段，或在首个类群块首句写明存放机构。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "repository|deposited\\s+in|存(?:放|于)"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "systematic",
+        "museum",
+        "taxonomy"
+      ],
+      "source": {
+        "file": "references/micropaleo-paper-patterns.md",
+        "line": 585
+      }
+    },
+    {
+      "id": "F-103",
+      "title": "必须明确声明哪些标本是正模（Holotype）",
+      "severity": "hard",
+      "sections": [
+        "figures",
+        "systematic"
+      ],
+      "statement": "每个新种 / 新属都有 **Holotype**（新属还要有 **Paratype** 与 **Type Species**）；Types 段须给出 type designations、repository acronyms、catalogue numbers、含模式地层的地层划分与地质年代、模式产地地理位置（正模与副模分别列出）。",
+      "fix": "在图注与系统描述中逐个注明正模/副模及其馆藏号与模式产地。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "holotype",
+            "paratype|type\\s+species"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "systematic",
+        "taxonomy",
+        "type-material"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 482
+      }
+    },
+    {
+      "id": "F-104",
+      "title": "图注必须含分类学记号（gen. / sp. / n. sp. / aff. / cf. / ex gr.）",
+      "severity": "hard",
+      "sections": [
+        "figures",
+        "systematic"
+      ],
+      "statement": "图注必含分类学记号（语料实测 1139 条图注中 **7.4%** 含 `gen.` / `sp.` / `n. sp.` / `aff.` / `cf.` / `ex gr.`）；新分类单元须用 `sp. nov.` / `gen. nov.`。",
+      "fix": "在每条图注的学名后补上正确的分类学记号（n. sp.、aff.、cf. 等）。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "gen\\.|sp\\.\\s*nov|n\\.\\s*sp\\.|aff\\.|cf\\.|ex\\s+gr\\."
+          ],
+          "flags": ""
+        }
+      },
+      "tags": [
+        "figures",
+        "caption",
+        "taxonomy",
+        "systematic"
+      ],
+      "source": {
+        "file": "references/micropaleo-paper-patterns.md",
+        "line": 193
+      }
+    },
+    {
+      "id": "F-105",
+      "title": "借用或改造的图必须在图注写来源",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "🔴 借用的图必须在图注里写来源：**\"From X\"**（直接引用）/ **\"Slightly modified from X\"**（轻微改动）/ **\"modified from X (year)\"**（改造）/ **\"Original.\"**（自绘）；改绘图必须注明 \"Modified after / Simplified after\"。",
+      "fix": "逐图核对来源声明；自绘图写 Original，改造图写 modified from X (year) 并说明改动。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "\\bOriginal\\.",
+            "\\bFrom\\s+[A-Z]\\w+",
+            "modified\\s+from|slightly\\s+modified|simplified\\s+after|adapted\\s+from",
+            "\\bafter\\s+[A-Z]\\w+"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "caption",
+        "copyright",
+        "source"
+      ],
+      "source": {
+        "file": "references/micropaleo-paper-patterns.md",
+        "line": 118
+      }
+    },
+    {
+      "id": "F-106",
+      "title": "禁止使用 AI 工具创建或修改代表原始观测/实验数据的图像",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "🔴 **禁止使用 AI 工具创建或修改代表原始观测/实验数据的图像**（Elsevier / Palaeoworld / Elsevier 微体古生物系明令）；PNAS 封面图主要内容若由生成式 AI 生成则不符合资格。",
+      "fix": "所有数据图与标本照片必须来自原始记录，禁止用生成式 AI 补画、扩写或“美化”原始观测。",
+      "check": {
+        "type": "forbidden",
+        "params": {
+          "patterns": [
+            "AI-?generated",
+            "generated\\s+(?:by|with)\\s+(?:an?\\s+)?(?:AI|DALL[·\\- ]?E|Midjourney|Stable\\s*Diffusion)",
+            "生成式\\s*AI\\s*(?:生成|绘制|制作)的?(?:图|图像|照片)"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "compliance",
+        "ai",
+        "forbidden"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 505
+      },
+      "journals": [
+        "palaeoworld",
+        "pnas"
+      ]
+    },
+    {
+      "id": "F-107",
+      "title": "使用生成式 AI 必须在稿件中声明",
+      "severity": "hard",
+      "sections": [
+        "declarations",
+        "figures"
+      ],
+      "statement": "ESR：\"Authors must declare the use of generative AI tools in the manuscript preparation process upon submission\"，且 \"AI tools may only be applied with human oversight and control\"；Copernicus 要求在 Methods 或 Acknowledgements 描述 AI 使用方式。",
+      "fix": "若用了生成式 AI 辅助写作或制图，在稿件中单列声明说明用途与人工监督方式。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "generative\\s+AI|AI\\s+tools|生成式\\s*AI|人工智能(?:辅助|生成)"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "declarations",
+        "figures",
+        "ai",
+        "compliance"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 129
+      },
+      "journals": [
+        "earth-science-reviews"
+      ]
+    },
+    {
+      "id": "F-108",
+      "title": "严禁直接复制已发表图，修改后必须标注文献来源",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "🔴 **严禁直接粘贴复制某个已经发表的图**（例外：Open Access，或已申请获得专门使用许可）；**修改后必须标注文献来源**；完全取自他人图的，须注明原始来源并事先取得授权。",
+      "fix": "逐图核对版权：自绘写 Original，改绘写 modified from X，已获许可的注明许可来源。",
+      "check": {
+        "type": "forbidden",
+        "params": {
+          "patterns": [
+            "copied\\s+(?:directly\\s+)?from|same\\s+figure\\s+as|reproduced\\s+from|直接(?:粘贴)?复制"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "copyright",
+        "compliance",
+        "source",
+        "forbidden"
+      ],
+      "source": {
+        "file": "references/figure-specs.md",
+        "line": 180
+      }
+    },
+    {
+      "id": "F-109",
+      "title": "地图不得显示政治争议边界",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "🔴 **不得显示有政治争议的边界**（politically disputed boundaries）；Copernicus 要求地图遵循联合国命名规范，避免绘制边界或使用有争议的地名，编辑部有权加注 \"under dispute\"。",
+      "fix": "核对所有底图的国界与地名，删去争议边界或改用无政区底图（并注明底图来源）。",
+      "check": {
+        "type": "forbidden",
+        "params": {
+          "patterns": [
+            "disputed\\s+border|contested\\s+boundar|政治争议|under\\s+dispute"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "map",
+        "compliance",
+        "geopolitics",
+        "forbidden"
+      ],
+      "source": {
+        "file": "references/figure-specs.md",
+        "line": 56
+      }
+    },
+    {
+      "id": "F-110",
+      "title": "彩色图图注须写明每个元素的颜色与堆叠顺序",
+      "severity": "soft",
+      "sections": [
+        "figures"
+      ],
+      "statement": "彩色图注还必须写明：每个元素的颜色（black lines / Blue bars / Gray bar / Magenta bar / purple line / red line）、堆叠顺序（\"from top to bottom\"）、双 Y 轴读法（\"values of the thick curves are shown at the right side and values of the thin ones are shown on the left side\"）。",
+      "fix": "在彩色图注中逐一写出颜色对应的元素、堆叠自上而下的顺序，以及双轴各读哪条线。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "(?:black|blue|gray|grey|magenta|purple|red|green|orange)\\s+(?:line|bar|curve|symbol|point|area|band|strip)"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "caption",
+        "colour",
+        "dual-axis"
+      ],
+      "source": {
+        "file": "references/figure-conventions-evidence.md",
+        "line": 150
+      }
+    },
+    {
+      "id": "F-111",
+      "title": "Elsevier 彩色图注须附颜色解释免责句",
+      "severity": "soft",
+      "sections": [
+        "figures"
+      ],
+      "statement": "Elsevier 彩色图注末尾须附：\"(For interpretation of the references to color in this figure legend, the reader is referred to the Web version of this article.)\"",
+      "fix": "Elsevier 系彩色图注末尾统一加这句颜色解释声明。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "For\\s+interpretation\\s+of\\s+the\\s+references\\s+to\\s+colou?r"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "caption",
+        "colour",
+        "elsevier"
+      ],
+      "source": {
+        "file": "references/figure-conventions-evidence.md",
+        "line": 146
+      }
+    },
+    {
+      "id": "F-112",
+      "title": "图必须按正文出现顺序编号",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "🔴 图按**在文章中出现的先后顺序**编号（Number images according to the order they appear within your article）；图表必须按正文引用顺序连续编号。",
+      "fix": "重排图号与图文件，使编号与正文首次出现顺序完全一致。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "figures",
+        "numbering",
+        "order"
+      ],
+      "source": {
+        "file": "references/figure-specs.md",
+        "line": 167
+      }
+    },
+    {
+      "id": "F-113",
+      "title": "图注前缀用 “Fig.” 而非 “Figure”",
+      "severity": "soft",
+      "sections": [
+        "figures"
+      ],
+      "statement": "图注前缀实测：`Fig.` **765 条 = 67%**，`Figure` 227 条 = 20%，`FIG.` 45 条；🔴 首选 **“Fig.”（带点、缩写）**；但须与目标刊一致（Micropaleontology 用 TEXT-FIGURE，Copernicus 用 Figure N.）。",
+      "fix": "按目标刊近 3 篇已刊论文的图注前缀统一（本领域首选 “Fig.”）。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "\\bFig\\.\\s*\\d+"
+          ],
+          "flags": ""
+        }
+      },
+      "tags": [
+        "figures",
+        "caption",
+        "naming",
+        "convention"
+      ],
+      "source": {
+        "file": "references/micropaleo-paper-patterns.md",
+        "line": 91
+      }
+    },
+    {
+      "id": "F-114",
+      "title": "面板字母用大写 A, B, C… 置于左上或左下角且全图一致",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "Panel labels：用**大写字母 A, B, C…**；放在**每个面板的左上角或左下角**；同一图内位置模式一致；🔴 **不要给标签加括号/方括号/框**；Paleobiology 版式为粗体大写字母置于左上或右上角。",
+      "fix": "把面板标签统一成粗体大写字母并置于同一角（建议左上角），去掉括号与外框。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "figures",
+        "panel-label",
+        "layout"
+      ],
+      "source": {
+        "file": "references/figure-specs.md",
+        "line": 53
+      },
+      "journals": [
+        "paleobiology"
+      ]
+    },
+    {
+      "id": "F-115",
+      "title": "正文用面板级引用",
+      "severity": "soft",
+      "sections": [
+        "figures",
+        "results"
+      ],
+      "statement": "正文用**面板级引用**：\"(Fig. 2C and D)\"、\"(Fig. 3B)\" —— 不是笼统的 \"Fig. 3\"；每个面板可单独成图注（\"Figure 1A.\" / \"Figure 2N-S.\"）。",
+      "fix": "把正文中的笼统图引用改成面板级引用，并给出大写字母 + 连字符区间写法。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "\\bFig\\.\\s*\\d+[A-Z]",
+            "\\bFigure\\s*\\d+[A-Z](?:\\s*[-–]\\s*[A-Z])?"
+          ],
+          "flags": ""
+        }
+      },
+      "tags": [
+        "figures",
+        "results",
+        "citation",
+        "panel-label"
+      ],
+      "source": {
+        "file": "references/micropaleo-paper-patterns.md",
+        "line": 107
+      }
+    },
+    {
+      "id": "F-116",
+      "title": "图与图注须插在正文首次提及处",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "Copernicus：Figures and tables as well as their captions must be inserted in the main text **near the location of the first mention**（不追加在稿件末尾）；PPP 亦要求正文中首次提及处引用图（even at first mention）。",
+      "fix": "把图与图注移到正文首次引用处的附近位置。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "figures",
+        "layout",
+        "submission",
+        "jm"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 862
+      }
+    },
+    {
+      "id": "F-117",
+      "title": "图件作为独立文件提交，不嵌入正文",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "🔴 Paleobiology：**图不得嵌入正文**，作为独立文件提交（终稿文件名须标明单栏/双栏/整页/横版，如 `Fig1_2col.tif`）；PE 同样要求图、表、附录单独提交。",
+      "fix": "从正文文件中移除嵌入的图，改为单独上传图件文件。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "separate\\s+file|独立文件|单独(?:提交|上传)"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "submission",
+        "paleobiology"
+      ],
+      "source": {
+        "file": "references/AGENTS.md",
+        "line": 157
+      },
+      "journals": [
+        "paleobiology"
+      ]
+    },
+    {
+      "id": "F-118",
+      "title": "复合图按目标刊合并或拆分（两派条款相反）",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "两派条款相反：Copernicus/JM —— **复合图多面板必须合并成单文件**再提交；Elsevier/Palaeoworld —— **不得提交多图合并文件**（为对比目的准备的前/中/后照片可例外）。",
+      "fix": "先查目标刊条款再决定合并还是拆分，不要把两派规则混用。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "figures",
+        "submission",
+        "composite",
+        "journal-specific"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 852
+      }
+    },
+    {
+      "id": "F-119",
+      "title": "图序即论证顺序",
+      "severity": "soft",
+      "sections": [
+        "figures"
+      ],
+      "statement": "🔴 **图序即论证顺序**：方法 → 数据/对象图 → 模型性能图 → 误差案例图 → 方法 vs 基准的一致性图 → 生态/业务意义图 → 成本/效率图；把方法图排在结果图后面等于让审稿人先看到结论再找依据。",
+      "fix": "按论证链重排图序，使图的排列顺序与论文的论证顺序一致。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "figures",
+        "structure",
+        "order"
+      ],
+      "source": {
+        "file": "references/figure-design-system.md",
+        "line": 98
+      }
+    },
+    {
+      "id": "F-120",
+      "title": "一图一结论",
+      "severity": "soft",
+      "sections": [
+        "figures"
+      ],
+      "statement": "🔴 **每张图只能回答一个问题**；图件要敢展示「没有那么好」的那一面（如 R² 明显偏低的图），否则审稿人自己算出来可信度就崩了。",
+      "fix": "为每张图写一句结论；若一张图要讲两件事，拆成两张。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "figures",
+        "structure",
+        "message"
+      ],
+      "source": {
+        "file": "references/figure-design-system.md",
+        "line": 270
+      }
+    },
+    {
+      "id": "F-121",
+      "title": "Word 中禁止拉对角线缩放图件",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "🔴 **Word 里插图表，禁止拉对角线缩放**！从制图 → 导出 → 最后插入 Word，全程严禁拉对角线或者等比例缩放（会破坏图元比例与分辨率、字体变形）。",
+      "fix": "在制图软件里直接按目标尺寸出图，插入 Word 后不再做任何缩放。",
+      "check": {
+        "type": "forbidden",
+        "params": {
+          "patterns": [
+            "scaled?\\s+(?:to\\s+fit|proportionally)|等比例缩放|对角线缩放|拉伸(?:图|图片|图表)"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "workflow",
+        "word",
+        "forbidden"
+      ],
+      "source": {
+        "file": "references/figure-specs.md",
+        "line": 68
+      }
+    },
+    {
+      "id": "F-122",
+      "title": "同一地层柱不得在多图中重复出现",
+      "severity": "soft",
+      "sections": [
+        "figures"
+      ],
+      "statement": "🔴 同一地层柱在多图中**不要重复出现**（避免重复信息使读者困惑）。",
+      "fix": "把共用地层柱抽成独立的一张图，其余图只引用不复制。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "figures",
+        "redundancy",
+        "stratigraphy"
+      ],
+      "source": {
+        "file": "references/figure-specs.md",
+        "line": 54
+      }
+    },
+    {
+      "id": "F-123",
+      "title": "PPP Articles 4–8 图",
+      "severity": "soft",
+      "sections": [
+        "figures"
+      ],
+      "statement": "PPP 体裁篇幅：Articles **5000–7000 词 / 4–8 个图**；Reviews 8000–10000 词；Short Communications **4000 词 / <3 图表**。",
+      "fix": "按 4–8 张图规划 PPP 稿件的图件工作量；Short Communications 控制在 3 个图表以内。",
+      "check": {
+        "type": "count",
+        "params": {
+          "pattern": "\\bFig(?:ure)?\\.?\\s*\\d+",
+          "min": 4,
+          "max": 8,
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "count",
+        "ppp",
+        "length"
+      ],
+      "source": {
+        "file": "references/格式硬参数与文献检索实操.md",
+        "line": 27
+      },
+      "journals": [
+        "palaeogeography-palaeoclimatology-palaeoecology"
+      ]
+    },
+    {
+      "id": "F-124",
+      "title": "PPP Short Communications 图表 <3 个",
+      "severity": "soft",
+      "sections": [
+        "figures",
+        "tables"
+      ],
+      "statement": "PPP Short Communications **4000 词 / <3 图表**。",
+      "fix": "短通讯类稿件的图 + 表合计控制在 3 个以内。",
+      "check": {
+        "type": "count",
+        "params": {
+          "pattern": "\\b(?:Fig(?:ure)?\\.?\\s*\\d+|Table\\s*\\d+)",
+          "min": 1,
+          "max": 3,
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "tables",
+        "count",
+        "ppp"
+      ],
+      "source": {
+        "file": "references/格式硬参数与文献检索实操.md",
+        "line": 29
+      },
+      "journals": [
+        "palaeogeography-palaeoclimatology-palaeoecology"
+      ]
+    },
+    {
+      "id": "F-125",
+      "title": "Paleobiology Research Article ≤15 图 + 表",
+      "severity": "soft",
+      "sections": [
+        "figures",
+        "tables"
+      ],
+      "statement": "Paleobiology Research Article：\"Submissions up to 8500 words and **15 figures and tables**\"；Review Article：\"ca. 6500-8500 words and **10-15 figures and tables**\"。",
+      "fix": "Paleobiology 稿件的图 + 表合计控制在 15 个以内。",
+      "check": {
+        "type": "count",
+        "params": {
+          "pattern": "\\b(?:Fig(?:ure)?\\.?\\s*\\d+|Table\\s*\\d+)",
+          "min": 1,
+          "max": 15,
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "tables",
+        "count",
+        "paleobiology"
+      ],
+      "source": {
+        "file": "references/paleobiology-journal.md",
+        "line": 358
+      },
+      "journals": [
+        "paleobiology"
+      ]
+    },
+    {
+      "id": "F-126",
+      "title": "PNAS 标准 6 页约 4 个图表元素",
+      "severity": "soft",
+      "sections": [
+        "figures",
+        "tables"
+      ],
+      "statement": "PNAS：标准 6 页文章约 **4,000 词、50 条参考文献、4 个中等图表元素**（four medium-size graphical elements）；Brief Reports 限 3 页（约 1,600 词）；Letters to the Editor 限 **2 个图表**。",
+      "fix": "PNAS 稿件按 6 页 + 4 个图表元素规划；Letters 类控制在 2 个图表。",
+      "check": {
+        "type": "count",
+        "params": {
+          "pattern": "\\b(?:Fig(?:ure)?\\.?\\s*\\d+|Table\\s*\\d+)",
+          "min": 1,
+          "max": 5,
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "tables",
+        "count",
+        "pnas"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 250
+      },
+      "journals": [
+        "pnas"
+      ]
+    },
+    {
+      "id": "F-127",
+      "title": "图内字号须与正文字号相称且印刷中可辨",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "CVPR：\"Resize fonts in figures to match the font in the body text, and choose line widths that render effectively in print\"；并确保任何要点在**印刷版可辨**（读者可能打印，不能假设能缩放看细节）。",
+      "fix": "把图内字号调到与正文相当，并在 100% 打印尺寸下逐图检查可读性。",
+      "check": {
+        "type": "numeric",
+        "params": {
+          "pattern": "(?:图内字号|字号|font)[^\\d]{0,15}(?<![\\d.])(\\d{1,2}(?:\\.\\d+)?)(?![\\d.])\\s*pt",
+          "min": 6,
+          "max": 12,
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "font-size",
+        "legibility",
+        "cvpr"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 419
+      },
+      "journals": [
+        "cvpr"
+      ]
+    },
+    {
+      "id": "F-128",
+      "title": "印刷版图件必须打印检查（彩色图也要印成黑白）",
+      "severity": "soft",
+      "sections": [
+        "figures"
+      ],
+      "statement": "🔴 **提交前须打印所有图**（无论彩色或黑白）检查纸上效果；**彩色图也须印成黑白**检查灰度值是否足够区分；若色调重要，须用校准显示器并在图中加**灰阶条**供读者校准。",
+      "fix": "打印全部图件做纸质检查，彩色图另打一份黑白检查灰度值。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "print(?:ed)?\\s+(?:check|proof|out)|打印(?:检查|校样)|灰阶条|calibration\\s+strip"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "colour",
+        "print",
+        "workflow"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 686
+      }
+    },
+    {
+      "id": "F-129",
+      "title": "微体古生物图件以灰度优先，分组用形状/灰度/花纹",
+      "severity": "soft",
+      "sections": [
+        "figures"
+      ],
+      "statement": "实测 40 篇抽样的 376 张嵌入图中 **349 张（93%）近灰度，仅 7% 彩色**，图内平均饱和度中位数 = 0.000；因此在本领域「同一颜色 = 同一组」应改写为「**同一形状 + 同一灰度 = 同一组**」，地质体用**黑白花纹**（点、斜线、实心深灰）。",
+      "fix": "化石类论文优先灰度出图，用形状（●/▲/■/◆）、灰度深浅与花纹区分组别与地质体。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "gr[ea]y-?scale|灰度|hatch(?:ing)?|花纹|形状"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "colour",
+        "greyscale",
+        "micropaleo"
+      ],
+      "source": {
+        "file": "references/micropaleo-paper-patterns.md",
+        "line": 126
+      }
+    },
+    {
+      "id": "F-130",
+      "title": "描述类与方法类论文的图件类型不可混用",
+      "severity": "soft",
+      "sections": [
+        "figures"
+      ],
+      "statement": "🔴 **描述类与方法类的图件类型不可混用** —— 混淆矩阵 / ROC / 特征空间图在描述类论文里不存在；描述类论文的图几乎全是标本照片 / 图版 / 地层柱状图 / 分布图。",
+      "fix": "先定体裁再定图件清单：系统描述类用图版 + 地层柱 + 分布图，方法类用混淆矩阵 + ROC + 架构图 + 误差案例。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "figures",
+        "structure",
+        "journal-specific"
+      ],
+      "source": {
+        "file": "references/ai-ml-paper-patterns.md",
+        "line": 297
+      }
+    },
+    {
+      "id": "F-131",
+      "title": "分类单元名在图注与图中一律用斜体",
+      "severity": "hard",
+      "sections": [
+        "figures",
+        "systematic"
+      ],
+      "statement": "🔴 **物种名用斜体**，属名种名都斜体，面板标题里用**粗体斜体**；系统描述段的种级标题也用斜体。",
+      "fix": "把图注、图内标注与面板标题中的属种名统一设为斜体。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "italic|斜体"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "taxonomy",
+        "typography",
+        "systematic"
+      ],
+      "source": {
+        "file": "references/figure-design-system.md",
+        "line": 257
+      }
+    },
+    {
+      "id": "F-132",
+      "title": "新分类单元必须注册 ZooBank / IPNI 并在文中给出登记号",
+      "severity": "hard",
+      "sections": [
+        "figures",
+        "systematic",
+        "declarations"
+      ],
+      "statement": "🔴 自 APP issue 64(1) 起，在 APP 发表的命名行为必须在在线出版前注册 **ZooBank**，并在 Systematic palaeontology 部分提供 ZooBank 号（新植物分类单元注册 IPNI）。",
+      "fix": "投稿前完成 ZooBank / IPNI 注册，并把登记号写入系统描述段与相关图注。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "ZooBank|urn:lsid|LSID|IPNI"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "systematic",
+        "taxonomy",
+        "registration"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 578
+      },
+      "journals": [
+        "acta-palaeontologica-polonica"
+      ]
+    },
+    {
+      "id": "F-133",
+      "title": "图版说明条目须含学名、标本号与放大倍数/比例尺",
+      "severity": "hard",
+      "sections": [
+        "figures",
+        "systematic"
+      ],
+      "statement": "🔴 图版说明格式 = **图号. 分类单元名 + 命名人 + 时代缩写（ALB./ALE.）+ 标本号 + (× 放大倍数)**；命名人全大写；同一张图版上多个属用同一编号体系（3-4. 表示两图合用一条说明）。",
+      "fix": "把图版说明逐条改写成“图号. 学名 命名人 时代 标本号 比例”格式。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "\\b(?:PIN|CPC|GSCU)\\s*\\d+",
+            "\\b(?:ALB|ALE|Cen|Cret|Pli|Eoc|Mioc|Jur|Tri|Dev|Sil|Ord|Cam)\\.?"
+          ],
+          "flags": ""
+        }
+      },
+      "tags": [
+        "figures",
+        "plate",
+        "systematic",
+        "taxonomy"
+      ],
+      "source": {
+        "file": "references/micropaleo-paper-patterns.md",
+        "line": 614
+      }
+    },
+    {
+      "id": "F-134",
+      "title": "模式标本测量数据必须给出且带单位",
+      "severity": "hard",
+      "sections": [
+        "figures",
+        "systematic"
+      ],
+      "statement": "Measurements（度量）为**至少提供模式标本测量数据**的必需项；测量值须带单位（μm），并可把前人的度量数值搬进 Remarks 做对比（total height=100–112 μm）。",
+      "fix": "为每个新种补 Measurements 段，列出壳体总高、最大宽度等并标注单位 μm。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "µm|μm"
+          ],
+          "flags": ""
+        }
+      },
+      "tags": [
+        "figures",
+        "systematic",
+        "measurements",
+        "units"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 486
+      }
+    },
+    {
+      "id": "F-135",
+      "title": "流程图箭头颜色必须有语义并写进图注",
+      "severity": "soft",
+      "sections": [
+        "figures"
+      ],
+      "statement": "🔴 流程图三硬规则之一：**箭头颜色必须有语义且写进图注**（如“蓝箭头=训练路径，黑箭头=模型应用路径”）；框体文字用「动词+对象」；红字标注 = 人的动作。",
+      "fix": "为流程图每种箭头颜色定义含义，并在图注中逐一说明。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "figures",
+        "flowchart",
+        "colour",
+        "caption"
+      ],
+      "source": {
+        "file": "references/figure-design-system.md",
+        "line": 118
+      }
+    },
+    {
+      "id": "F-136",
+      "title": "连续量面板用单色阶且深浅格内文字自动反色",
+      "severity": "soft",
+      "sections": [
+        "figures"
+      ],
+      "statement": "🔴 连续量用**单色阶**（蓝色系），不用彩虹色阶 —— 主图、顶部条、右侧条共用同一色系；**深色格内白字、浅色格内黑字**（阈值自动切换），数字必须始终可读。",
+      "fix": "把混淆矩阵/热图改为单色阶，并让单元格文字按底色深浅自动切换黑白。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "single[- ]hue|sequential\\s+(?:colou?r\\s*)?(?:scale|map)|monochrome|单色阶|蓝色系|viridis"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "colour",
+        "heatmap",
+        "legibility"
+      ],
+      "source": {
+        "file": "references/figure-design-system.md",
+        "line": 150
+      }
+    },
+    {
+      "id": "F-137",
+      "title": "图内不得使用反白（白字压彩色底）",
+      "severity": "soft",
+      "sections": [
+        "figures"
+      ],
+      "statement": "Nature：**避免把文字直接压在阴影或纹理区域上**，并尽可能避免使用**反白（白字压彩色底）**。",
+      "fix": "把压在色块/纹理上的文字移出，或改用不带底色的标签框。",
+      "check": {
+        "type": "forbidden",
+        "params": {
+          "patterns": [
+            "reversed\\s+type|white\\s+(?:lettering|text)\\s+on\\s+(?:a\\s+)?colou?red|反白"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "typography",
+        "legibility",
+        "nature"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 209
+      },
+      "journals": [
+        "nature"
+      ]
+    },
+    {
+      "id": "F-138",
+      "title": "Nature 图内文字用小写式（首字母大写、无句点）",
+      "severity": "soft",
+      "sections": [
+        "figures"
+      ],
+      "statement": "Nature：\"Lettering in figures (labelling of axes and so on) should be in **lower-case type, with the first letter capitalized and no full stop**\"。",
+      "fix": "把图内轴标签与标注改为小写式（首字母大写、结尾不加句点）。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "figures",
+        "typography",
+        "nature"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 206
+      },
+      "journals": [
+        "nature"
+      ]
+    },
+    {
+      "id": "F-139",
+      "title": "单位与数值之间留一个空格并采用 SI 命名",
+      "severity": "hard",
+      "sections": [
+        "figures",
+        "tables"
+      ],
+      "statement": "Nature：**Units should have a single space between the number and the unit**，并遵循 SI 命名或本领域通行命名；千位用逗号分隔（1,000）；Elsevier 要求全文使用国际单位制（SI）。",
+      "fix": "统一“数值 + 一个空格 + 单位”的写法（3.2 m、0.5 g），千位加逗号。",
+      "check": {
+        "type": "forbidden",
+        "params": {
+          "patterns": [
+            "\\d(?:cm|mm|km|nm|µm|μm|kg|mg|\\bg\\b|mL)\\b"
+          ],
+          "flags": ""
+        }
+      },
+      "tags": [
+        "figures",
+        "tables",
+        "units",
+        "si",
+        "forbidden"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 207
+      }
+    },
+    {
+      "id": "F-140",
+      "title": "表格与图不得重复正文结果，表格须精选自明",
+      "severity": "soft",
+      "sections": [
+        "tables",
+        "results"
+      ],
+      "statement": "学位论文规范：图要**精选且自明**（self-explanatory），切忌用文字重复图内容；曲线图纵横坐标必须标注“量、标准符号、单位”（如 m³/s）。",
+      "fix": "删去正文中对表内数值的逐条复述，让表自己说明自己。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "tables",
+        "results",
+        "redundancy",
+        "self-contained"
+      ],
+      "source": {
+        "file": "references/格式硬参数与文献检索实操.md",
+        "line": 372
+      }
+    },
+    {
+      "id": "F-141",
+      "title": "不使用图注排位（no figure call outs）",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "🔴 Paleobiology：**不用图注排位（no figure call outs）** —— 图表会自动排在靠近正文引用的位置，正文不得写 “see Fig. 3 above / below” 这类排位话术。",
+      "fix": "删掉正文里的“见上图/下图/见 Figure X above”式排位语，只保留按序引用（Fig. 3）。",
+      "check": {
+        "type": "forbidden",
+        "params": {
+          "patterns": [
+            "(?:see|详见)\\s*(?:figure|fig\\.?)\\s*\\d+",
+            "(?:figure|fig\\.?)\\s*\\d+\\s+(?:above|below)\\b",
+            "图\\s*\\d+\\s*(?:见上|见下|如上|如下)"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "citation",
+        "paleobiology",
+        "forbidden"
+      ],
+      "source": {
+        "file": "references/AGENTS.md",
+        "line": 157
+      },
+      "journals": [
+        "paleobiology"
+      ]
+    },
+    {
+      "id": "F-142",
+      "title": "Paleobiology 全稿 12 号 Times New Roman + 双倍行距",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "Paleobiology：全稿 **12 号 Times New Roman + 双倍行距**（图注同样适用：paleobiology-journal.md 要求“全稿双倍行距，12 号 Times New Roman（含摘要、文献表、图注、附录）”）；US Letter，四边 1 英寸。",
+      "fix": "把图注与正文统一设为 12 号 Times New Roman、双倍行距，纸型 US Letter。",
+      "check": {
+        "type": "numeric",
+        "params": {
+          "pattern": "(?:全稿|字号|font)[^\\d]{0,15}(?<![\\d.])(\\d{1,2}(?:\\.\\d+)?)(?![\\d.])\\s*(?:号|pt)",
+          "min": 12,
+          "max": 12,
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "typography",
+        "font-size",
+        "paleobiology"
+      ],
+      "source": {
+        "file": "references/AGENTS.md",
+        "line": 154
+      },
+      "journals": [
+        "paleobiology"
+      ]
+    },
+    {
+      "id": "F-143",
+      "title": "润色不得改动图表编号、单位与数据",
+      "severity": "hard",
+      "sections": [
+        "figures",
+        "tables"
+      ],
+      "statement": "🔴 不可违反的内容红线：**改动数据、单位、图表编号 = 学术不端**；润色只改措辞与逻辑，不改数据、不改结论、不引入未经证实的推测。",
+      "fix": "校对图注与正文时逐条确认数值、单位与图表编号与原稿完全一致，不做任何“顺手优化”。",
+      "check": {
+        "type": "forbidden",
+        "params": {
+          "patterns": [
+            "(?:change|alter|modify|adjust|改动|修改)[^.\\n]{0,20}(?:chart\\s+number|figure\\s+number|table\\s+number|图表编号|图号|表号|单位|数据)"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "tables",
+        "compliance",
+        "integrity"
+      ],
+      "source": {
+        "file": "references/AGENTS.md",
+        "line": 112
+      }
+    },
+    {
+      "id": "F-144",
+      "title": "混淆矩阵不是「标配」，近一半方法类论文用逐类指标表替代",
+      "severity": "soft",
+      "sections": [
+        "figures",
+        "results"
+      ],
+      "statement": "🔴 **混淆矩阵不是「标配」**（合并口径 11/24 = **45.8%**，严格只算主文图 10/24 = 41.7%）—— 近一半的方法类论文用「逐类 F1 / Precision / Recall 表」替代；画了混淆矩阵的图注必须明确写出这是混淆矩阵及其行列含义。",
+      "fix": "若画混淆矩阵，图注写明行=真值、列=预测、单元格=百分比、对角线=100 %；若不画，则补一张逐类 F1/Precision/Recall 表。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "confusion\\s+matrix|混淆矩阵"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "caption",
+        "confusion-matrix",
+        "frequency"
+      ],
+      "source": {
+        "file": "references/ai-ml-paper-patterns.md",
+        "line": 502
+      }
+    },
+    {
+      "id": "F-145",
+      "title": "统计检验是少数派，多数改用 10 次重复的 mean ± SD",
+      "severity": "soft",
+      "sections": [
+        "figures",
+        "results"
+      ],
+      "statement": "🔴 **统计检验是少数派**（合并口径 5/30 = **16.7%**）：出现时用 Shapiro–Wilk / Wilcoxon signed-rank / Kruskal–Wallis / Welch t / paired t / ANOVA / McNemar / Bland–Altman；多数论文改用「**10 次重复运行的 mean ± SD**」代替显著性检验。",
+      "fix": "图注或图例必须写明所用的统计口径（检验名 + p 值，或“10 次重复运行的 mean ± SD”），不得只画误差棒不说明含义。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "Shapiro|Wilcoxon|Kruskal|ANOVA|McNemar|Bland[- ]Altman|t-?test|mean\\s*[±+/-]\\s*SD"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "caption",
+        "statistics",
+        "error-bar",
+        "frequency"
+      ],
+      "source": {
+        "file": "references/ai-ml-paper-patterns.md",
+        "line": 505
+      }
+    }
+  ]
+}

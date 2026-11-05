@@ -8,7 +8,7 @@ import { join, resolve } from 'node:path';
 const CHROME =
   process.env.DSH_CHROME ||
   'C:/Users/Administrator/AppData/Local/ms-playwright/chromium-1252/chrome-win64/chrome.exe';
-const views = ['journal', 'matrix', 'match', 'figure', 'color', 'modules', 'checklist', 'rules'];
+const views = ['rules', 'journals', 'check', 'deai', 'checklist', 'manual'];
 const dark = process.argv.includes('dark');
 const outDir = resolve(process.cwd(), 'preview');
 mkdirSync(outDir, { recursive: true });
@@ -16,9 +16,13 @@ mkdirSync(outDir, { recursive: true });
 const html = join(outDir, 'panel.html');
 const url = `file:///${html.replace(/\\/g, '/')}`;
 
+// The check and de-AI views need a click to show their results, so they are
+// driven with ?demo=1.
+const DEMO = new Set(['check', 'deai']);
+
 for (const view of views) {
-  const out = join(outDir, `view-${view}${dark ? '-dark' : ''}.png`);
-  const query = `?view=${view}${dark ? '&dark=1' : ''}`;
+  const out = join(outDir, `v3-${view}${dark ? '-dark' : ''}.png`);
+  const query = `?view=${view}${DEMO.has(view) ? '&demo=1' : ''}${dark ? '&dark=1' : ''}`;
   // a fresh profile per run: file:// resources are otherwise served from cache
   const profile = join(outDir, `.profile-${view}-${dark ? 'dark' : 'light'}`);
   try {

@@ -1,0 +1,2445 @@
+{
+  "version": "1.1.0",
+  "domain": "submission",
+  "rules": [
+    {
+      "id": "S-01",
+      "title": "投稿信必须附送",
+      "severity": "hard",
+      "sections": [
+        "cover-letter"
+      ],
+      "statement": "所有稿件必须附 Cover Letter（Elsevier 系 Palaeoworld 亦明文要求附投稿信）。",
+      "fix": "在投稿系统单独上传 cover letter 文件，内容为：与刊旨的契合点 → 潜在利益冲突披露 → 未一稿多投声明 → 推荐审稿人与回避名单。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "cover-letter",
+        "submission"
+      ],
+      "source": {
+        "file": "references/journal-constraints.md",
+        "line": 81
+      }
+    },
+    {
+      "id": "S-02",
+      "title": "投稿信须说明本文与目标期刊刊旨的契合性",
+      "severity": "hard",
+      "sections": [
+        "cover-letter"
+      ],
+      "statement": "投稿信要点是「为什么我这篇稿子适合在贵刊发表」，须说明本文如何契合刊旨（ESR 另要求附近期同主题论文清单）。",
+      "fix": "首段用 3–5 句写明：本文回答什么科学问题、结果为什么对该刊读者重要、与该刊 Aims & Scope 哪一条对应；再附作者近期该主题论文清单。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "cover-letter",
+        "fit"
+      ],
+      "source": {
+        "file": "prompts/09-journal-submission.md",
+        "line": 93
+      },
+      "journals": [
+        "earth-science-reviews"
+      ]
+    },
+    {
+      "id": "S-03",
+      "title": "投稿信须披露潜在利益冲突",
+      "severity": "hard",
+      "sections": [
+        "cover-letter"
+      ],
+      "statement": "投稿信必须披露编辑应知晓的潜在利益冲突（conflicts of interest）。",
+      "fix": "在投稿信中单设一段写明有无利益冲突；无冲突也写明「the authors declare none」，不要留空。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "conflict[s]? of interest|competing interest|利益冲突"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "cover-letter",
+        "declarations"
+      ],
+      "source": {
+        "file": "references/journal-constraints.md",
+        "line": 84
+      }
+    },
+    {
+      "id": "S-04",
+      "title": "GCA 必须提供 3 位 Associate Editors 姓名",
+      "severity": "hard",
+      "sections": [
+        "cover-letter"
+      ],
+      "statement": "GCA 要求投稿信提供 3 位 Associate Editors 的姓名（具备评估该稿件专长的副主编）。",
+      "fix": "从 GCA editorial-board 名单中挑 3 位与本稿专长匹配的副主编，写在投稿信末尾并注明专长方向。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "associate editor"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "cover-letter",
+        "gca"
+      ],
+      "source": {
+        "file": "references/journal-constraints.md",
+        "line": 86
+      },
+      "journals": [
+        "geochimica-et-cosmochimica-acta"
+      ]
+    },
+    {
+      "id": "S-05",
+      "title": "ESR 投稿信须附近期同主题论文清单",
+      "severity": "soft",
+      "sections": [
+        "cover-letter"
+      ],
+      "statement": "ESR 要求作者在 covering letter 中附上本人近期该主题的论文清单。",
+      "fix": "在投稿信末尾列出作者近 3–5 年在该主题上的论文（题名 + 期刊 + 年份），供编辑判断作者专长。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "recent papers|list of .{0,20}papers|近期.{0,10}论文"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "cover-letter",
+        "esr"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 53
+      },
+      "journals": [
+        "earth-science-reviews"
+      ]
+    },
+    {
+      "id": "S-06",
+      "title": "投稿信篇幅上限（APP：一页 A4、≤300 词）",
+      "severity": "soft",
+      "sections": [
+        "cover-letter"
+      ],
+      "statement": "APP 的 cover letter 不超过 A4 一面（≤300 词），首段须解释为何需要该研究并清晰陈述研究问题。",
+      "fix": "把投稿信压到一页以内：第一段写研究问题与必要性，其余只保留冲突披露、未一稿多投声明与推荐审稿人。",
+      "check": {
+        "type": "wordCount",
+        "params": {
+          "min": 40,
+          "max": 300
+        }
+      },
+      "tags": [
+        "cover-letter",
+        "length"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 616
+      },
+      "journals": [
+        "acta-palaeontologica-polonica"
+      ]
+    },
+    {
+      "id": "S-07",
+      "title": "投稿信不得使用夸大新颖性的表述",
+      "severity": "soft",
+      "sections": [
+        "cover-letter"
+      ],
+      "statement": "投稿信中不得出现「for the first time / 首次提出 / 首次发现 / 国际先进水平」一类夸大表述。",
+      "fix": "把「首次」类表述改写为可核查的具体贡献：新增哪个分类单元、扩展哪个记录区间、首次在哪个材料上验证。",
+      "check": {
+        "type": "forbidden",
+        "params": {
+          "patterns": [
+            "for the first time|first-ever|首次(提出|发现|报道)|国际先进水平"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "cover-letter",
+        "language"
+      ],
+      "source": {
+        "file": "references/checklist.md",
+        "line": 45
+      }
+    },
+    {
+      "id": "S-08",
+      "title": "须推荐 3–5 位审稿人",
+      "severity": "soft",
+      "sections": [
+        "cover-letter",
+        "review"
+      ],
+      "statement": "国际期刊一般要作者提供 3–5 位相关审稿人。",
+      "fix": "在投稿系统填 3–5 位审稿人（姓名 + 单位 + 邮箱 + 专长方向），并确认其与作者无近年合作或师生关系。",
+      "check": {
+        "type": "count",
+        "params": {
+          "pattern": "reviewer|referee|审稿人",
+          "min": 3,
+          "max": 5,
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "reviewers",
+        "submission"
+      ],
+      "source": {
+        "file": "prompts/10-reviewer-response.md",
+        "line": 102
+      }
+    },
+    {
+      "id": "S-09",
+      "title": "不建议推荐领域大牛",
+      "severity": "info",
+      "sections": [
+        "review"
+      ],
+      "statement": "一般期刊论文不建议找领域大牛；需认真自建审稿人专家库。",
+      "fix": "推荐近 5 年在本细分方向持续发文、且时间上可能真的读稿的中青年专家；避免一次性堆 5 位知名学者。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "reviewers"
+      ],
+      "source": {
+        "file": "prompts/10-reviewer-response.md",
+        "line": 108
+      }
+    },
+    {
+      "id": "S-10",
+      "title": "PNAS 初评须提至少三位候选审稿人",
+      "severity": "soft",
+      "sections": [
+        "review"
+      ],
+      "statement": "PNAS 初评时须提至少 three Editorial Board members / NAS members / qualified reviewers。",
+      "fix": "在 PNAScentral 初评表里至少填三位候选审稿人，优先填 PNAS 编委或 NAS 院士中与本稿主题相符者。",
+      "check": {
+        "type": "count",
+        "params": {
+          "pattern": "editorial board|NAS member|reviewer|referee|审稿人",
+          "min": 3,
+          "max": 10,
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "reviewers",
+        "pnas"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 328
+      },
+      "journals": [
+        "pnas"
+      ]
+    },
+    {
+      "id": "S-11",
+      "title": "回避名单仅具建议性质",
+      "severity": "info",
+      "sections": [
+        "cover-letter"
+      ],
+      "statement": "可提出回避特定审稿人/编辑，但该要求在 GCA 仅为建议性质（purely advisory），不具约束力。",
+      "fix": "回避理由用中性、事实性的表述（如「近三年同为某基金项目评审人」），不要写成对抗性指责。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "cover-letter",
+        "reviewers"
+      ],
+      "source": {
+        "file": "references/journal-constraints.md",
+        "line": 85
+      },
+      "journals": [
+        "geochimica-et-cosmochimica-acta"
+      ]
+    },
+    {
+      "id": "S-12",
+      "title": "投稿后须跟踪 6 个状态与时间量级",
+      "severity": "info",
+      "sections": [
+        "review"
+      ],
+      "statement": "投稿后有 6 个状态：Submitted to Journal → With editor（几天到几周）→ Under Review（几周到几个月，最耗时）→ Decision in Process → Revise（Major/Minor）→ Accepted/Rejected。",
+      "fix": "在排期表上给「Under Review」留出 2–3 个月；超期再发礼貌询问信，不要频繁催促。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "process"
+      ],
+      "source": {
+        "file": "prompts/09-journal-submission.md",
+        "line": 106
+      }
+    },
+    {
+      "id": "S-13",
+      "title": "必须提供 Data availability 声明",
+      "severity": "hard",
+      "sections": [
+        "declarations"
+      ],
+      "statement": "投稿时即须声明数据的可用性（Elsevier 原文：required at submission）。",
+      "fix": "在稿件末尾设 Data availability 段，写明数据放在哪个仓库/是否随文提供；若数据全部在正文，注明「All data are included in the manuscript」。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "data availability|data are available|availability of any data|数据可用性|数据可得"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "declarations",
+        "data"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 73
+      }
+    },
+    {
+      "id": "S-14",
+      "title": "Data availability 须同时交代实物标本存放位置与数据集 DOI",
+      "severity": "hard",
+      "sections": [
+        "declarations",
+        "methods"
+      ],
+      "statement": "微体古生物/化石类论文的 Data availability 必须同时交代两件事：实物标本（玻片/岩石）存放在哪里 + 数据集 DOI。",
+      "fix": "写成两句：第 1 句写标本存放机构与藏号；第 2 句写数据集的仓库与完整 DOI（含 https://doi.org/10.xxxx/...）。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "doi\\.org/10\\.|10\\.\\d{4,5}/[A-Za-z0-9.]+",
+            "repository|zenodo|dryad|morphobank|osf\\.io|dataverse|databank|deposited in|repository of"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "declarations",
+        "data",
+        "doi"
+      ],
+      "source": {
+        "file": "references/ai-ml-paper-patterns.md",
+        "line": 114
+      }
+    },
+    {
+      "id": "S-15",
+      "title": "Code availability 须给出 GitHub + Zenodo DOI",
+      "severity": "soft",
+      "sections": [
+        "declarations"
+      ],
+      "statement": "Code availability 应给到 GitHub + Zenodo DOI（带版本），仅给 GitHub 链接是最低档。",
+      "fix": "写明「代码见 https://github.com/<org>/<repo>，归档版 DOI 见 https://doi.org/10.5281/zenodo.xxxxx」。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "github\\.com",
+            "zenodo|doi\\.org/10\\.5281"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "declarations",
+        "code"
+      ],
+      "source": {
+        "file": "references/ai-ml-paper-patterns.md",
+        "line": 183
+      }
+    },
+    {
+      "id": "S-16",
+      "title": "必须提供 Author contributions 声明（CRediT）",
+      "severity": "soft",
+      "sections": [
+        "declarations"
+      ],
+      "statement": "作者贡献声明用 CRediT 分类（Elsevier/Palaeoworld/Paleobiology 均要求参考 CRediT）。",
+      "fix": "按 CRediT 的 14 类角色逐人写：Conceptualization, Data curation, Formal analysis, Writing – original draft, Writing – review & editing 等。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "author contributions|CRediT|credit taxonomy|作者贡献"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "declarations",
+        "authors"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 816
+      }
+    },
+    {
+      "id": "S-17",
+      "title": "必须提供 Competing interest 声明",
+      "severity": "hard",
+      "sections": [
+        "declarations"
+      ],
+      "statement": "Competing Interest（利益冲突）声明是化石类论文中出现率最高的声明块之一（A 组实测 52%），多数刊要求必写。",
+      "fix": "单设一段，写明是否存在财务、专业、合同或个人关系等可能影响研究内容或发表的情形。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "competing interest|conflict[s]? of interest|利益冲突"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "declarations"
+      ],
+      "source": {
+        "file": "references/ai-ml-paper-patterns.md",
+        "line": 83
+      }
+    },
+    {
+      "id": "S-18",
+      "title": "无利益冲突时须写明 declare none",
+      "severity": "hard",
+      "sections": [
+        "declarations"
+      ],
+      "statement": "Paleobiology 口径：无利益冲突则写 \"the author/authors declare none\"。",
+      "fix": "无冲突时照抄该句式，不要留空，也不要写「N/A」。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "declare none|declare no competing|no conflict[s]? of interest|无利益冲突"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "declarations"
+      ],
+      "source": {
+        "file": "references/paleobiology-journal.md",
+        "line": 254
+      },
+      "journals": [
+        "paleobiology"
+      ]
+    },
+    {
+      "id": "S-19",
+      "title": "Competing Interests 须由所有作者共同署名",
+      "severity": "hard",
+      "sections": [
+        "declarations"
+      ],
+      "statement": "Paleobiology 要求 Competing Interests 所有作者必写，且不等同于 conflict of interest。",
+      "fix": "逐位作者写明其是否有相关关系；不要只由通讯作者一人代签。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "declarations",
+        "authors"
+      ],
+      "source": {
+        "file": "references/journal-constraints.md",
+        "line": 162
+      },
+      "journals": [
+        "paleobiology"
+      ]
+    },
+    {
+      "id": "S-20",
+      "title": "必须交代 Funding（独立段或致谢首句）",
+      "severity": "soft",
+      "sections": [
+        "declarations",
+        "acknowledgements"
+      ],
+      "statement": "资助信息必须交代：独立 Funding 标题，或写进致谢首句 / Acknowledgements / Authors' contributions 段内。",
+      "fix": "用模板句「This work was supported by the [Agency] (grant numbers xxx, yyy).」并写全项目号/合同号。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "funding|grant|funded|资助|项目号"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "declarations",
+        "funding"
+      ],
+      "source": {
+        "file": "references/ai-ml-paper-patterns.md",
+        "line": 702
+      }
+    },
+    {
+      "id": "S-21",
+      "title": "声明块顺序变体 A（Data availability 打头）",
+      "severity": "soft",
+      "sections": [
+        "declarations"
+      ],
+      "statement": "实测顺序之一：正文/Conclusion → Data availability（+ Code availability / Data Records）→ CRediT author contributions → Declaration of competing interest → Acknowledgments → References。",
+      "fix": "投稿前查目标刊最近 3 篇的实际顺序；若为该变体，就照此排列各段标题。",
+      "check": {
+        "type": "sectionOrder",
+        "params": {
+          "order": [
+            "Data availability",
+            "Code availability",
+            "Author contributions",
+            "Competing interest",
+            "Acknowledgements",
+            "References"
+          ]
+        }
+      },
+      "tags": [
+        "declarations",
+        "order"
+      ],
+      "source": {
+        "file": "references/ai-ml-paper-patterns.md",
+        "line": 326
+      }
+    },
+    {
+      "id": "S-22",
+      "title": "声明块顺序变体 B（Elsevier 系）",
+      "severity": "soft",
+      "sections": [
+        "declarations"
+      ],
+      "statement": "另一常见变体（Elsevier 系）：Author contributions → Funding → Acknowledgements → Declaration of competing interest → Data availability。",
+      "fix": "投稿前查目标刊最近 3 篇的实际顺序；若为该变体，就照此排列各段标题。",
+      "check": {
+        "type": "sectionOrder",
+        "params": {
+          "order": [
+            "Author contributions",
+            "Funding",
+            "Acknowledgements",
+            "Competing interest",
+            "Data availability"
+          ]
+        }
+      },
+      "tags": [
+        "declarations",
+        "order"
+      ],
+      "source": {
+        "file": "references/ai-ml-paper-patterns.md",
+        "line": 335
+      }
+    },
+    {
+      "id": "S-23",
+      "title": "JM 要求 Data availability 段置于致谢之前",
+      "severity": "hard",
+      "sections": [
+        "declarations"
+      ],
+      "statement": "Copernicus 平台条款：Data availability 声明必须放在稿件末尾、Acknowledgements 之前。",
+      "fix": "把 Data availability 段整体移到 Acknowledgements 之前，并把 Data availability 作为独立标题。",
+      "check": {
+        "type": "sectionOrder",
+        "params": {
+          "order": [
+            "Data availability",
+            "Acknowledgements"
+          ]
+        }
+      },
+      "tags": [
+        "declarations",
+        "order",
+        "copernicus"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 880
+      }
+    },
+    {
+      "id": "S-24",
+      "title": "Nature back-matter 顺序固定",
+      "severity": "soft",
+      "sections": [
+        "declarations",
+        "acknowledgements"
+      ],
+      "statement": "Nature 稿件顺序固定：… methods → methods references → acknowledgements → funding statement → author contributions → competing interest declaration → additional information。",
+      "fix": "按该顺序排列稿件末尾各段，Additional information 内再放补充信息行与通讯作者行。",
+      "check": {
+        "type": "sectionOrder",
+        "params": {
+          "order": [
+            "Methods",
+            "Acknowledgements",
+            "Funding",
+            "Author contributions",
+            "Competing interest",
+            "Additional information"
+          ]
+        }
+      },
+      "tags": [
+        "declarations",
+        "order",
+        "nature"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 184
+      },
+      "journals": [
+        "nature"
+      ]
+    },
+    {
+      "id": "S-25",
+      "title": "Funding 不必强行独立成段",
+      "severity": "info",
+      "sections": [
+        "declarations"
+      ],
+      "statement": "机器层实测 Funding 出现率 38%，但人工层实测独立 Funding 标题只有 10.0%；若目标刊只要求在致谢中写明资助，照散写即可，不必硬造 Funding 段。",
+      "fix": "先查目标刊最近 3 篇的实际写法；没有独立 Funding 段就放进 Acknowledgements 首句，不要为了凑格式新增标题。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "declarations",
+        "funding"
+      ],
+      "source": {
+        "file": "references/ai-ml-paper-patterns.md",
+        "line": 709
+      }
+    },
+    {
+      "id": "S-26",
+      "title": "最终提交稿不要用 Cite-While-You-Write",
+      "severity": "soft",
+      "sections": [
+        "references"
+      ],
+      "statement": "Paleobiology 明令：最终提交稿不要用 Cite-While-You-Write。",
+      "fix": "投稿前用文献管理器把域代码转成静态文本，确保文献表可独立阅读、不依赖 EndNote。",
+      "check": {
+        "type": "forbidden",
+        "params": {
+          "patterns": [
+            "cite-while-you-write",
+            "cite while you write"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "references",
+        "submission"
+      ],
+      "source": {
+        "file": "references/paleobiology-journal.md",
+        "line": 294
+      },
+      "journals": [
+        "paleobiology"
+      ]
+    },
+    {
+      "id": "S-27",
+      "title": "致谢不得感谢匿名审稿人与编辑",
+      "severity": "soft",
+      "sections": [
+        "acknowledgements"
+      ],
+      "statement": "Nature 口径：致谢应简短，不得感谢匿名审稿人与编辑。",
+      "fix": "删掉致谢里对匿名审稿人与编辑的感谢；语言润色、校对类帮助可致谢，但不要评价「excellent assistance」「insightful comments」这类夸张措辞。",
+      "check": {
+        "type": "forbidden",
+        "params": {
+          "patterns": [
+            "thank(s|ed)?\\s+(the\\s+)?(anonymous\\s+)?(referee|reviewer|editor)s?",
+            "grateful\\s+to\\s+(the\\s+)?(anonymous\\s+)?(referee|reviewer|editor)"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "acknowledgements",
+        "nature"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 228
+      },
+      "journals": [
+        "nature"
+      ]
+    },
+    {
+      "id": "S-28",
+      "title": "声明块与致谢不得使用尊称",
+      "severity": "soft",
+      "sections": [
+        "declarations",
+        "acknowledgements"
+      ],
+      "statement": "Paleobiology 口径：致谢与作者贡献中不用尊称（Dr.、Prof.、Mrs. 等），人名用带空格的首字母缩写，缩写在前、姓在后。",
+      "fix": "把「Prof. Zhang」改为「A. B. Zhang」，并删掉机构名中的 Dept./Ave./P.O. 缩写。",
+      "check": {
+        "type": "forbidden",
+        "params": {
+          "patterns": [
+            "\\bDr\\.",
+            "\\bProf\\.",
+            "\\bMr\\.",
+            "\\bMrs\\.",
+            "\\bMs\\."
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "declarations",
+        "acknowledgements",
+        "style"
+      ],
+      "source": {
+        "file": "references/paleobiology-journal.md",
+        "line": 246
+      },
+      "journals": [
+        "paleobiology"
+      ]
+    },
+    {
+      "id": "S-29",
+      "title": "每图单独文件并按正文出现顺序编号",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "Elsevier 系与 APP 均要求每张图作为单独文件提交，并按在正文中出现的顺序编号。",
+      "fix": "导出单图文件并统一命名（Figure_1.tif / Fig1_2col.tif / fig01.pdf），逐条核对正文引用顺序与文件名序号一致。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "figure\\s*\\d|fig\\.?\\s*\\d|plate\\s*\\d"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "submission"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 113
+      }
+    },
+    {
+      "id": "S-30",
+      "title": "不得提交多图合并文件",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "Elsevier/Palaeoworld 官方 Do-not-submit 清单明确：Multiple images or graphs combined into one file 不接受（为对比而设的前/中/后照片可例外）；JM 要求多面板先合并成单文件再提交。",
+      "fix": "Elsevier 系把面板拆成单文件分别上传（JM 相反，需合并）；每份文件只放一张图并在图注中解释面板字母。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "figures",
+        "submission"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 108
+      }
+    },
+    {
+      "id": "S-31",
+      "title": "位图线条图分辨率下限 1000–1200 dpi",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "位图线条图最低 1000 dpi（PNAS 线绘 1000–1200，Paleobiology 线条图 1200，Elsevier 系 1000）。",
+      "fix": "线绘图在原生软件里直接输出目标 dpi 的 TIFF/PNG，不要把 300 dpi 图升采样；矢量图优先 EPS/PDF 并嵌入字体。",
+      "check": {
+        "type": "numeric",
+        "params": {
+          "pattern": "(?<![\\d.])(\\d{3,4})(?![\\d.])\\s*dpi",
+          "min": 300,
+          "max": 1200,
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "dpi"
+      ],
+      "source": {
+        "file": "references/格式硬参数与文献检索实操.md",
+        "line": 190
+      }
+    },
+    {
+      "id": "S-32",
+      "title": "照片分辨率下限 300 dpi（化石照片按 600 dpi 备）",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "照片（halftone）最低 300 dpi；同是化石照片，Paleobiology 要 600、APP 要 400、PNAS 要 300（含文字 600–900），按最高标准 600 dpi 准备最安全。",
+      "fix": "所有化石照片按 final size 600 dpi 输出；若同时投多刊，保留 1200 dpi 线绘母版。",
+      "check": {
+        "type": "numeric",
+        "params": {
+          "pattern": "(?<![\\d.])(\\d{2,4})(?![\\d.])\\s*dpi",
+          "min": 300,
+          "max": 600,
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "dpi"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 916
+      },
+      "journals": [
+        "paleobiology",
+        "pnas",
+        "acta-palaeontologica-polonica"
+      ]
+    },
+    {
+      "id": "S-33",
+      "title": "单图与总体文件体积上限",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "JM 单图 <5 MB、全部文件 <30 MB（补充材料 ≤50 MB）；PE 单文件 ≤50 MB、总计 ≤200 MB；PPP 单图 <10 MB、总计 <50 MB；Paleobiology 送审版图件须 <40 兆像素。",
+      "fix": "导出后逐个查体积：位图按需 LZW 压缩，矢量优先（eps/pdf）体积最小；超限就降 dpi 或拆文件。",
+      "check": {
+        "type": "numeric",
+        "params": {
+          "pattern": "(?<![\\d.])(\\d+)(?![\\d.])\\s*MB",
+          "min": 1,
+          "max": 50,
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "file-size"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 856
+      },
+      "journals": [
+        "paleobiology",
+        "palaeogeography-palaeoclimatology-palaeoecology",
+        "j-micropalaeontology",
+        "palaeontologia-electronica"
+      ]
+    },
+    {
+      "id": "S-34",
+      "title": "图例必须画在图里（图注不得用文字定义符号）",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "JM 平台独有条款：图例必须画在图里，虚线、空心圆、颜色、形状都要在图内出现并在图内解释，图注不许再靠 \"the dashed line means …\" 定义符号。",
+      "fix": "把符号说明做成图内 legend（线型 + 颜色 + 空心/实心示意），图注只解释面板字母与坐标轴。",
+      "check": {
+        "type": "forbidden",
+        "params": {
+          "patterns": [
+            "dashed line means",
+            "solid line means",
+            "open green circles"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "legend",
+        "copernicus"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 855
+      },
+      "journals": [
+        "j-micropalaeontology"
+      ]
+    },
+    {
+      "id": "S-35",
+      "title": "图注须解释所有符号与缩写并讲清「message」",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "所有子图与图中使用的缩写都必须在图注中解释；图注第一句要说明「这张图传达什么」，不是只描述「画了什么」。",
+      "fix": "图注结构：一句 message → 各面板含义 → 全部符号/缩写定义 → 生成该图所用方法（公式、假设、正文引用）。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "figures",
+        "caption"
+      ],
+      "source": {
+        "file": "references/paleobiology-journal.md",
+        "line": 101
+      },
+      "journals": [
+        "paleobiology"
+      ]
+    },
+    {
+      "id": "S-36",
+      "title": "借用或改造的图必须在图注写来源",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "借用的图必须在图注里写来源：\"From X\"（直接引用）/ \"Slightly modified from X\" / \"modified from X (year)\" / \"Original.\"。",
+      "fix": "逐条检查图注：非自绘图一律补来源句 + 年份；自绘图写 \"Original.\"。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "slightly modified from|modified from|\\bfrom\\s+[A-Z][A-Za-z]+\\s*\\(?\\d{4}",
+            "original\\."
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "copyright",
+        "caption"
+      ],
+      "source": {
+        "file": "references/micropaleo-paper-patterns.md",
+        "line": 118
+      }
+    },
+    {
+      "id": "S-37",
+      "title": "禁止 AI 生成或修改代表原始观测/实验数据的图像",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "Elsevier / Palaeoworld 明令禁止使用 AI 工具创建或修改代表原始观测/实验数据的图像；PNAS 封面图若主要内容由生成式 AI 生成则不符合资格。",
+      "fix": "所有照片与数据图必须来自真实实验/真实标本；如做过非线性调整（gamma 等），在图题中声明。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "figures",
+        "ai",
+        "ethics"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 505
+      }
+    },
+    {
+      "id": "S-38",
+      "title": "照片不得改动",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "标本照片不得改动，除色调、对比度、加标注/轮廓线；不得增强、遮蔽、移动、移除或引入图像中任何特征。",
+      "fix": "只做整体色调与对比度调整；任何局部修补都要在图注说明，且不得遮蔽或消除原始信息。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "figures",
+        "ethics"
+      ],
+      "source": {
+        "file": "references/paleobiology-journal.md",
+        "line": 66
+      },
+      "journals": [
+        "paleobiology"
+      ]
+    },
+    {
+      "id": "S-39",
+      "title": "标本照片必须带比例尺，不得用放大倍数代替",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "标本照片必须带比例尺并给出数值说明；不可用 ×40 等放大倍数代替比例尺（终版可能缩放）。",
+      "fix": "在图上加线段比例尺并在图注写清其代表的实际长度（μm/mm）；不要只写 magnification。",
+      "check": {
+        "type": "forbidden",
+        "params": {
+          "patterns": [
+            "\\(\\s*[x×]\\s*\\d+",
+            "magnification\\s*(of)?\\s*\\d+"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "scale-bar"
+      ],
+      "source": {
+        "file": "references/journal-constraints.md",
+        "line": 140
+      }
+    },
+    {
+      "id": "S-40",
+      "title": "色觉无障碍：不得仅靠颜色区分",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "JM 要求用 Coblis 色觉模拟器自查配色；CVPR 要求不得仅以颜色作为区分特征，须加第二重区分特征。",
+      "fix": "红/绿并置时补形状（●/▲/■）或线型（实线/虚线）或直接标注；改完配色用 Coblis 再跑一遍。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "figures",
+        "accessibility"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 869
+      },
+      "journals": [
+        "cvpr",
+        "j-micropalaeontology"
+      ]
+    },
+    {
+      "id": "S-41",
+      "title": "矢量图必须嵌入字体；图内字号下限 8 pt",
+      "severity": "soft",
+      "sections": [
+        "figures"
+      ],
+      "statement": "矢量图含字体时必须嵌入字体；图内字号下限 8 pt（终版尺寸），线宽下限 0.3 pt（0.11 mm）。",
+      "fix": "导出 PDF/EPS 时勾选嵌入字体；按 final size 检查最小字号与最细线，达不到就重排。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "figures",
+        "typography"
+      ],
+      "source": {
+        "file": "references/paleobiology-journal.md",
+        "line": 84
+      },
+      "journals": [
+        "paleobiology"
+      ]
+    },
+    {
+      "id": "S-42",
+      "title": "图件范式：Fig. 还是 Plate（按目标刊）",
+      "severity": "soft",
+      "sections": [
+        "figures"
+      ],
+      "statement": "展示「某个分类单元长什么样」用图版（Plate），展示「分布/关系/趋势」用 Fig.；本领域语料 67% 用 \"Fig.\"、19% 用 \"Plate.\"；PPP 不允许 Plates，化石图像集一律作 Figure 提交。",
+      "fix": "先按目标刊最近 3 篇确定范式，再统一图号前缀（Fig. / Figure / Plate / TEXT-FIGURE）。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "figures",
+        "convention"
+      ],
+      "source": {
+        "file": "references/micropaleo-paper-patterns.md",
+        "line": 76
+      }
+    },
+    {
+      "id": "S-43",
+      "title": "PE 文件命名受 ISO 9660 约束",
+      "severity": "hard",
+      "sections": [
+        "figures",
+        "tables"
+      ],
+      "statement": "PE 要求全部提交材料符合 ISO 9660 命名：仅小写字母、数字、下划线、句点；主文件名 ≤8 字符；扩展名 ≤3 字符；不得有空格或其他字符。",
+      "fix": "批量重命名：文件名如 `fig1.tif`（≤8 字符、≤3 字符扩展名、纯小写），提交前用脚本核对一遍。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "figures",
+        "file-naming",
+        "pe"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 720
+      },
+      "journals": [
+        "palaeontologia-electronica"
+      ]
+    },
+    {
+      "id": "S-44",
+      "title": "表格须为可编辑文本，不得以图片提交",
+      "severity": "hard",
+      "sections": [
+        "tables"
+      ],
+      "statement": "Elsevier：Tables must be submitted as editable text, not as images；JM：表格以 PDF 或图片提交无法处理。",
+      "fix": "用 Word 的「创建表格」功能或 Excel 导出可编辑表格，不要用制表符+空格拼表，也不要截图贴表。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "tables",
+        "submission"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 127
+      }
+    },
+    {
+      "id": "S-45",
+      "title": "表注置于表体下方、避免竖线与底纹、不得重复正文结果",
+      "severity": "soft",
+      "sections": [
+        "tables"
+      ],
+      "statement": "表注置于表体下方；避免竖线与单元格底纹；表格须精选，表内数据不得与正文已述结果重复。",
+      "fix": "删掉表格内所有竖线与底纹，把脚注移到表体下方，并检查表内每个数字是否已在正文重复出现。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "tables",
+        "style"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 127
+      }
+    },
+    {
+      "id": "S-46",
+      "title": "表题置于表格正上方；Table 不缩写",
+      "severity": "soft",
+      "sections": [
+        "tables"
+      ],
+      "statement": "Paleobiology/PPP 要求表题在表格正上方且与表格同页；JM 与 Paleobiology 规定 Table 一词不缩写（Figure 在 Paleobiology 可缩写为 Fig.）。",
+      "fix": "把表题移到表体上方一行，表题与表体保持同页；正文与图注中一律写 Table 1 而不是 Tab. 1。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "table\\s*\\d"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "tables",
+        "caption"
+      ],
+      "source": {
+        "file": "references/paleobiology-journal.md",
+        "line": 329
+      },
+      "journals": [
+        "paleobiology",
+        "palaeogeography-palaeoclimatology-palaeoecology",
+        "j-micropalaeontology"
+      ]
+    },
+    {
+      "id": "S-47",
+      "title": "标题长度上限（Nature 75 字符 / PNAS <135 字符）",
+      "severity": "soft",
+      "sections": [
+        "title"
+      ],
+      "statement": "Nature 标题不超过两行印刷宽度（75 字符含空格）；PNAS 标题 <135 字符；标题须描述性且能让跨领域读者看懂。",
+      "fix": "把标题压到目标刊上限内；先写「研究对象 + 主要发现」再补修饰语，删掉不影响理解的从句。",
+      "check": {
+        "type": "wordCount",
+        "params": {
+          "min": 3,
+          "max": 15
+        }
+      },
+      "tags": [
+        "title"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 178
+      },
+      "journals": [
+        "nature",
+        "pnas"
+      ]
+    },
+    {
+      "id": "S-48",
+      "title": "标题不得含数字、缩写与标点",
+      "severity": "soft",
+      "sections": [
+        "title"
+      ],
+      "statement": "Nature 与 PNAS 要求标题通常不含数字、缩写、缩写词与标点；PNAS 还要求标题包含所研究的生物。",
+      "fix": "把标题里的缩写换成全称（如 ZooBank→zoological nomenclature registration），删掉冒号后的副标题标点与句中数字。",
+      "check": {
+        "type": "forbidden",
+        "params": {
+          "patterns": [
+            "\\b[A-Z]{3,}\\b",
+            "\\d"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "title",
+        "style"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 281
+      },
+      "journals": [
+        "nature",
+        "pnas"
+      ]
+    },
+    {
+      "id": "S-49",
+      "title": "摘要 ≤250 词并须独立成篇",
+      "severity": "hard",
+      "sections": [
+        "abstract"
+      ],
+      "statement": "ESR / PNAS / Palaeoworld / Elsevier 系摘要均 ≤250 词；摘要须能独立成篇，避免引用与非常用缩写。",
+      "fix": "按「目的 → 方法 → 主要结果与统计意义 → 结论」四步压缩到 250 词内；首现非常用缩写时当场定义。",
+      "check": {
+        "type": "wordCount",
+        "params": {
+          "min": 100,
+          "max": 250
+        }
+      },
+      "tags": [
+        "abstract",
+        "length"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 69
+      }
+    },
+    {
+      "id": "S-50",
+      "title": "Paleobiology 双摘要：Non-technical Summary 与 Abstract 各 ≤300 词",
+      "severity": "hard",
+      "sections": [
+        "abstract"
+      ],
+      "statement": "Paleobiology 要求同时提供 Non-technical Summary 与 Abstract，各自 ≤300 词；Non-technical Summary 在前、Abstract 在后，两者各自独立成页。",
+      "fix": "先写 Non-technical Summary（让非古生物专业的受教育读者读懂，避免术语），再写学术 Abstract；两者分别排在各自独立页上。",
+      "check": {
+        "type": "wordCount",
+        "params": {
+          "min": 50,
+          "max": 300
+        }
+      },
+      "tags": [
+        "abstract",
+        "paleobiology"
+      ],
+      "source": {
+        "file": "references/paleobiology-journal.md",
+        "line": 198
+      },
+      "journals": [
+        "paleobiology"
+      ]
+    },
+    {
+      "id": "S-51",
+      "title": "PNAS Significance Statement ≤120 词",
+      "severity": "hard",
+      "sections": [
+        "abstract"
+      ],
+      "statement": "PNAS 的 Significance Statement 仅 Direct 与 Contributed Submission 需要，≤120 词，写给本领域外的本科教育水平科学家，讲工作为何重要而不是结果摘要。",
+      "fix": "写成「问题为什么重要 → 我们的工作提供了什么关键认识 → 对该领域意味着什么」，控制在 120 词内，Brief Report 不写。",
+      "check": {
+        "type": "wordCount",
+        "params": {
+          "min": 20,
+          "max": 120
+        }
+      },
+      "tags": [
+        "abstract",
+        "pnas",
+        "significance"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 263
+      },
+      "journals": [
+        "pnas"
+      ]
+    },
+    {
+      "id": "S-52",
+      "title": "Nature summary paragraph ≤200 词且须四步结构",
+      "severity": "hard",
+      "sections": [
+        "abstract"
+      ],
+      "statement": "Nature 的 summary paragraph 理想 ≤200 词，独立于正文，避免数字与缩写；四步结构：学科基础介绍 → 背景与原理 → 主要结论（Here we show）→ 放入更广语境。",
+      "fix": "照四步逐句写，每步 2–3 句；把数字、单位、缩写全部改写成文字表述。",
+      "check": {
+        "type": "wordCount",
+        "params": {
+          "min": 50,
+          "max": 200
+        }
+      },
+      "tags": [
+        "abstract",
+        "nature",
+        "summary"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 171
+      },
+      "journals": [
+        "nature"
+      ]
+    },
+    {
+      "id": "S-53",
+      "title": "摘要中不得出现参考文献",
+      "severity": "hard",
+      "sections": [
+        "abstract"
+      ],
+      "statement": "摘要不应出现参考文献（PNAS 例外：摘要引用须在摘要内完整给出且正文也要引）。",
+      "fix": "删掉摘要里的所有文献引用；若确有必要（PNAS），把完整文献条目直接写进摘要。",
+      "check": {
+        "type": "count",
+        "params": {
+          "pattern": "\\(\\s*[A-Z][A-Za-z]+\\s*,?\\s*(19|20)\\d{2}",
+          "min": 0,
+          "max": 0,
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "abstract",
+        "references"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 965
+      },
+      "journals": [
+        "pnas"
+      ]
+    },
+    {
+      "id": "S-54",
+      "title": "结论中不得出现参考文献",
+      "severity": "hard",
+      "sections": [
+        "conclusion"
+      ],
+      "statement": "结论中不应出现参考文献；结论不得引入新论点或新证据。",
+      "fix": "把结论里的文献引用移到讨论段；结论只保留对本研究自身数据的总结与意义陈述。",
+      "check": {
+        "type": "count",
+        "params": {
+          "pattern": "\\(\\s*[A-Z][A-Za-z]+\\s*,?\\s*(19|20)\\d{2}",
+          "min": 0,
+          "max": 0,
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "conclusion",
+        "references"
+      ],
+      "source": {
+        "file": "references/journal-constraints.md",
+        "line": 254
+      }
+    },
+    {
+      "id": "S-55",
+      "title": "PE 必须提供 plain language summary",
+      "severity": "hard",
+      "sections": [
+        "abstract"
+      ],
+      "statement": "PE 必须提供 plain language summary，用非专业人士可理解的语言描述研究背景与主要发现。",
+      "fix": "单独写一段 plain language summary，术语只保留不可替代的那几个并当场解释；位置在 abstract 之后、正文之前。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "plain language summary"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "abstract",
+        "pe",
+        "lay-summary"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 659
+      },
+      "journals": [
+        "palaeontologia-electronica"
+      ]
+    },
+    {
+      "id": "S-56",
+      "title": "Keywords 数量限制",
+      "severity": "soft",
+      "sections": [
+        "keywords"
+      ],
+      "statement": "关键词数量因刊而异：Elsevier 系 1–7 个、Palaeoworld 1–6 个、PPP 与 Paleobiology ≤6 个、APP 建议 3–8 个；分号分隔，避免缩写与复数，以可检索性优先。",
+      "fix": "按目标刊上限取关键词数；用具体检索词（trace metal 而非 metals），分号分隔，不与题名词重复。",
+      "check": {
+        "type": "count",
+        "params": {
+          "pattern": ";",
+          "min": 0,
+          "max": 6,
+          "flags": ""
+        }
+      },
+      "tags": [
+        "keywords"
+      ],
+      "source": {
+        "file": "references/格式硬参数与文献检索实操.md",
+        "line": 94
+      }
+    },
+    {
+      "id": "S-57",
+      "title": "Highlights 3–5 条，每条 ≤85 字符",
+      "severity": "soft",
+      "sections": [
+        "abstract",
+        "keywords"
+      ],
+      "statement": "Highlights 为 3–5 条 bullet points，每条 ≤85 字符（含空格）；ESR 为鼓励而非必须，Palaeoworld/PMP 骨架要求 <5 条并作为单独可编辑文件上传，文件名含 highlights。",
+      "fix": "每条只放一件事（发现/方法/意义），逐条数字符数并压到 85 以内。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "highlights"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 72
+      },
+      "journals": [
+        "palaeoworld",
+        "earth-science-reviews"
+      ]
+    },
+    {
+      "id": "S-58",
+      "title": "Graphical Abstract 规格",
+      "severity": "info",
+      "sections": [
+        "figures"
+      ],
+      "statement": "Graphical Abstract 可选；最小 531 × 1328 px（高×宽）或按比例放大，缩到 5×13 cm 用 96 dpi（屏幕）或 300 dpi（TIFF/PDF）仍可读，须作为独立文件上传。",
+      "fix": "单独画一张信息图，按 531×1328 px 起步并在 5×13 cm 缩放测试一次可读性。",
+      "check": {
+        "type": "numeric",
+        "params": {
+          "pattern": "(?<![\\d.])(\\d{3,4})(?![\\d.])\\s*(?:x|×)\\s*\\d{3,4}",
+          "min": 531,
+          "max": 1328,
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "graphical-abstract"
+      ],
+      "source": {
+        "file": "references/格式硬参数与文献检索实操.md",
+        "line": 90
+      }
+    },
+    {
+      "id": "S-59",
+      "title": "文中引用与文末文献表必须双向一致",
+      "severity": "hard",
+      "sections": [
+        "references"
+      ],
+      "statement": "Any references cited in your article should also be present in your reference list and vice versa；每条参考文献必须对应真实存在的来源。",
+      "fix": "用文献管理器做一次双向校对：正文每个引用都能在文献表找到，文献表每条都在正文被引；再逐条核 DOI。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "references",
+        "consistency"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 137
+      }
+    },
+    {
+      "id": "S-60",
+      "title": "参考文献排序规则因刊而异",
+      "severity": "soft",
+      "sections": [
+        "references"
+      ],
+      "statement": "Elsevier 按第一作者字母序再按年代；PPP/Paleobiology 按字母序且同一第一作者三层排序（单作者→双作者→多作者）；Paleobiology 用 Hanging Indent、作者名粗体、期刊名斜体不缩写、卷号粗体。",
+      "fix": "按目标刊的排序算法重排：同姓不同名按名排序；同一第一作者先单作者（按年）、再双作者（按第二作者姓氏）、最后多作者（按年）。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "references",
+        "format"
+      ],
+      "source": {
+        "file": "references/格式硬参数与文献检索实操.md",
+        "line": 249
+      }
+    },
+    {
+      "id": "S-61",
+      "title": "Nature 主文参考文献 ≤50 条",
+      "severity": "hard",
+      "sections": [
+        "references"
+      ],
+      "statement": "Nature 指南：as a guideline, articles typically have no more than 50 references（Methods 与 Supplementary Information 的额外文献不受此限）。",
+      "fix": "把主文引文压到 50 条以内：正文只保留最相关的，其余移到 Methods references 或补充材料。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "references",
+        "nature"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 190
+      },
+      "journals": [
+        "nature"
+      ]
+    },
+    {
+      "id": "S-62",
+      "title": "预印本引用须标注 preprint 与 DOI",
+      "severity": "soft",
+      "sections": [
+        "references"
+      ],
+      "statement": "Elsevier 要求预印本明确标注 \"preprint\" 或预印本服务器名并给出 preprint DOI；已有同行评审正式版时改引正式版。",
+      "fix": "在参考文献条目中写明 preprint 服务器名与 DOI；若已正式发表，把该条替换为正式出版信息。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "references",
+        "preprint"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 148
+      }
+    },
+    {
+      "id": "S-63",
+      "title": "源文件格式：Word 单栏 / LaTeX，PDF 非源文件",
+      "severity": "hard",
+      "sections": [
+        "title",
+        "abstract"
+      ],
+      "statement": "Elsevier/Palaeoworld：源文件用 .doc/.docx 或 .tex，PDF 不是可接受的源文件；Word 单栏，双栏仅限 LaTeX。",
+      "fix": "导出 .docx（单栏）或 .tex 源文件再上传，不要传 PDF；上传前确认没有被排成双栏或带修订痕迹。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "submission",
+        "file-format"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 80
+      }
+    },
+    {
+      "id": "S-64",
+      "title": "必须含连续行号",
+      "severity": "hard",
+      "sections": [
+        "title",
+        "abstract"
+      ],
+      "statement": "送审必查项：行号从 title page 开始连续编号，贯穿正文 → 参考文献清单 → 图注，不要每页重起号；Nature 亦要求行号。",
+      "fix": "在 Word「页面布局 → 行号 → 连续」中开启；上传前用 PDF 逐页确认行号连续无断号。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "submission",
+        "layout",
+        "line-numbers"
+      ],
+      "source": {
+        "file": "references/格式硬参数与文献检索实操.md",
+        "line": 86
+      }
+    },
+    {
+      "id": "S-65",
+      "title": "格式不过关直接拒稿（送审三步流程）",
+      "severity": "hard",
+      "sections": [
+        "title",
+        "abstract",
+        "references",
+        "figures",
+        "tables"
+      ],
+      "statement": "SCI 论文送审流程为：技术检查（格式）→ 学术编辑（期刊符合度）→ 审稿人；格式不过关直接拒稿，走不到第二、三步。",
+      "fix": "投稿前把技术检查清单逐项过一遍（行号、图表顺序、引用一致、字体字号、缩写、图件参数），不要赌编辑会放行。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "process",
+        "format"
+      ],
+      "source": {
+        "file": "references/格式硬参数与文献检索实操.md",
+        "line": 272
+      }
+    },
+    {
+      "id": "S-66",
+      "title": "ELSEVIER「ACCEPTANCE」十点",
+      "severity": "hard",
+      "sections": [
+        "review"
+      ],
+      "statement": "ACCEPTANCE 十点：Attention to details / Check and double check / Consider the reviews / English must be as good as possible / Presentation is important / Take your time with revision / Acknowledge those who helped / New, original and previously unpublished / Critically evaluate your own manuscript / Ethical rules must be obeyed。",
+      "fix": "把十点做成返修前的自查表逐条打勾；其中最后一点是伦理规则必须遵守。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "review",
+        "acceptance"
+      ],
+      "source": {
+        "file": "prompts/10-reviewer-response.md",
+        "line": 86
+      }
+    },
+    {
+      "id": "S-67",
+      "title": "审稿意见必须逐条作答",
+      "severity": "hard",
+      "sections": [
+        "response"
+      ],
+      "statement": "所有问题必须逐条回答，不合并、不跳过；编辑会认为作者不配合，直接拒稿。",
+      "fix": "把审稿意见编号成 Comment 1…N，逐条配 Response；回复格式固定为 Comment N / Response / Changes in manuscript。",
+      "check": {
+        "type": "count",
+        "params": {
+          "pattern": "response\\s*:",
+          "min": 1,
+          "max": 999,
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "response",
+        "structure"
+      ],
+      "source": {
+        "file": "prompts/10-reviewer-response.md",
+        "line": 59
+      }
+    },
+    {
+      "id": "S-68",
+      "title": "每条回复须指出改了原文哪一行",
+      "severity": "hard",
+      "sections": [
+        "response"
+      ],
+      "statement": "回复四要素：① 感谢 → ② 采取的行动 → ③ 指出原文哪一行（Lines）改成了什么（改前改后原文都引用出来）→ ④ 附加材料编号对应。",
+      "fix": "每条 Response 后附「(Lines 193–195)」并贴出改前/改后对照句；补充材料同步换号（如原 Fig. R1 → Fig. S5）。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "lines?\\s*\\d+"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "response",
+        "structure"
+      ],
+      "source": {
+        "file": "prompts/10-reviewer-response.md",
+        "line": 51
+      }
+    },
+    {
+      "id": "S-69",
+      "title": "审稿人推荐的文献一定要引用并讨论透彻",
+      "severity": "hard",
+      "sections": [
+        "response",
+        "references"
+      ],
+      "statement": "审稿人推荐的文献一定要引用，并讨论透彻；不引用等于不听劝告。",
+      "fix": "在回复中逐条说明该文献是否采纳：采纳就补引并讨论其与本文结论的关系，不采纳则给出有理由的说明。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "\\((19|20)\\d{2}[a-z]?\\)"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "response",
+        "references"
+      ],
+      "source": {
+        "file": "prompts/10-reviewer-response.md",
+        "line": 62
+      }
+    },
+    {
+      "id": "S-70",
+      "title": "不能满足的要求不要回避，要说明合理理由",
+      "severity": "soft",
+      "sections": [
+        "response"
+      ],
+      "statement": "满足不了的也不要回避，说明不能做的合理理由；回避显得心虚。",
+      "fix": "对确实做不到的实验：先承认其价值 → 说明客观限制（样本量/设备/时间）→ 给替代证据或后续验证方案。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "response",
+        "tone"
+      ],
+      "source": {
+        "file": "prompts/10-reviewer-response.md",
+        "line": 61
+      }
+    },
+    {
+      "id": "S-71",
+      "title": "回复信必须感谢编辑与审稿人",
+      "severity": "soft",
+      "sections": [
+        "response"
+      ],
+      "statement": "感谢编辑和审稿人是基本礼貌；感谢要具体到审稿人的哪个意见，不要泛泛客套。",
+      "fix": "每条回复开头一句针对性致谢（Thanks for this concern / Thanks for pointing out…），结尾统一感谢编辑。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "thank"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "response",
+        "tone"
+      ],
+      "source": {
+        "file": "prompts/10-reviewer-response.md",
+        "line": 64
+      }
+    },
+    {
+      "id": "S-72",
+      "title": "按审稿人 8 项关注点反向自查",
+      "severity": "soft",
+      "sections": [
+        "review"
+      ],
+      "statement": "审稿人关注 8 项：作者是否合适引用自己的论文、论题是否适合该刊、内容是否新颖重要、论证是否合乎逻辑、引用是否妥当、文字是否正确简明、实验能否被重复与数据是否可靠、图表是否必要规范清楚。",
+      "fix": "投稿前按这 8 条逐条自查一遍，尤其是第 7 条（可重复性）与第 8 条（图表）。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "review",
+        "self-check"
+      ],
+      "source": {
+        "file": "prompts/10-reviewer-response.md",
+        "line": 70
+      }
+    },
+    {
+      "id": "S-73",
+      "title": "大修与小修的时限与策略",
+      "severity": "soft",
+      "sections": [
+        "response",
+        "review"
+      ],
+      "statement": "Major revision 通常 2–3 个月，需大改后重新送审；Minor revision 通常 1–2 周，完成即可基本等于 accept。",
+      "fix": "收到决定信当天排期：大修按「逐条落实 + 把审稿人当合作者」推进；小修快速响应，不要拖。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "revision",
+        "process"
+      ],
+      "source": {
+        "file": "prompts/10-reviewer-response.md",
+        "line": 117
+      }
+    },
+    {
+      "id": "S-74",
+      "title": "返修逾期视为新投稿",
+      "severity": "hard",
+      "sections": [
+        "response",
+        "review"
+      ],
+      "statement": "PNAS：返修须在收到决定后 2 个月内提交，否则视为 new submission。",
+      "fix": "决定信到手即确认截止日期并写进日程表；若确实来不及，先发信向编辑申请延期，不要默默拖过。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "revision",
+        "deadline"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 329
+      },
+      "journals": [
+        "pnas"
+      ]
+    },
+    {
+      "id": "S-75",
+      "title": "返修不得只改文字不改实质内容",
+      "severity": "hard",
+      "sections": [
+        "response",
+        "discussion"
+      ],
+      "statement": "返修时最忌只改文字不改实质内容 —— 编辑会看出你「表面应付」。",
+      "fix": "把审稿意见逐条转成可验证的改动清单：补实验/补数据/补文献/改论述，每条在稿件里能指出具体位置。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "revision",
+        "quality"
+      ],
+      "source": {
+        "file": "prompts/10-reviewer-response.md",
+        "line": 120
+      }
+    },
+    {
+      "id": "S-76",
+      "title": "返修须附 point-by-point response 与 tracked changes",
+      "severity": "hard",
+      "sections": [
+        "response"
+      ],
+      "statement": "PNAS 要求返修包含 point-by-point response，并强烈建议同时提交 tracked-changes 文件。",
+      "fix": "提交两份文件：一份标注修订痕迹的稿件，一份逐条对照的回复信；两者的行号必须一致。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "point[- ]?by[- ]?point|逐条"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "revision",
+        "response"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 329
+      },
+      "journals": [
+        "pnas"
+      ]
+    },
+    {
+      "id": "S-77",
+      "title": "不得一稿多投并须书面声明",
+      "severity": "hard",
+      "sections": [
+        "cover-letter"
+      ],
+      "statement": "投稿信必须书面声明稿件未发表且不同时投他处（Palaeoworld 明文要求）。",
+      "fix": "在投稿信写明「This manuscript has not been published elsewhere and is not under consideration by another journal.」",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "not been published|unpublished|未发表",
+            "not (currently )?(under consideration|submitted|published) (elsewhere|by another)|不同时投|一稿多投"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "cover-letter",
+        "ethics"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 511
+      },
+      "journals": [
+        "palaeoworld"
+      ]
+    },
+    {
+      "id": "S-78",
+      "title": "通信作者须在投稿时提供 ORCID",
+      "severity": "hard",
+      "sections": [
+        "cover-letter"
+      ],
+      "statement": "PNAS 要求通信作者在投稿时提供 ORCID，不得在 proofs 阶段补加；Paleobiology 要求所有合著者把 ORCID 加入 ScholarOne 个人资料；APP 的 Brief report 末尾要写邮箱与 ORCID。",
+      "fix": "投稿前把全体作者的 ORCID 填进投稿系统，并确认通讯作者自己的 ORCID 与邮箱是最新的。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "orcid"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "submission",
+        "orcid"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 327
+      },
+      "journals": [
+        "paleobiology",
+        "pnas",
+        "acta-palaeontologica-polonica"
+      ]
+    },
+    {
+      "id": "S-79",
+      "title": "校样返回时限",
+      "severity": "soft",
+      "sections": [
+        "review"
+      ],
+      "statement": "Elsevier 校样须在两天内返回；APP 的 proof 以 PDF 形式返回，最好 48 小时内。",
+      "fix": "指定一位通讯作者专责校样；收到 proof 当天通读并把修改集中在一次反馈里提交。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "proof",
+        "process"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 818
+      }
+    },
+    {
+      "id": "S-80",
+      "title": "地图不得画政治争议边界",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "JM 要求遵守联合国地图命名约定，避免画有争议的边界，编辑保留加注 \"under dispute\" 的权利；PPP 同样禁止有政治分歧的地图。",
+      "fix": "用无国界的地质图或中性底图；如需表示分区，改用构造单元色块而非国界线。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "figures",
+        "ethics"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 877
+      },
+      "journals": [
+        "palaeogeography-palaeoclimatology-palaeoecology",
+        "j-micropalaeontology"
+      ]
+    },
+    {
+      "id": "S-81",
+      "title": "新分类单元须注册 ZooBank / IPNI",
+      "severity": "hard",
+      "sections": [
+        "systematic",
+        "declarations"
+      ],
+      "statement": "自 APP issue 64(1) 起，在 APP 发表的命名行为必须在在线出版前注册 ZooBank，并在 Systematic palaeontology 部分提供 ZooBank 号；新植物分类单元注册 IPNI。",
+      "fix": "投稿前完成注册，把 ZooBank 号（LSID）写进系统描述段与图题；不要等到 proof 阶段。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "zoobank",
+            "ipni"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "systematic",
+        "taxonomy",
+        "registration"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 578
+      },
+      "journals": [
+        "acta-palaeontologica-polonica"
+      ]
+    },
+    {
+      "id": "S-82",
+      "title": "化石须存公立机构并给登记号",
+      "severity": "hard",
+      "sections": [
+        "systematic",
+        "methods"
+      ],
+      "statement": "所有描述和图示的化石必须注册并存放于具永久保存能力的正规公立机构，登记号须在文中给出（通常在 systematic palaeontology 部分和图题中）。",
+      "fix": "设一节 Repository 写存放机构与藏号，并在每个模式标本条目后重复给出馆藏号。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "repository|deposited in|stored at|museum|collection|藏号|馆藏"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "systematic",
+        "taxonomy"
+      ],
+      "source": {
+        "file": "references/multi-journal-style-guides.md",
+        "line": 454
+      }
+    },
+    {
+      "id": "S-83",
+      "title": "定刊四查先于动笔",
+      "severity": "hard",
+      "sections": [
+        "title",
+        "abstract",
+        "introduction",
+        "results",
+        "discussion",
+        "conclusion"
+      ],
+      "statement": "定刊时的四查：内容契合度、时效性（初审/外审/录用时间）、结构框架与写作要求（结果与讨论是否分开、有无独立结论段）、其他格式要求（篇幅上限、板块顺序、是否要 Highlights/Graphical Abstract）。",
+      "fix": "动笔前完成四查并写下结论：目标刊 + Results/Discussion 合并或分离 + 有无独立结论段 + 篇幅与前置要素清单。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "process",
+        "journal-fit"
+      ],
+      "source": {
+        "file": "references/journal-constraints.md",
+        "line": 72
+      }
+    },
+    {
+      "id": "S-84",
+      "title": "不得直接粘贴复制已发表的图",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "严禁直接粘贴复制已发表的图（除非 Open Access 或已获许可）；修改后必须标注文献来源。",
+      "fix": "自绘重制或取得书面许可；在图注写明 From X / Slightly modified from X (year) 与许可出处。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "figures",
+        "copyright"
+      ],
+      "source": {
+        "file": "references/格式硬参数与文献检索实操.md",
+        "line": 231
+      }
+    },
+    {
+      "id": "S-85",
+      "title": "投稿前 Submission checklist 逐项核对",
+      "severity": "hard",
+      "sections": [
+        "cover-letter",
+        "title",
+        "abstract",
+        "references",
+        "figures",
+        "tables"
+      ],
+      "statement": "PPP 投稿清单：指定唯一通讯作者与邮箱及完整通信地址；文件齐全（稿件、Keywords、全部图注、全部表格含标题/描述/脚注）；正文图表引用与所交文件一一对应；明确标注是否需要彩图印刷；Highlights/Graphical Abstract/补充文件按需；已做拼写与语法检查；引用清单与正文双向一致；版权许可已取得。",
+      "fix": "把上述 8 条做成可勾选清单，逐条打勾后再点 submit；「已做拼写与语法检查」这条最常被漏掉。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "submission",
+        "checklist"
+      ],
+      "source": {
+        "file": "references/格式硬参数与文献检索实操.md",
+        "line": 41
+      },
+      "journals": [
+        "palaeogeography-palaeoclimatology-palaeoecology"
+      ]
+    },
+    {
+      "id": "S-86",
+      "title": "须指定唯一通讯作者并给出邮箱与完整通信地址",
+      "severity": "hard",
+      "sections": [
+        "cover-letter",
+        "title"
+      ],
+      "statement": "PPP 投稿清单：指定唯一 corresponding author，并提供 E-mail 地址与完整通信地址（详细通讯地址 + 邮政编码）。",
+      "fix": "在投稿系统与标题页都写清：通讯作者姓名、邮箱、完整通信地址与邮政编码；多地址按作者顺序上标标注。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}",
+            "correspond|通讯"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "submission",
+        "corresponding-author"
+      ],
+      "source": {
+        "file": "references/格式硬参数与文献检索实操.md",
+        "line": 42
+      },
+      "journals": [
+        "palaeogeography-palaeoclimatology-palaeoecology"
+      ]
+    },
+    {
+      "id": "S-87",
+      "title": "Paleobiology 须同时提供 Non-technical Summary 与 Abstract，各自 ≤300 词",
+      "severity": "hard",
+      "sections": [
+        "abstract"
+      ],
+      "statement": "Paleobiology 要求同时提交 Non-technical Summary 与 Abstract，各自不超过 300 词；缺一即退稿。",
+      "fix": "在投稿系统里分别填 NTS 与 Abstract 两栏，各压到 300 词以内；NTS 面向非专业读者，Abstract 面向专业读者，内容不可互相复制。",
+      "check": {
+        "type": "wordCount",
+        "params": {
+          "min": 0,
+          "max": 300
+        }
+      },
+      "tags": [
+        "paleobiology",
+        "abstract",
+        "nts"
+      ],
+      "source": {
+        "file": "references/AGENTS.md",
+        "line": 153
+      },
+      "journals": [
+        "paleobiology"
+      ]
+    },
+    {
+      "id": "S-88",
+      "title": "Supplementary Material 的文献不计入主 Literature Cited",
+      "severity": "hard",
+      "sections": [
+        "references"
+      ],
+      "statement": "Paleobiology：Supplementary Material 里引用的文献不计入主文献表，主 Literature Cited 不得收录补充材料专用文献。",
+      "fix": "把补充材料专用文献只列在补充材料自己的参考文献里，主文献表只保留正文引用过的文献；两者不得互相搬运。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "paleobiology",
+        "references",
+        "supplementary"
+      ],
+      "source": {
+        "file": "references/AGENTS.md",
+        "line": 159
+      }
+    },
+    {
+      "id": "S-89",
+      "title": "数据与代码遵循 FAIR，DOI 必须是最终 DOI",
+      "severity": "hard",
+      "sections": [
+        "declarations"
+      ],
+      "statement": "Paleobiology：数据与代码须遵循 FAIR 原则；Dryad / Zenodo 由期刊全额付费；引用的 DOI 必须是最终 DOI，不能用预印本或 in-press 的占位 DOI。",
+      "fix": "把数据集与代码存入 Dryad / Zenodo 并取得最终 DOI，声明块里只写最终 DOI；尚无 DOI 时先说明将何时公开，不要留占位。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "zenodo|dryad",
+            "fair",
+            "doi"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "paleobiology",
+        "data-availability",
+        "code-availability"
+      ],
+      "source": {
+        "file": "references/AGENTS.md",
+        "line": 158
+      },
+      "journals": [
+        "paleobiology"
+      ]
+    },
+    {
+      "id": "S-90",
+      "title": "全稿 12 号 Times New Roman + 双倍行距 + 连续行号，从标题页开始",
+      "severity": "hard",
+      "sections": [
+        "title"
+      ],
+      "statement": "Paleobiology：全稿 12 号 Times New Roman、双倍行距、US Letter、四边 1 英寸、不用两端对齐、不在右边界断词，且从标题页开始编连续行号。",
+      "fix": "在 Word 里设好 12 号 TNR + 双倍行距 + 1 英寸页边距 + 连续行号，再粘贴正文；不要用两端对齐，段末不断词。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "times new roman|12 号",
+            "double|双倍",
+            "line number|行号"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "paleobiology",
+        "formatting",
+        "line-numbers"
+      ],
+      "source": {
+        "file": "references/AGENTS.md",
+        "line": 154
+      },
+      "journals": [
+        "paleobiology"
+      ]
+    }
+  ]
+}

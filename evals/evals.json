@@ -1,0 +1,268 @@
+{
+  "version": "2.0.0",
+  "skill": "academic-paper-polish",
+  "updated": "2026-11-04",
+  "description": "评测集：每个模块覆盖「正确触发」「不误触发」「输出质量基线」三类用例。",
+  "grading": {
+    "scale": "pass / partial / fail",
+    "pass": "正确加载对应模块，输出包含该模块的全部硬规则与关键数字，且无编造",
+    "partial": "加载了模块但遗漏关键硬规则或数字",
+    "fail": "未触发 / 触发了错误模块 / 编造数字或文献"
+  },
+  "cases": [
+    {
+      "id": "M01-abstract",
+      "module": "prompts/01-abstract.md",
+      "prompt": "帮我压缩一下摘要，投 Earth-Science Reviews",
+      "expect": {
+        "load": "prompts/01-abstract.md",
+        "must_mention": ["300 词", "Highlights", "避免缩写"],
+        "must_not": ["编造期刊影响因子"]
+      }
+    },
+    {
+      "id": "M02-introduction",
+      "module": "prompts/02-introduction.md",
+      "prompt": "引言怎么写？我感觉我写得像流水账",
+      "expect": {
+        "load": "prompts/02-introduction.md",
+        "must_mention": ["倒金字塔", "opening-resolution", "topic sentence"]
+      }
+    },
+    {
+      "id": "M03-literature-review",
+      "module": "prompts/03-literature-review.md",
+      "prompt": "我要写篇综述，从哪开始？",
+      "expect": {
+        "load": "prompts/03-literature-review.md",
+        "must_mention": ["18 步", "三段结构"]
+      }
+    },
+    {
+      "id": "M04-methods",
+      "module": "prompts/04-methods.md",
+      "prompt": "方法部分被人说无法重复，怎么改？",
+      "expect": {
+        "load": "prompts/04-methods.md",
+        "must_mention": ["标准流程", "参考文献"]
+      }
+    },
+    {
+      "id": "M05-results",
+      "module": "prompts/05-results.md",
+      "prompt": "结果部分要不要引文献？",
+      "expect": {
+        "load": "prompts/05-results.md",
+        "must_mention": ["几乎没有参考文献"]
+      }
+    },
+    {
+      "id": "M06-discussion",
+      "module": "prompts/06-discussion.md",
+      "prompt": "讨论和结果总是写混，给我个判据",
+      "expect": {
+        "load": "prompts/06-discussion.md",
+        "must_mention": ["6 步", "局限"]
+      }
+    },
+    {
+      "id": "M07-conclusion",
+      "module": "prompts/07-conclusion.md",
+      "prompt": "结论能不能和摘要重复？",
+      "expect": {
+        "load": "prompts/07-conclusion.md",
+        "must_mention": ["1–2 个段落"]
+      }
+    },
+    {
+      "id": "M08-deai-polish",
+      "module": "prompts/08-deai-polish.md",
+      "prompt": "编辑说我这稿子 AI 味太重，怎么洗",
+      "expect": {
+        "load": "prompts/08-deai-polish.md",
+        "must_mention": ["去 AI 化"]
+      }
+    },
+    {
+      "id": "M09-journal-submission",
+      "module": "prompts/09-journal-submission.md",
+      "prompt": "GCA 的 cover letter 有什么硬性要求？",
+      "expect": {
+        "load": "prompts/09-journal-submission.md",
+        "must_mention": ["Associate Editors", "通讯作者"]
+      }
+    },
+    {
+      "id": "M10-reviewer-response",
+      "module": "prompts/10-reviewer-response.md",
+      "prompt": "审稿人意见回来了，回复信怎么组织？",
+      "expect": {
+        "load": "prompts/10-reviewer-response.md",
+        "must_mention": ["四要素"]
+      }
+    },
+    {
+      "id": "R01-color-system",
+      "module": "references/color-system.md",
+      "prompt": "同一组数据，别人画出来就是不一样。Figure 的配色有什么讲究？",
+      "expect": {
+        "load": "references/color-system.md",
+        "must_mention": ["语义系统", "全图可追溯", "一通道一变量", "空心", "色标条"],
+        "must_not": [
+          "把「对照冷色/处理暖色」说成铁律",
+          "编造色号（应引用 figure-specs.md 七色表）"
+        ]
+      }
+    },
+    {
+      "id": "R02-color-heatmap",
+      "module": "references/color-system.md",
+      "prompt": "我的热图该用什么色阶？两个组对比，图例怎么标？",
+      "expect": {
+        "load": "references/color-system.md",
+        "must_mention": ["感知均匀色阶", "以 0 为中心", "色标条", "两端数值", "变量名"],
+        "must_not": ["推荐彩虹色阶 jet", "推荐红绿渐变"]
+      }
+    },
+    {
+      "id": "R03-figure-specs",
+      "module": "references/figure-specs.md",
+      "prompt": "投稿 Palaeontologia Electronica，图件有什么硬要求？",
+      "expect": {
+        "load": "references/figure-specs.md",
+        "must_mention": ["300 ppi", "ISO 9660", "RGB", "图宽 175 mm"],
+        "must_not": ["编造期刊影响因子", "把 Paleobiology 的 dpi 参数当成 PE 的"]
+      }
+    },
+    {
+      "id": "R04-figure-design-system",
+      "module": "references/figure-design-system.md",
+      "prompt": "我要写一篇微体古生物论文，图有十几张，怎么排顺序、每张图该长什么样？",
+      "expect": {
+        "load": "references/figure-design-system.md",
+        "must_mention": ["图序即论证顺序", "五种图件原型", "语义色", "图注"],
+        "must_not": ["把配色说成审美选择", "把图序说成编号习惯"]
+      }
+    },
+    {
+      "id": "R05-semantic-color",
+      "module": "references/figure-design-system.md",
+      "prompt": "人工计数和 AI 计数两条序列要画在同一张图里，用什么颜色？",
+      "expect": {
+        "load": "references/figure-design-system.md",
+        "must_mention": ["#D30203", "#75489A", "全篇只承载一个含义"],
+        "must_not": ["编造色号", "推荐彩虹色阶"]
+      }
+    },
+    {
+      "id": "R06-copernicus-figure",
+      "module": "references/multi-journal-style-guides.md",
+      "prompt": "投稿 J. Micropalaeontology，图件有什么硬要求？",
+      "expect": {
+        "load": "references/multi-journal-style-guides.md",
+        "must_mention": ["300 dpi", "5 MB", "30 MB", "8 cm", "图例", "Coblis"],
+        "must_not": ["编造 JM 的摘要字数上限", "把 Paleobiology 的 dpi 参数当成 JM 的"]
+      }
+    },
+    {
+      "id": "R07-esr-guide",
+      "module": "references/multi-journal-style-guides.md",
+      "prompt": "我要投 Earth-Science Reviews，投稿要准备哪些材料？硬要求是什么？",
+      "expect": {
+        "load": "references/multi-journal-style-guides.md",
+        "must_mention": ["without any limitation on the number of words used", "does not exceed 250 words", "encouraged", "Bibliometric studies will not be considered", "1000 dpi"],
+        "must_not": ["把 Highlights 说成强制要求", "把摘要「必须单一段落」当作 ESR 官方要求", "用中文转述代替官方英文原句", "编造 ESR 的字数上限"]
+      }
+    },
+    {
+      "id": "R08-micropaleo-patterns",
+      "module": "references/micropaleo-paper-patterns.md",
+      "prompt": "我要写一篇放射虫新种的系统描述论文，章节和图该怎么排？图要不要上色？",
+      "expect": {
+        "load": "references/micropaleo-paper-patterns.md",
+        "must_mention": ["Plate", "Fig.", "Holotype", "灰度", "比例尺", "From", "Original"],
+        "must_not": ["给分类描述论文配彩色编码表", "把 Fig. 与图版 Plate 混用", "编造语料样本量"]
+      }
+    },
+    {
+      "id": "R09-paper-structure",
+      "module": "references/micropaleo-paper-patterns.md",
+      "prompt": "我要写一篇放射虫论文，introduction 和 discussion 该怎么组织？章节怎么排？",
+      "expect": {
+        "load": "references/micropaleo-paper-patterns.md",
+        "must_mention": ["目的句", "Geological setting", "逐项对照", "进一步研究", "考察"],
+        "must_not": ["让 Discussion 开头照抄摘要", "把讨论写成逐条罗列文献", "用词频命中率代替对论证结构的判断", "把目的句固定安排在引言首句", "编造样本量"]
+      }
+    },
+    {
+      "id": "R10-systematic-description",
+      "module": "references/micropaleo-paper-patterns.md",
+      "prompt": "我要描述一个放射虫新种，论文怎么组织？正模、描述、讨论分别放哪里？",
+      "expect": {
+        "load": "references/micropaleo-paper-patterns.md",
+        "must_mention": ["Holotype", "Repository", "Remarks", "Occurrences", "diagnosis", "description"],
+        "must_not": ["只写独立 Discussion 段而不写 Remarks 块", "漏掉 Repository 存放机构", "编造样本量"]
+      }
+    },
+    {
+      "id": "R11-fulltext-honesty",
+      "module": "references/micropaleo-paper-patterns.md",
+      "prompt": "你们关于放射虫论文结构的结论，到底基于多少篇论文？给我准确的样本量和口径，别吹。",
+      "expect": {
+        "load": "references/micropaleo-paper-patterns.md",
+        "must_mention": ["181 篇", "164 篇", "570 万字符", "分层随机", "不按文件大小排序", "逐字原文"],
+        "must_not": ["用词频命中率代替对论证结构的判断", "把 130 篇骨架扫描说成 130 篇全文精读", "编造样本量"]
+      }
+    },
+    {
+      "id": "R12-fulltext-patterns",
+      "module": "references/micropaleo-paper-patterns.md",
+      "prompt": "引言结尾要不要列研究问题？讨论该怎么组织？描述一个新种时 Remarks 到底写什么？",
+      "expect": {
+        "load": "references/micropaleo-paper-patterns.md",
+        "must_mention": ["编号问句", "逐项对照", "待观察特征清单", "definition → range → origin", "Holotype"],
+        "must_not": ["编造样本量", "编造期刊要求"]
+      }
+    },
+    {
+      "id": "R13-figure-conventions",
+      "module": "references/figure-conventions-evidence.md",
+      "prompt": "放射虫论文的图版照片，该画比例尺还是写放大倍数？不同期刊一样吗？图注里的符号怎么解释？",
+      "expect": {
+        "load": "references/figure-conventions-evidence.md",
+        "must_mention": ["按刊分", "比例尺", "放大倍数", "图注前缀", "标本号"],
+        "must_not": ["全领域统一用比例尺", "编造某期刊的硬性规定"]
+      }
+    },
+    {
+      "id": "R14-fulltext-evidence",
+      "module": "references/fulltext-reading-evidence.md",
+      "prompt": "你们说讨论要按时间段分四拍、结论有两种形态，这些结论基于多少篇全文？样本是怎么抽的？",
+      "expect": {
+        "load": "references/fulltext-reading-evidence.md",
+        "must_mention": ["分层随机", "不按文件大小排序", "四拍", "两种形态", "回源核对"],
+        "must_not": ["130 篇逐篇读段落骨架", "用命中率代替阅读"]
+      }
+    },
+    {
+      "id": "R15-ai-ml-patterns",
+      "module": "references/ai-ml-paper-patterns.md",
+      "prompt": "我要写一篇用深度学习做有孔虫自动识别的论文，Methods 和 Discussion 该怎么写？数据与代码怎么声明？",
+      "expect": {
+        "load": "references/ai-ml-paper-patterns.md",
+        "must_mention": ["数据集交代", "Data availability", "Code availability", "基线", "适用边界", "分母"],
+        "must_not": ["描述类骨架", "把方法类结论说成领域规律", "编造期刊规定"]
+      }
+    },
+    {
+      "id": "R16-ai-ml-cross-shard",
+      "module": "references/ai-ml-paper-patterns.md",
+      "prompt": "我要写一篇化石图像深度学习分类论文：混淆矩阵和超参表要不要放？统计检验要不要做？局限怎么写？数据与代码声明块怎么排？",
+      "expect": {
+        "load": "references/ai-ml-paper-patterns.md",
+        "must_mention": ["45.8%", "9.5%", "16.7%", "分母", "Funding", "10.0%"],
+        "must_not": ["混淆矩阵是标配", "超参表是标配", "把 31 篇说成 225 篇", "编造期刊规定"]
+      }
+    }
+  ]
+}

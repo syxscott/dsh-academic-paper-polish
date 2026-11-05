@@ -1,10 +1,18 @@
 # dsh-academic-paper-polish bundle patch: inserts the Host plugin row into the
-# profile roster. The plugin registers the `academic-paper-polish` Agent Skill
-# into the skill registry, so every agent in this profile can load it.
+# profile roster. The plugin is the capability layer for academic paper writing:
+#
+#   - registers the `academic-paper-polish` Agent Skill (the prose manual),
+#   - registers five model-facing tools (paper_check / paper_rules /
+#     paper_journals / paper_outline / paper_deai) backed by the machine
+#     readable rule base in `data/`,
+#   - registers five slash commands (/paper-check … /paper-deai),
+#   - registers one short always-on system-prompt section, and
+#   - serves the JSON API the right-sidebar panel reads.
 #
 # Applied as a profile bundle layer (the `dsh.bundle.patch` manifest field in
 # package.json). The row is a bare plugin by package name: the node half
-# (exports "." → index.js) runs in the host process. No browser half is mounted.
+# (exports "." → index.js) runs in the host process. The browser half is
+# mounted separately through the `dsh.client` manifest field in package.json.
 #
 # Optional per-deployment config (put it here or in the profile's manual
 # cordis.patch.yml override). Defaults live in index.js:

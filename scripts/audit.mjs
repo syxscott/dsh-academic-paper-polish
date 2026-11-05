@@ -150,6 +150,168 @@ if (!routePath) fail('no host route path found');
 else if (routePath[1].endsWith('/')) fail(`host route path "${routePath[1]}" ends with "/" and can never match`);
 else ok(`host route prefix matches the runtime rule ("${routePath[1]}")`);
 
+// ── 10. v3.0 capability layer ───────────────────────────────────────────────
+// The plugin must expose capabilities the agent can CALL, not only prose it
+// can read: five model-facing tools, five slash commands, one always-on
+// prompt section, and one JSON API that the client panel reads.
+import { readdirSync, existsSync } from 'node:fs';
+import { join } from 'node:path';
+
+const libFiles = existsSync('lib') ? readdirSync('lib').filter((f) => f.endsWith('.mjs')) : [];
+const libSource = libFiles.map((f) => readFileSync(join('lib', f), 'utf8')).join('\n');
+const hostAll = `${host}\n${libSource}`;
+
+const TOOLS = ['paper_check', 'paper_rules', 'paper_journals', 'paper_outline', 'paper_deai'];
+const COMMANDS = ['paper-check', 'paper-rules', 'paper-journals', 'paper-outline', 'paper-deai'];
+const API_ROUTES = [
+  '/api/meta', '/api/rules', '/api/journals', '/api/checklists', '/api/sentences',
+  '/api/check', '/api/deai', '/api/outline', '/api/send',
+];
+
+if (libFiles.length === 0) fail('lib/ is missing — the host capability layer has no modules');
+else ok(`host capability modules present (${libFiles.length}: ${libFiles.join(', ')})`);
+
+// 10a. the tools must be registered with the harness tool registry.
+if (!/\btools\s*\.\s*register\s*\(/.test(hostAll)) fail('the host never calls ctx.tools.register — the agent has no tools to call');
+else ok('ctx.tools.register is called');
+const missingTools = TOOLS.filter((t) => !hostAll.includes(`'${t}'`) && !hostAll.includes(`"${t}"`));
+if (missingTools.length > 0) fail(`model-facing tools not declared: ${missingTools.join(', ')}`);
+else ok(`all ${TOOLS.length} paper_* tools declared`);
+
+// 10b. every tool must carry a description (that is how the model discovers it).
+const toolDescriptions = [...hostAll.matchAll(/description:\s*(['"`])((?:\\.|(?!\1).)*)\1/g)].map((m) => m[2]);
+const toolNamesFound = TOOLS.filter((t) => toolDescriptions.some((d) => d.includes(t)));
+if (toolNamesFound.length !== TOOLS.length) {
+  fail(`tool descriptions do not mention every tool (missing: ${TOOLS.filter((t) => !toolNamesFound.includes(t)).join(', ')})`);
+} else ok('every tool is named in its own description (discoverable)');
+
+// 10c. slash commands.
+if (!/\bcommands\s*\.\s*register\s*\(/.test(hostAll)) fail('the host never calls ctx.commands.register — no human entry point');
+else ok('ctx.commands.register is called');
+const missingCommands = COMMANDS.filter((c) => !hostAll.includes(`'${c}'`) && !hostAll.includes(`"${c}"`));
+if (missingCommands.length > 0) fail(`slash commands not declared: ${missingCommands.join(', ')}`);
+else ok(`all ${COMMANDS.length} slash commands declared`);
+
+// 10d. the always-on prompt section: this is the glue that makes the plugin
+//      get used without the user asking for it.
+const sectionAt = hostAll.indexOf('systemPrompt.section');
+if (sectionAt < 0) fail('the host never registers a system prompt section — the agent will not know the capabilities exist');
+else {
+  const window = hostAll.slice(sectionAt, sectionAt + 900);
+  const quoted = [...window.matchAll(/(['"`])((?:\\.|(?!\1).){40,})\1/g)].map((m) => m[2]);
+  const sectionText = quoted.join('\n');
+  const named = TOOLS.filter((t) => sectionText.includes(t));
+  if (named.length !== TOOLS.length) {
+    fail(`the prompt section does not name every tool (missing: ${TOOLS.filter((t) => !named.includes(t)).join(', ')})`);
+  } else ok('the prompt section names all five tools');
+  if (sectionText.length > 600) fail(`the prompt section is ${sectionText.length} chars — it is injected into EVERY request, keep it under 600`);
+  else ok(`prompt section stays short (${sectionText.length} chars)`);
+}
+
+// 10e. the JSON API the client panel reads.
+const missingRoutes = API_ROUTES.filter((r) => !hostAll.includes(r));
+if (missingRoutes.length > 0) fail(`panel API routes missing: ${missingRoutes.join(', ')}`);
+else ok(`all ${API_ROUTES.length} panel API routes present`);
+
+// 10f. the runtime data must ship with the bundle.
+for (const entry of ['data', 'lib']) {
+  if (!pkg.files.includes(entry)) fail(`files whitelist missing "${entry}"`);
+}
+ok('files whitelist covers data/ and lib/');
+
+// 10g. the rule database must be loadable and internally consistent.
+const DATA_DIR = 'data';
+const RULE_FILES = ['rules/writing.json', 'rules/figures.json', 'rules/submission.json'];
+const CHECK_TYPES = new Set([
+  'manual', 'forbidden', 'required', 'count', 'wordCount', 'numeric', 'citationDensity', 'sectionOrder',
+]);
+const seenRuleIds = new Set();
+let ruleTotal = 0;
+for (const rel of RULE_FILES) {
+  const file = join(DATA_DIR, rel);
+  if (!existsSync(file)) {
+    fail(`rule database file missing: ${file}`);
+    continue;
+  }
+  let doc;
+  try {
+    doc = JSON.parse(readFileSync(file, 'utf8'));
+  } catch (error) {
+    fail(`rule database ${file} is not valid JSON: ${error.message}`);
+    continue;
+  }
+  for (const rule of doc.rules ?? []) {
+    ruleTotal += 1;
+    if (seenRuleIds.has(rule.id)) fail(`duplicate rule id "${rule.id}"`);
+    seenRuleIds.add(rule.id);
+    if (!CHECK_TYPES.has(rule.check?.type)) fail(`rule "${rule.id}" has unknown check.type "${rule.check?.type}"`);
+    if (!rule.source?.file || typeof rule.source?.line !== 'number') fail(`rule "${rule.id}" has no verifiable source`);
+    if (!rule.sections?.length) fail(`rule "${rule.id}" applies to no section`);
+  }
+}
+ok(`rule database consistent (${ruleTotal} rules across ${RULE_FILES.length} files)`);
+
+// 10g2. a journal-scoped rule must name a journal that exists.
+const JOURNAL_KEYS = new Set(
+  (JSON.parse(readFileSync(join(DATA_DIR, 'journals.json'), 'utf8')).journals ?? []).map((j) => j.key),
+);
+let scopedRules = 0;
+for (const rel of RULE_FILES) {
+  const file = join(DATA_DIR, rel);
+  if (!existsSync(file)) continue;
+  let doc;
+  try {
+    doc = JSON.parse(readFileSync(file, 'utf8'));
+  } catch {
+    continue;
+  }
+  for (const rule of doc.rules ?? []) {
+    if (rule.journals === undefined) continue;
+    scopedRules += 1;
+    if (!Array.isArray(rule.journals) || rule.journals.length === 0) {
+      fail(`rule "${rule.id}" has an empty journals array`);
+      continue;
+    }
+    for (const key of rule.journals) {
+      if (!JOURNAL_KEYS.has(key)) fail(`rule "${rule.id}" names an unknown journal key "${key}"`);
+    }
+  }
+}
+if (scopedRules === 0) fail('no rule carries a journals scope — journal-specific rules would fire for every manuscript');
+else ok(`journal scoping consistent (${scopedRules} journal-scoped rules)`);
+
+for (const rel of ['journals.json', 'sentences.json', 'checklists.json']) {
+  const file = join(DATA_DIR, rel);
+  if (!existsSync(file)) {
+    fail(`data file missing: ${file}`);
+    continue;
+  }
+  try {
+    JSON.parse(readFileSync(file, 'utf8'));
+  } catch (error) {
+    fail(`data file ${file} is not valid JSON: ${error.message}`);
+  }
+}
+ok('journal / sentence / checklist databases parse');
+
+// 10h. the client half must read the rule corpus from the API, never embed it.
+if (!/\/dsh-academic-paper-polish\/api\//.test(client)) fail('the client never calls the host API — the panel would have to hardcode the rule base');
+else ok('the client reads its content from the host API');
+if (/["']severity["']\s*:/.test(client)) fail('the client embeds rule objects (severity literals) — rule data must come from the API');
+else ok('the client embeds no rule objects');
+
+// 10i. a panel-authored message must carry a custom source kind, never
+//      `kind: "user"`. The harness treats a `user/message` with
+//      `source.kind === "user"` as DIRECT HUMAN INPUT, and `dsh-tool-goal`
+//      grants the goal tools complete/blocked authority over those — a
+//      plugin must not be able to close a human's goal.
+if (!/academic-paper-polish/.test(libSource)) {
+  fail('the host never marks a panel-authored message with a custom source kind');
+} else ok('panel-authored messages carry a custom source kind');
+if (/kind\s*:\s*["']user["']/.test(libSource)) {
+  fail('the host sends a panel-authored message with source.kind "user" — it would be treated as direct human input');
+} else ok('the host never sends panel messages as source.kind "user"');
+
 if (failures > 0) {
   console.log(`\n${failures} audit failure(s)`);
   process.exit(1);

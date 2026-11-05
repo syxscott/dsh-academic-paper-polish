@@ -33,10 +33,11 @@
 
 - **结构**：背景 → 科学问题 → 研究结果 → 研究意义
 - **分层指示词**：*"However / yet…"* 表科学问题｜*"We found that… / The results show that…"* 表结果｜*"Based on…, we suggest that…"* 表讨论
-- 🔴 **自明性**：避免引用文献、图表、缩写；避免化学结构式、数学表达式、角标、希腊文
+- 🔴 **自明性**：摘要必须能脱离正文独立读懂 —— 避免引用文献、图表，**避免缩写**（首现即给全称），避免化学结构式、数学表达式、角标、希腊文
 - 🔴 **不得出现参考文献**
 - 🔴 **摘要语法错误 ≤ 6 处** —— 编辑原话：*"if there are more than 6 grammatical errors in the abstract, then I don't waste my time carefully reading the rest."*（ES&T 编辑）
 - **篇幅**：约 300 词（部分期刊）；ES&T 研究论文限 7000 词
+- **Highlights**（部分期刊独立成文件，不计入摘要字数）：ESR 要求 3–5 条、每条 ≤85 字符，**鼓励提供**（*encouraged*，非强制）；条目要覆盖「背景 / 问题 / 方法 / 结果 / 意义」，不写缩写、不写引用
 
 详见 `../references/journal-constraints.md`。
 

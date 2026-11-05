@@ -33,6 +33,21 @@
 | 🔴 图例 | **必须画在图里**，不许靠图注解释符号 |
 | 🔴 色觉 | 须过 **Coblis 色觉模拟器** |
 
+### Palaeontologia Electronica 口径（🔴 与上表不同）
+
+| 项 | 要求 | 出处 |
+|---|---|---|
+| 版面 | 🔴 **无页限、无版面费**（OA） | `journal-constraints.md` §选刊表 |
+| **图宽** | **图宽 175 mm / 84 mm**（双栏 / 单栏） | `multi-journal-style-guides.md` §7 |
+| 分辨率 | **300 ppi 或更高**（首次 PDF 投稿可 **150 ppi**） | `multi-journal-style-guides.md` §7 |
+| 色彩 | 🔴 **RGB 不用 CMYK** | `multi-journal-style-guides.md` §7 |
+| 🔴 文件命名 | **ISO 9660 约束**：≤8 字符，仅小写字母、数字、`_`、`.`；扩展名 ≤3 字符；**不得有空格** | `multi-journal-style-guides.md` §7.8 |
+| 摘要 | 须提供 **plain language summary** | `SKILL.md` 铁律 0 表 |
+
+> 🔴 **官方原句**（`multi-journal-style-guides.md` §7.8 逐字引用）：
+> "Figures should normally be created with widths equal to **175 mm or 84 mm at 300 ppi or higher** (figures can be reproduced at **150 ppi for first PDF submission**)."
+> "All material submitted to PE must meet the following electronic-submission requirements, which are based on **ISO 9660 constraints for naming of files**. Your file names may ONLY contain the following characters: 1. Lower case 2. Digits 0-9 3. The symbols underscore (_) or period (.)."
+
 ### 图内规范细节（PPP 原文，v2 补）
 - **正文中首次提及处引用图**（even at first mention）；补充图 `Figure S1`；可另附 600 dpi 出版就绪版
 - **Panel labels**：大写字母 A, B, C…；置于**每面板左上或左下角**；全图一致；🔴 不加括号/框

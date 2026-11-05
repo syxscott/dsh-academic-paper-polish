@@ -1,0 +1,5376 @@
+{
+  "version": "1.0.0",
+  "domain": "writing",
+  "rules": [
+    {
+      "id": "W-ABS-01",
+      "title": "摘要必须包含背景、科学问题、研究结果、研究意义四部分",
+      "severity": "hard",
+      "sections": [
+        "abstract"
+      ],
+      "statement": "摘要含 背景 / 科学问题 / 研究结果 / 研究意义 四部分。",
+      "fix": "按 背景 → 科学问题 → 研究结果 → 研究意义 顺序重写摘要，每部分 1–2 句；用 However / We found that / Based on…, we suggest that… 分层指示词标出层次。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "(?:背景|background)",
+            "(?:然而|however|yet)",
+            "(?:we found that|the results show that|we show that|研究表明|结果显示|结果表明)",
+            "(?:we suggest that|based on|implications?|意义|indicates that)"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "abstract",
+        "structure"
+      ],
+      "source": {
+        "file": "references/checklist.md",
+        "line": 30
+      }
+    },
+    {
+      "id": "W-ABS-02",
+      "title": "摘要不得出现参考文献引用",
+      "severity": "hard",
+      "sections": [
+        "abstract"
+      ],
+      "statement": "🔴 摘要不得出现参考文献；自明性要求避免引用文献。",
+      "fix": "删掉摘要中的 (Author, 2020) / [12] 式引用，改写为对结论负责的陈述句；确需指向前人工作的，改成不带引文的概括表述。",
+      "check": {
+        "type": "forbidden",
+        "params": {
+          "patterns": [
+            "\\([A-Z][A-Za-z]+(?:\\s+et al\\.)?,?\\s*\\d{4}[a-z]?\\)",
+            "\\[\\d+(?:\\s*[,\\-–]\\s*\\d+)*\\]"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "abstract",
+        "citation",
+        "self-contained"
+      ],
+      "source": {
+        "file": "prompts/01-abstract.md",
+        "line": 37
+      }
+    },
+    {
+      "id": "W-ABS-03",
+      "title": "摘要引用密度必须为 0",
+      "severity": "hard",
+      "sections": [
+        "abstract"
+      ],
+      "statement": "Abstract / Conclusion 不应出现引用（引文密度表：Abstract 行）。摘要里不得出现任何引文标记。",
+      "fix": "把摘要里所有带引文标记的句子改写为自足陈述；若引用不可删，则把该内容移出摘要。",
+      "check": {
+        "type": "citationDensity",
+        "params": {
+          "min": 0,
+          "max": 0
+        }
+      },
+      "tags": [
+        "abstract",
+        "citation"
+      ],
+      "source": {
+        "file": "references/AGENTS.md",
+        "line": 133
+      }
+    },
+    {
+      "id": "W-ABS-04",
+      "title": "摘要不得引用图表",
+      "severity": "hard",
+      "sections": [
+        "abstract"
+      ],
+      "statement": "🔴 自明性：避免引用文献、图表、缩写。",
+      "fix": "把 Fig. 3 / 图 4 / Table 2 改为直接描述该图表所呈现的结论性事实（数据 + 趋势），使摘要脱离图表也能读懂。",
+      "check": {
+        "type": "forbidden",
+        "params": {
+          "patterns": [
+            "\\bfig(?:ure)?\\.?\\s*\\d+[A-Za-z]?",
+            "\\btable\\s*\\d+",
+            "\\b(?:图|表|附图)\\s*\\d+"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "abstract",
+        "figure",
+        "self-contained"
+      ],
+      "source": {
+        "file": "prompts/01-abstract.md",
+        "line": 36
+      }
+    },
+    {
+      "id": "W-ABS-05",
+      "title": "摘要不得使用缩写与特殊符号",
+      "severity": "hard",
+      "sections": [
+        "abstract"
+      ],
+      "statement": "🔴 自明性：避免引用文献、图表、缩写；避免化学结构式、数学表达式、角标、希腊文。即摘要里避免缩写（首现写全称 + 缩写，或改用普通文字描述）。",
+      "fix": "摘要中首次出现的缩写写出全称 + (缩写)；化学式、公式、上下标、希腊字母改写成普通文字描述或直接删除。",
+      "check": {
+        "type": "forbidden",
+        "params": {
+          "patterns": [
+            "\\b(?:SEM|TEM|XRD|XPS|EDS|FTIR|ICP-?MS|Raman|GIS|HPLC|GC-?MS|AUC|F1-score)\\b"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "abstract",
+        "language",
+        "self-contained"
+      ],
+      "source": {
+        "file": "prompts/01-abstract.md",
+        "line": 36
+      }
+    },
+    {
+      "id": "W-ABS-06",
+      "title": "摘要必须使用分层指示词",
+      "severity": "hard",
+      "sections": [
+        "abstract"
+      ],
+      "statement": "用指示性词语分层：\"However…\" 表科学问题；\"We found that… / The results show that…\" 表结果；\"Based on…, we suggest that…\" 表讨论。",
+      "fix": "补齐三层指示词：科学问题句用 However / Yet 起句，结果句用 We found that / The results show that，末尾用 Based on…, we suggest that… 引出讨论层。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "(?:however|yet|然而)",
+            "(?:we found that|the results show that|we show that|研究表明|结果显示)",
+            "(?:based on[^.]{0,60}suggest|基于[^。]{0,40}认为|we suggest that)"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "abstract",
+        "discourse",
+        "structure"
+      ],
+      "source": {
+        "file": "references/checklist.md",
+        "line": 32
+      }
+    },
+    {
+      "id": "W-ABS-07",
+      "title": "摘要语法错误不得超过 6 处",
+      "severity": "hard",
+      "sections": [
+        "abstract"
+      ],
+      "statement": "🔴 ES&T 编辑红线：摘要语法错误 >6 处 → 不读正文。编辑原话：\"if there are more than 6 grammatical errors in the abstract, then I don't waste my time carefully reading the rest.\"",
+      "fix": "逐句校对摘要的冠词、时态、单复数与标点，把语法错误压到 6 处以内；这是编辑设定的硬门槛，不达标往往直接被拒。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "abstract",
+        "language",
+        "threshold"
+      ],
+      "source": {
+        "file": "references/AGENTS.md",
+        "line": 148
+      },
+      "journals": [
+        "environmental-science-and-technology"
+      ]
+    },
+    {
+      "id": "W-ABS-08",
+      "title": "摘要篇幅控制在 150–300 词",
+      "severity": "soft",
+      "sections": [
+        "abstract"
+      ],
+      "statement": "篇幅：约 300 词（部分期刊）；本领域实测中位约 2000 字符 ≈ 300 词、13 句，比多数期刊 150–250 词的上限偏长。",
+      "fix": "把摘要压到 150–300 词：删掉背景铺陈与次要数据，只留 问题 / 方法 / 关键结果（含数字）/ 意义 四层。",
+      "check": {
+        "type": "wordCount",
+        "params": {
+          "min": 150,
+          "max": 300
+        }
+      },
+      "tags": [
+        "abstract",
+        "length"
+      ],
+      "source": {
+        "file": "prompts/01-abstract.md",
+        "line": 39
+      }
+    },
+    {
+      "id": "W-ABS-09",
+      "title": "摘要不得使用口语化与主观表述",
+      "severity": "soft",
+      "sections": [
+        "abstract"
+      ],
+      "statement": "语言风格：采用正式、客观的学术语言，避免口语化和主观陈述。",
+      "fix": "把\"非常有意思\"\"令人震撼\"\"我个人认为\"一类表述改为客观陈述，如\"X 提高了 23%\"。",
+      "check": {
+        "type": "forbidden",
+        "params": {
+          "patterns": [
+            "\\b(?:very|really|quite|pretty|extremely|incredibly|amazingly)\\s+\\w+",
+            "(?:非常|特别|极其|十分|相当)地?(?:好|棒|精彩|重要|有趣|惊人)",
+            "(?:我个人认为|我们相信|不得不说|不得不说|说实话)"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "abstract",
+        "language",
+        "tone"
+      ],
+      "source": {
+        "file": "prompts/01-abstract.md",
+        "line": 17
+      }
+    },
+    {
+      "id": "W-ABS-10",
+      "title": "摘要不得重复引言背景",
+      "severity": "soft",
+      "sections": [
+        "abstract"
+      ],
+      "statement": "摘要未重复引言背景（结论不是引言的复述）。",
+      "fix": "把摘要第一句从\"某某问题一直受到关注\"改成直接进入本研究的具体问题或结果；背景细节留给引言。",
+      "check": {
+        "type": "forbidden",
+        "params": {
+          "patterns": [
+            "(?:is widely known|has attracted widespread attention|has been widely studied|remains? a hot (?:research )?topic|has become a hot topic)",
+            "(?:是(?:一个|个)?(?:长期|广泛)(?:的)?(?:研究)?热点|受到(?:了)?(?:广泛|极大)的关注|一直被(?:广泛)?关注)"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "abstract",
+        "redundancy"
+      ],
+      "source": {
+        "file": "references/checklist.md",
+        "line": 34
+      }
+    },
+    {
+      "id": "W-ABS-11",
+      "title": "本领域摘要以结果打头，不必强套五段式",
+      "severity": "info",
+      "sections": [
+        "abstract"
+      ],
+      "statement": "🔴 与通用模板最大的不同：本领域摘要以\"结果\"打头（87%），\"目的句\"只占 29%。通用模板要求的\"背景→目的→方法→结果→结论\"五段式，在本领域只有约 30% 的摘要真的写了目的句。",
+      "fix": "不必强套五段式；可按\"结果 → 方法 → 意义\"起笔，但四类功能件（结果 / 方法 / 背景 / 意义）仍应齐备。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "abstract",
+        "genre",
+        "evidence"
+      ],
+      "source": {
+        "file": "references/fulltext-reading-evidence.md",
+        "line": 185
+      }
+    },
+    {
+      "id": "W-ABS-12",
+      "title": "摘要必须包含具体数据",
+      "severity": "soft",
+      "sections": [
+        "abstract"
+      ],
+      "statement": "摘要含数字/数据 84%（38 篇英文摘要实测）。",
+      "fix": "在摘要中至少给出一个带单位的具体数值（百分比、浓度、速率、厚度、时代），替换\"显著提高\"\"大幅下降\"这类无数字表述。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "\\d+(?:\\.\\d+)?\\s*(?:%|mg|mL|L|µm|μm|mm|cm|km|°C|C|GPa|Ma|ka|Myr|kyr)"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "abstract",
+        "data",
+        "evidence"
+      ],
+      "source": {
+        "file": "references/fulltext-reading-evidence.md",
+        "line": 329
+      }
+    },
+    {
+      "id": "W-ABS-13",
+      "title": "英文摘要用现在时陈述结论",
+      "severity": "info",
+      "sections": [
+        "abstract"
+      ],
+      "statement": "🔴 本领域摘要规范 = 现在时（95%）+ 被动（87%）+ 少用 we（18%）。摘要用现在时陈述结论。",
+      "fix": "把\"We found that X increased…\"改为\"X increases…\"；不要为了\"避免被动\"把本领域通行的被动句改成主动句。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "\\b(?:is|are|shows?|showed|indicates?|suggests?|demonstrates?|reveals?|provides?)\\b"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "abstract",
+        "tense",
+        "evidence"
+      ],
+      "source": {
+        "file": "references/fulltext-reading-evidence.md",
+        "line": 331
+      }
+    },
+    {
+      "id": "W-ABS-14",
+      "title": "摘要不必强行加 Abstract 标题",
+      "severity": "info",
+      "sections": [
+        "abstract"
+      ],
+      "statement": "164 篇里只有 44 篇（27%）有机器可识别的独立 ABSTRACT 段；老刊常省略标题，新刊（Elsevier/Springer）必有。",
+      "fix": "按目标刊近期论文的排版照抄：有 Abstract 标题就加，老刊无标题就不要自造；本条不是错误判据。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "abstract",
+        "format",
+        "evidence"
+      ],
+      "source": {
+        "file": "references/fulltext-reading-evidence.md",
+        "line": 163
+      }
+    },
+    {
+      "id": "W-ABS-15",
+      "title": "摘要读者面远大于全文读者面，须独立可读",
+      "severity": "soft",
+      "sections": [
+        "abstract"
+      ],
+      "statement": "摘要读者面远大于全文读者面；编辑/审稿人一般只花 15 分钟看摘要+引言，第一印象不好就去找拒稿理由。",
+      "fix": "把摘要当成独立短文写：不依赖正文上下文就能理解对象、方法、结果与意义；不要出现\"如上所述\"\"见图 3\"。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "abstract",
+        "self-contained",
+        "writing-craft"
+      ],
+      "source": {
+        "file": "references/论文写作方法论骨架.md",
+        "line": 111
+      }
+    },
+    {
+      "id": "W-ABS-16",
+      "title": "摘要不得使用\"首次\"\"国际先进水平\"等评价式用语",
+      "severity": "hard",
+      "sections": [
+        "abstract"
+      ],
+      "statement": "忌\"首次提出/首次发现/达到国际先进水平\"等评价式用语；每篇有 novelty 都可以称\"第一次\"，\"第一次\"只应指较重要的研究进展。",
+      "fix": "把\"首次发现\"改为客观增量陈述：\"在本研究区 X 组中首次记录到 Y\"或直接写与前人工作的具体差异。",
+      "check": {
+        "type": "forbidden",
+        "params": {
+          "patterns": [
+            "首次(?:提出|发现|报道|研究|证实)",
+            "国际先进水平|世界领先水平|填补了[^，。]{0,12}空白",
+            "for the first time"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "abstract",
+        "wording",
+        "tone"
+      ],
+      "source": {
+        "file": "references/论文写作方法论骨架.md",
+        "line": 153
+      }
+    },
+    {
+      "id": "W-ABS-17",
+      "title": "关键词须覆盖类群、主题、时代、产地四个语义层",
+      "severity": "soft",
+      "sections": [
+        "keywords"
+      ],
+      "statement": "🔴 关键词公式：类群 + 主题 + 时代 + 产地（各取 1-3 个，共约 8 个）。",
+      "fix": "按 类群名 → 研究主题 → 时代 → 产地 各补 1–3 个关键词，总数控制在 5–10 个（中文刊 4–6 个）。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "(?:radiolaria|foraminifera|conodont|diatom|ammonite|palynoflor|放射虫|有孔虫|牙形石|硅藻|菊石|孢粉)",
+            "(?:biostratigraphy|paleoecology|paleobiogeography|taxonomy|stratigraphy|evolution|biodiversity|古生态|生物地层|系统分类|演化|生物多样性)",
+            "(?:devonian|carboniferous|permian|triassic|jurassic|cretaceous|paleogene|neogene|quaternary|cambrian|ordovician|silurian|寒武|奥陶|志留|泥盆|石炭|二叠|三叠|侏罗|白垩|古近|新近|第四纪)",
+            "(?:china|russia|usa|europe|asia|africa|canada|antarctic|polar urals|volga|california|中国|俄罗斯|西伯利亚|欧洲|南极|加拿大)"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "keywords",
+        "searchability",
+        "evidence"
+      ],
+      "source": {
+        "file": "references/fulltext-reading-evidence.md",
+        "line": 422
+      }
+    },
+    {
+      "id": "W-ABS-18",
+      "title": "中文摘要以主题句或前人工作起手",
+      "severity": "info",
+      "sections": [
+        "abstract"
+      ],
+      "statement": "中文摘要以主题句/前人工作起手（非结果打头），骨架是「前人工作 → 本文工作 → 结论」。",
+      "fix": "中文稿的摘要首句改成主题句或前人工作起手，不要照搬英文摘要的结果打头；结论仍放在末句。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "abstract",
+        "chinese",
+        "genre"
+      ],
+      "source": {
+        "file": "prompts/01-abstract.md",
+        "line": 43
+      }
+    },
+    {
+      "id": "W-INT-01",
+      "title": "引言必须是倒金字塔结构，由大到小收拢",
+      "severity": "hard",
+      "sections": [
+        "introduction"
+      ],
+      "statement": "引言 = 倒金字塔：由大到小逐步收拢，直至恰好处提出本研究；opening（提出的问题）必须与 resolution（给出的答案）对齐。",
+      "fix": "按「大背景 → 领域现状 → 具体缺口 → 科学问题 → 本研究目的与手段」重排引言段落；把最具体的对象放到最后一段。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "introduction",
+        "structure"
+      ],
+      "source": {
+        "file": "references/AGENTS.md",
+        "line": 137
+      }
+    },
+    {
+      "id": "W-INT-02",
+      "title": "引言的开口必须与收口对齐",
+      "severity": "hard",
+      "sections": [
+        "introduction"
+      ],
+      "statement": "🔴 硬规则：opening 必须与 resolution 对齐。开口 > 收口 = overpromising（读者觉得被欺骗）；收口 > 开口 = underpromising（读者看不到值得关注的 story）；开口 = 收口 = on target。",
+      "fix": "把引言第一段承诺解决的问题，与结论段实际给出的答案逐条对齐：若开口过大，缩小第一段的承诺；若收口更大，在引言里补上该问题的提出过程。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "introduction",
+        "logic",
+        "alignment"
+      ],
+      "source": {
+        "file": "prompts/02-introduction.md",
+        "line": 30
+      }
+    },
+    {
+      "id": "W-INT-03",
+      "title": "引言必须齐备四大内容",
+      "severity": "hard",
+      "sections": [
+        "introduction"
+      ],
+      "statement": "1. 综述研究背景；2. 综述研究现状——由现状引出问题；3. 问题剖析；4. 目的与手段。",
+      "fix": "逐项补齐：加一段前人成果概述、加一段由现状推出的问题、加一段问题剖析（这问题包含什么、解决思路）、加一段目的与手段。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "(?:however|yet|然而|但是|尽管)",
+            "(?:the (?:aim|purpose|goal|objective)s? of (?:this|the present)(?: study|paper|work|work)|本文(?:的目的|旨在)|研究目的)",
+            "(?:here,? we|we (?:aim|present|provide|investigate|develop|describe|report|focus)|本文(?:旨在|提出|报道))"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "introduction",
+        "structure"
+      ],
+      "source": {
+        "file": "references/checklist.md",
+        "line": 40
+      }
+    },
+    {
+      "id": "W-INT-04",
+      "title": "引言除问题句与过渡句外每句都要有引用",
+      "severity": "hard",
+      "sections": [
+        "introduction"
+      ],
+      "statement": "引言引文密度（引文密度表：Introduction 行）：除问题句和过渡句外都要有引用——即引言中几乎每一句都要挂参考文献；缺少参考文献 → 审稿人至少会认为你阅读文献不够。",
+      "fix": "逐句扫引言：凡是陈述他人成果、事实、数据、方法来源的句子都要挂引用；只保留真正属于本文主张的句子不挂。",
+      "check": {
+        "type": "citationDensity",
+        "params": {
+          "min": 20,
+          "max": 80
+        }
+      },
+      "tags": [
+        "introduction",
+        "citation",
+        "density"
+      ],
+      "source": {
+        "file": "references/AGENTS.md",
+        "line": 130
+      }
+    },
+    {
+      "id": "W-INT-05",
+      "title": "引言不得直接批评前人工作",
+      "severity": "hard",
+      "sections": [
+        "introduction"
+      ],
+      "statement": "❌ 忌直接批评：\"The deficiency of Wang's approach is…\"、\"The problem of these papers…\"。✅ 绕开作者与文献：\"However, the mechanism has not been fully understood.\"",
+      "fix": "把\"某某的缺点是…\"改写成\"However, … has not been fully understood / None of the other phases have been examined in detail\"这类指向客观事实的句式。",
+      "check": {
+        "type": "forbidden",
+        "params": {
+          "patterns": [
+            "the deficiency of[^.]{0,60}(?:approach|work|study|method)",
+            "the problem of (?:these|those|previous|such) (?:papers|works|studies|approaches)",
+            "(?:该(?:文|研究|工作)(?:的)?(?:缺点|问题|缺陷)是|前人(?:的)?(?:研究|工作)(?:存在|有)(?:不足|问题))"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "introduction",
+        "wording",
+        "tone"
+      ],
+      "source": {
+        "file": "references/AGENTS.md",
+        "line": 164
+      }
+    },
+    {
+      "id": "W-INT-06",
+      "title": "引言不得使用\"首次\"\"国际先进水平\"类评价式用语",
+      "severity": "hard",
+      "sections": [
+        "introduction"
+      ],
+      "statement": "忌轻易用 for the first time；忌\"首次提出/首次发现/达到国际先进水平\"等评价式用语。",
+      "fix": "改为直接陈述与前人工作的具体差异（做了什么不同、多了什么认识），删掉所有\"第一次\"\"国际先进\"的评价。",
+      "check": {
+        "type": "forbidden",
+        "params": {
+          "patterns": [
+            "for the first time",
+            "首次(?:提出|发现|报道|研究|证实)",
+            "国际先进水平|世界领先水平|填补了[^，。]{0,12}空白"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "introduction",
+        "wording",
+        "tone"
+      ],
+      "source": {
+        "file": "references/AGENTS.md",
+        "line": 163
+      }
+    },
+    {
+      "id": "W-INT-07",
+      "title": "缺口不得只写\"remains unclear\"这类空泛表述",
+      "severity": "soft",
+      "sections": [
+        "introduction"
+      ],
+      "statement": "模板爱用空泛的 \"remains unclear\"；缺口写法应是具体或数量化（\"only 19 occurrences in the entire Phanerozoic\"、\"哪个层没研究过\"）。",
+      "fix": "把\"remains unclear / remains unknown\"改成可核查的事实：具体是哪个层位、哪个时段、哪类数据缺失，或给出数量（多少个已知记录、多少篇文献）。",
+      "check": {
+        "type": "forbidden",
+        "params": {
+          "patterns": [
+            "(?:remains?|still remains?)\\s+(?:unclear|unknown|undetermined|elusive|poorly understood)",
+            "(?:仍|尚)(?:然)?(?:不|未)(?:清楚|明确|清楚明了|解决)",
+            "有待(?:进一步)?(?:研究|探索|完善)"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "introduction",
+        "gap",
+        "vagueness"
+      ],
+      "source": {
+        "file": "references/micropaleo-paper-patterns.md",
+        "line": 336
+      }
+    },
+    {
+      "id": "W-INT-08",
+      "title": "缺口应具体化或数量化",
+      "severity": "soft",
+      "sections": [
+        "introduction"
+      ],
+      "statement": "缺口的四种写法：数量化（\"only 19 occurrences in the entire Phanerozoic\"）、未决性、具体未研究对象、技术/方法空白。",
+      "fix": "在缺口句里补一个可核查的锚点：数量（only N cases）、对象（哪个层/哪个区/哪个类群从未被研究）、或方法维度（已有方法在哪个维度不够）。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "\\b(?:only|just|merely)\\s+\\d+",
+            "(?:have|has) not been (?:examined|investigated|studied|explored|addressed|in detail|reported)",
+            "(?:从未|尚未|未曾)(?:被)?(?:研究|报道|考察)"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "introduction",
+        "gap",
+        "evidence"
+      ],
+      "source": {
+        "file": "references/micropaleo-paper-patterns.md",
+        "line": 377
+      }
+    },
+    {
+      "id": "W-INT-09",
+      "title": "目的句必须带具体对象与产地",
+      "severity": "hard",
+      "sections": [
+        "introduction"
+      ],
+      "statement": "🔴 目的句一定要带具体对象（哪个层、哪个区、哪个类群、哪个数据集）——语料里没有一条目的句是空泛的 \"to study radiolarians\"。",
+      "fix": "把目的句中的泛称替换为具体对象与产地，例如\"to determine the age of the X Formation in the Y Basin\"。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "(?:the (?:aim|purpose|goal|objective)s? of (?:this|the present)(?: study|paper|work)|本文(?:的?目的|旨在))",
+            "(?:formation|basin|section|province|group|core|岩芯|组|段|盆地|剖面|群)"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "introduction",
+        "purpose",
+        "evidence"
+      ],
+      "source": {
+        "file": "references/micropaleo-paper-patterns.md",
+        "line": 276
+      }
+    },
+    {
+      "id": "W-INT-10",
+      "title": "目的句必须独立成句",
+      "severity": "soft",
+      "sections": [
+        "introduction"
+      ],
+      "statement": "目的句独立成句，实测十类句式（aim / purpose / goal / objective / It is the purpose of… / In this work we… / We present here… / Therefore, …（推理式）/ 否定式划边界 / Our study focused on…）。",
+      "fix": "把目的句单独成句，不要与背景句用 and/which 串在一起；可单独成段，并在其后另起一段说明\"为什么值得看\"。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "introduction",
+        "purpose",
+        "sentence"
+      ],
+      "source": {
+        "file": "references/micropaleo-paper-patterns.md",
+        "line": 279
+      }
+    },
+    {
+      "id": "W-INT-11",
+      "title": "引言不得故意制造悬念",
+      "severity": "soft",
+      "sections": [
+        "introduction"
+      ],
+      "statement": "忌故意制造悬念指望结尾高潮——读者没耐心读到最后一章。",
+      "fix": "把\"后面你会看到…\"\"答案出乎意料\"这类悬念句删掉，改为按重要性顺序推进：先讲最重要的发现，让读者顺序逻辑地演进阅读。",
+      "check": {
+        "type": "forbidden",
+        "params": {
+          "patterns": [
+            "(?:敬请期待|下文(?:将)?揭晓|答案将在(?:下文|后文)|stay tuned)",
+            "(?:the (?:real )?(?:surprise|twist) (?:comes|is) (?:at the end|next)|surprising(?:ly)? (?:revealed|shown) (?:in|at) the (?:next|following) (?:section|chapter))"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "introduction",
+        "structure",
+        "writing-craft"
+      ],
+      "source": {
+        "file": "prompts/02-introduction.md",
+        "line": 67
+      }
+    },
+    {
+      "id": "W-INT-12",
+      "title": "详引相关重要文献不会降低原创性",
+      "severity": "info",
+      "sections": [
+        "introduction"
+      ],
+      "statement": "⚠️ 以为多引他人工作会降低原创性，实际效果常常相反；不充分引用 → 审稿人至少会认为你阅读文献不够。",
+      "fix": "不必为怕\"显得不原创\"而删减引用；把与本文直接相关的重要文献全部引出，并说明本文与它们的差异。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "introduction",
+        "citation",
+        "evidence"
+      ],
+      "source": {
+        "file": "references/论文写作方法论骨架.md",
+        "line": 140
+      }
+    },
+    {
+      "id": "W-INT-13",
+      "title": "英文引言允许并鼓励使用第一人称 we",
+      "severity": "info",
+      "sections": [
+        "introduction"
+      ],
+      "statement": "🔴 最重要的差异：引言可以用 we（49%），摘要几乎不用（18%）。写引言时「我们做了什么」是合法的。",
+      "fix": "写\"我们做了什么\"的句子不必改成被动；在引言中保留 we / our，明确本文的工作主体。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "\\bwe\\b"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "introduction",
+        "voice",
+        "evidence"
+      ],
+      "source": {
+        "file": "references/fulltext-reading-evidence.md",
+        "line": 393
+      }
+    },
+    {
+      "id": "W-INT-14",
+      "title": "英文引言以被动语态陈述领域现状",
+      "severity": "info",
+      "sections": [
+        "introduction"
+      ],
+      "statement": "引言被动 96%、现在时 96%、过去时/完成体 93%。写法建议：引言 = 现在时陈述领域现状 + 过去时叙述本文工作 + 可用 we。",
+      "fix": "把\"我们发现/我们采样\"这类句子按本领域习惯改成被动或现在时陈述（\"X was identified in…\"），本文工作仍可保留 we。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "\\b(?:was|were|is|are|be|been|being)\\s+[a-z]+(?:ed|en)\\b"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "introduction",
+        "voice",
+        "evidence"
+      ],
+      "source": {
+        "file": "references/fulltext-reading-evidence.md",
+        "line": 388
+      }
+    },
+    {
+      "id": "W-INT-15",
+      "title": "引言末尾须给出论文结构导航",
+      "severity": "soft",
+      "sections": [
+        "introduction"
+      ],
+      "statement": "论文结构概述：审查引言结尾的结构预告部分，确保能清晰预告后续章节的核心内容，为读者提供阅读路线图。章节导航句是方法类论文的常见件。",
+      "fix": "在引言末段加一句路线图句，逐节说明本文各部分做什么、核心数字是多少、收尾在哪里（\"In Section 3 … Sections 5 and 6 … Finally, Section 8 …\"）。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "(?:section|chapter|part)\\s*\\d",
+            "(?:the following sections?|the paper is organized as follows|outlined as follows|structure of (?:this|the) (?:paper|article|manuscript))"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "introduction",
+        "navigation",
+        "structure"
+      ],
+      "source": {
+        "file": "prompts/02-introduction.md",
+        "line": 16
+      }
+    },
+    {
+      "id": "W-INT-16",
+      "title": "本领域引言长度无规范，不要套通用字数",
+      "severity": "info",
+      "sections": [
+        "introduction"
+      ],
+      "statement": "🔴 实测区间 1.7k–12.2k 字符（约 340–2,450 词），中位约 7.6k 字符。🔴 所以：本领域不存在\"引言该写多长\"的规范，别套通用字数。",
+      "fix": "按体裁与信息量决定引言长度，不要用字数硬套；数据报告与短通信可以很短，方法论评述型可以很长。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "introduction",
+        "length",
+        "evidence"
+      ],
+      "source": {
+        "file": "references/micropaleo-paper-patterns.md",
+        "line": 369
+      }
+    },
+    {
+      "id": "W-INT-17",
+      "title": "段落应为 5–8 句，1–2 句的段落是极差结构",
+      "severity": "hard",
+      "sections": [
+        "introduction",
+        "discussion",
+        "results"
+      ],
+      "statement": "段落：5–8 句最合理。1–2 句话的段落是非常差的结构。换了对象主体就分段——一段集中讲清一个问题。",
+      "fix": "把 1–2 句的碎段与其相邻段落合并；把一个段里讲多个对象主体的内容拆成多段，每段 5–8 句。",
+      "check": {
+        "type": "count",
+        "params": {
+          "pattern": "[.!?。！？]",
+          "min": 5,
+          "max": 8,
+          "flags": ""
+        }
+      },
+      "tags": [
+        "paragraph",
+        "structure",
+        "writing-craft"
+      ],
+      "source": {
+        "file": "SKILL.md",
+        "line": 123
+      }
+    },
+    {
+      "id": "W-INT-18",
+      "title": "研究问题与假设必须由前文推导",
+      "severity": "soft",
+      "sections": [
+        "introduction"
+      ],
+      "statement": "研究问题与假设：确保研究问题或假设是基于前文文献评述和逻辑推演提出，而非凭空出现。表述应清晰、具体、可验证。",
+      "fix": "在提出研究问题前补一句推导（\"Because … has not been examined in detail, we ask whether …\"）；把问题写成可验证的具体问句。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "introduction",
+        "logic",
+        "hypothesis"
+      ],
+      "source": {
+        "file": "prompts/02-introduction.md",
+        "line": 15
+      }
+    },
+    {
+      "id": "W-INT-19",
+      "title": "引言背景须先肯定前人贡献再收窄",
+      "severity": "soft",
+      "sections": [
+        "introduction"
+      ],
+      "statement": "背景写作要领：先\"大盖帽\"（大背景、大意义）；逐渐聚焦：肯定前人贡献（\"站在巨人肩膀上\"）。",
+      "fix": "在收窄到本文缺口之前，先用一到两句明确承认前人在该问题上的贡献（\"Previous work established …\"），再说明其未覆盖之处。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "(?:previous (?:work|studies|research|investigations)|prior (?:work|studies)|前人(?:的)?(?:研究|工作)|已有(?:研究|工作))"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "introduction",
+        "structure",
+        "tone"
+      ],
+      "source": {
+        "file": "references/论文写作方法论骨架.md",
+        "line": 139
+      }
+    },
+    {
+      "id": "W-INT-20",
+      "title": "中文稿第一人称三型：本文 / 我们 / 笔者",
+      "severity": "info",
+      "sections": [
+        "introduction"
+      ],
+      "statement": "中文第一人称三型 =「本文」/「我们」/「笔者」；中文无被动标记，别套英文的被动要求。",
+      "fix": "中文稿按刊物惯例选一种（或混用）人称，并在全稿保持一致；不要照搬英文的被动 96% 要求改中文稿。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "本文|我们|笔者"
+          ],
+          "flags": ""
+        }
+      },
+      "tags": [
+        "introduction",
+        "chinese",
+        "voice"
+      ],
+      "source": {
+        "file": "references/fulltext-reading-evidence.md",
+        "line": 506
+      }
+    },
+    {
+      "id": "W-LIT-01",
+      "title": "综述必须主题式整合，不得按作者或时间罗列",
+      "severity": "hard",
+      "sections": [
+        "literature"
+      ],
+      "statement": "主题式整合：检查文献综述是否围绕核心主题或关键变量组织，而非按作者或发表时间简单罗列。",
+      "fix": "把按作者/年份排列的段落重排为按主题、关键变量或方法路径分节；同一主题的多篇研究合并到同一小节下做比较。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "literature",
+        "structure"
+      ],
+      "source": {
+        "file": "prompts/03-literature-review.md",
+        "line": 12
+      }
+    },
+    {
+      "id": "W-LIT-02",
+      "title": "综述必须包含批判性分析",
+      "severity": "soft",
+      "sections": [
+        "literature"
+      ],
+      "statement": "批判性分析：识别出我仅停留在描述层面（「谁做了什么」「发现了什么」）的部分，在这些位置加入批判性分析：指出不同研究间的矛盾、方法论的局限性、理论预设的缺陷等。",
+      "fix": "在每节描述之后补一句评价：这些研究在方法或前提上互不兼容在哪里、本文采信哪一条及理由。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "(?:however|nevertheless|unlike|whereas|尽管|然而|但是)",
+            "(?:limitation|drawback|caveat|assumption|bias|shortcoming|局限|不足|缺陷|前提)"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "literature",
+        "critical",
+        "depth"
+      ],
+      "source": {
+        "file": "prompts/03-literature-review.md",
+        "line": 13
+      }
+    },
+    {
+      "id": "W-LIT-03",
+      "title": "文献之间必须建立对话关系",
+      "severity": "soft",
+      "sections": [
+        "literature"
+      ],
+      "statement": "建立对话关系：评估综述是否将不同文献置于「对话」语境中——即明确指出研究之间的传承、辩驳或互补关系。",
+      "fix": "把孤立的介绍句改成对话句：\"A (2020) 的结论与 B (2021) 相左，其差异来自采样深度…\"或\"A 的方法被 B 扩展到…\"。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "(?:building on|builds? upon|extends? the work of|in contrast (?:to|with)|whereas|不同于|在此基础上)"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "literature",
+        "dialogue",
+        "critical"
+      ],
+      "source": {
+        "file": "prompts/03-literature-review.md",
+        "line": 14
+      }
+    },
+    {
+      "id": "W-LIT-04",
+      "title": "综述结尾必须凝练出集体缺口",
+      "severity": "soft",
+      "sections": [
+        "literature"
+      ],
+      "statement": "凝练研究缺口：在综述结尾，更清晰、更有力地总结现有研究的集体不足（而非个别文献的缺陷），从而自然地、逻辑严密地引出本研究的切入点。",
+      "fix": "把综述末段的个别批评改写成集体缺口（\"Taken together, the literature has not resolved …\"），并紧接本文的切入点。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "(?:taken together|collectively|in aggregate|no consensus|remains? unresolved|总体而言)"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "literature",
+        "gap",
+        "transition"
+      ],
+      "source": {
+        "file": "prompts/03-literature-review.md",
+        "line": 15
+      }
+    },
+    {
+      "id": "W-LIT-05",
+      "title": "综述必须先立收录标准再列数据",
+      "severity": "hard",
+      "sections": [
+        "literature",
+        "methods"
+      ],
+      "statement": "🔴 综述不能只罗列文献，必须显式写出\"我收录了什么、排除了什么、为什么\"。",
+      "fix": "在综述的方法段（或引言末）加一段收录标准：检索源、时间范围、纳入与排除条件、以及为什么这样收；数据表必须置于该标准之后。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "(?:inclusion|exclusion|selection) criteria",
+            "criteria for (?:selecting|inclusion|selection)",
+            "收录标准|纳入标准|排除标准|入选标准"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "literature",
+        "method",
+        "transparency"
+      ],
+      "source": {
+        "file": "references/fulltext-reading-evidence.md",
+        "line": 352
+      }
+    },
+    {
+      "id": "W-LIT-06",
+      "title": "综述每节收尾给一句可记忆的概括句",
+      "severity": "soft",
+      "sections": [
+        "literature"
+      ],
+      "statement": "🔴 综述体的骨架钉：每节收尾给一句可记忆的概括句（如 \"Summing up, one might conclude that sinking serves different purposes…\"）。",
+      "fix": "在每个小节末尾补一句概括句（\"Summing up, …\"），把该节的分散结论收成一句可复述的话。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "(?:summing up|to sum up|in summary|总体而言|可以(?:说|认为))"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "literature",
+        "writing-craft",
+        "evidence"
+      ],
+      "source": {
+        "file": "references/fulltext-reading-evidence.md",
+        "line": 357
+      }
+    },
+    {
+      "id": "W-LIT-07",
+      "title": "综述引言必须三段式",
+      "severity": "hard",
+      "sections": [
+        "introduction",
+        "literature"
+      ],
+      "statement": "综述论文的引言同样必须写成三段结构（三段式骨架，顺序不可调换）：1 Subject background（一般性话题，提供语境）；2 \"Problem\"（趋势、新视角、缺口、冲突）；3 Motivation / justification（作者综述的理由 + 全文的方法和组织）。",
+      "fix": "把综述引言重排为三段：第一段给领域语境，第二段指出趋势/缺口/冲突，第三段说明为什么由本文来综述并交代全文组织方式。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "(?:in this review|in this paper|the present review|本文(?:综述|系统梳理))",
+            "(?:remain(?:s)? (?:unanswered|unresolved|open)|questions? (?:remain|persist)|尚未(?:解决|回答))",
+            "(?:we (?:first|then|hereby)|this review (?:first|then)|本文(?:首先|然后))"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "literature",
+        "structure"
+      ],
+      "source": {
+        "file": "prompts/03-literature-review.md",
+        "line": 44
+      }
+    },
+    {
+      "id": "W-LIT-08",
+      "title": "综述论文骨架须覆盖引言、主体、讨论与展望",
+      "severity": "soft",
+      "sections": [
+        "introduction",
+        "literature",
+        "discussion",
+        "conclusion"
+      ],
+      "statement": "综述论文结构：Title → Author → Abstract → Introduction → Summary of major issues in the study field → Model and discussion → Perspective on future study → Acknowledgement → References。",
+      "fix": "按 综述引言 → 主体（分节综述）→ 模型与讨论 → 未来展望 的顺序排版；缺哪一块就补哪一块。",
+      "check": {
+        "type": "sectionOrder",
+        "params": {
+          "order": [
+            "introduction",
+            "literature",
+            "discussion",
+            "conclusion"
+          ]
+        }
+      },
+      "tags": [
+        "literature",
+        "structure",
+        "order"
+      ],
+      "source": {
+        "file": "references/论文写作方法论骨架.md",
+        "line": 546
+      }
+    },
+    {
+      "id": "W-LIT-09",
+      "title": "综述引言占正文核心部分的 10%–20%",
+      "severity": "soft",
+      "sections": [
+        "introduction"
+      ],
+      "statement": "技术指标：Length 占正文核心部分（引言、主体、结论）的 10%–20%。",
+      "fix": "把综述引言压到正文核心部分的 10%–20%；把展开的文献内容移入主体分节。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "literature",
+        "length"
+      ],
+      "source": {
+        "file": "references/论文写作方法论骨架.md",
+        "line": 573
+      }
+    },
+    {
+      "id": "W-LIT-10",
+      "title": "综述引用密度要高",
+      "severity": "hard",
+      "sections": [
+        "literature"
+      ],
+      "statement": "技术规格：一般现在时（描述自己方法/结果用过去时）｜引用密度高｜占正文核心部分 10%–20%。",
+      "fix": "把综述正文中每个论断、每个数据、每个归类都挂上原始文献；本批实测综述可零图表，以文献密度替代图表。",
+      "check": {
+        "type": "citationDensity",
+        "params": {
+          "min": 20,
+          "max": 120
+        }
+      },
+      "tags": [
+        "literature",
+        "citation",
+        "density"
+      ],
+      "source": {
+        "file": "prompts/03-literature-review.md",
+        "line": 52
+      }
+    },
+    {
+      "id": "W-LIT-11",
+      "title": "小标题须按六种组织标准之一组织",
+      "severity": "soft",
+      "sections": [
+        "literature"
+      ],
+      "statement": "小标题的六种组织标准：methodological approaches / models or theories / extent of support for a given thesis / studies that agree vs. studies that disagree / chronological order / geographical location。",
+      "fix": "为每个小标题确定一种组织原则并保持全篇一致；若混用，按主题重新归类文献。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "literature",
+        "headings",
+        "structure"
+      ],
+      "source": {
+        "file": "prompts/03-literature-review.md",
+        "line": 56
+      }
+    },
+    {
+      "id": "W-LIT-12",
+      "title": "综述小标题至少三级，细分越好",
+      "severity": "hard",
+      "sections": [
+        "literature"
+      ],
+      "statement": "分标题层级：分得越细越好，至少三级，三级下还可能有四、五级标题。",
+      "fix": "把过粗的小标题继续细分，直到每个小节能讲清一个子问题；至少做到三级标题。",
+      "check": {
+        "type": "count",
+        "params": {
+          "pattern": "\\d+\\.\\d+\\.\\d+",
+          "min": 1,
+          "max": 60,
+          "flags": ""
+        }
+      },
+      "tags": [
+        "literature",
+        "headings",
+        "structure"
+      ],
+      "source": {
+        "file": "references/论文写作方法论骨架.md",
+        "line": 528
+      }
+    },
+    {
+      "id": "W-LIT-13",
+      "title": "用问句作小标题",
+      "severity": "soft",
+      "sections": [
+        "literature"
+      ],
+      "statement": "用问句作小标题——信息量远高于\"XX 研究现状\"。",
+      "fix": "把\"XX 研究现状\"式小标题改写成具体问句（\"What's the principles and mechanisms controlling …?\"）。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "\\?"
+          ],
+          "flags": ""
+        }
+      },
+      "tags": [
+        "literature",
+        "headings",
+        "writing-craft"
+      ],
+      "source": {
+        "file": "references/论文写作方法论骨架.md",
+        "line": 605
+      }
+    },
+    {
+      "id": "W-LIT-14",
+      "title": "综述参考文献约 100 篇是质量标志",
+      "severity": "soft",
+      "sections": [
+        "references",
+        "literature"
+      ],
+      "statement": "参考文献数量（多数 100 篇左右）是衡量综述质量、水平的标志；参考文献不能省略。",
+      "fix": "检查综述的参考文献量级是否达到 100 篇左右；不足则补充检索，并确保每条都在正文中被引用。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "literature",
+        "references",
+        "coverage"
+      ],
+      "source": {
+        "file": "references/论文写作方法论骨架.md",
+        "line": 342
+      }
+    },
+    {
+      "id": "W-LIT-15",
+      "title": "综述文献须新、须一次文献",
+      "severity": "soft",
+      "sections": [
+        "references",
+        "literature"
+      ],
+      "statement": "引用六原则：① 亲自阅读的最新最有价值原著；② 尽量核心期刊；③ 尽量引用一次文献；④ 权威知名学者；⑤ 近 5 年，最好近 1–3 年；⑥ 不引非公开发表文献、教材、专科书内容。",
+      "fix": "把过时文献换成近 5 年（最好 1–3 年）的一次文献；对必须引用的二次文献，回溯其原始出处并改引原文。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "literature",
+        "references",
+        "recency"
+      ],
+      "source": {
+        "file": "references/论文写作方法论骨架.md",
+        "line": 344
+      }
+    },
+    {
+      "id": "W-LIT-16",
+      "title": "禁止引用非公开发表文献、教材与专科书内容",
+      "severity": "hard",
+      "sections": [
+        "references",
+        "literature"
+      ],
+      "statement": "禁止：不引非公开发表文献、教材、专科书内容。",
+      "fix": "删除教科书、专著章节、未发表资料作为论据的引用；确有必要的标准或专著，改引其原始论文或标准文件。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "literature",
+        "references",
+        "integrity"
+      ],
+      "source": {
+        "file": "prompts/03-literature-review.md",
+        "line": 107
+      }
+    },
+    {
+      "id": "W-LIT-17",
+      "title": "文献加工须走完筛选、鉴别、分类、归纳四步",
+      "severity": "soft",
+      "sections": [
+        "literature"
+      ],
+      "statement": "文献加工四步：筛选（确定与主题密切相关者）→ 鉴别（去伪存真）→ 分类（使资料内容单元化，从大到小逐层逐级划分）→ 归纳（使资料内容系统化并产生初步判断）。",
+      "fix": "按四步复核素材表：把同主题文献归到同一单元、为每个单元写出初步判断，再据此排布小节。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "literature",
+        "method",
+        "workflow"
+      ],
+      "source": {
+        "file": "references/论文写作方法论骨架.md",
+        "line": 513
+      }
+    },
+    {
+      "id": "W-LIT-18",
+      "title": "综述可用机制总览图替代大段文字",
+      "severity": "info",
+      "sections": [
+        "literature",
+        "figures"
+      ],
+      "statement": "用一张机制总览图代替大段文字，是综述\"高信息密度\"的手段。",
+      "fix": "为综述的核心机制做一张总览图（中心过程 + 四周驱动途径），把原本三段的文字描述改为图 + 少量解读文字。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "literature",
+        "figures",
+        "density"
+      ],
+      "source": {
+        "file": "references/论文写作方法论骨架.md",
+        "line": 620
+      }
+    },
+    {
+      "id": "W-LIT-19",
+      "title": "二次文献中的数据必须回溯原文查证",
+      "severity": "hard",
+      "sections": [
+        "literature",
+        "references"
+      ],
+      "statement": "二次文献（secondary citation）：为论证一个结论需引用文章主题之外的文献，或需从文献引用的文献里去找论据 → 对文献中引用他人的数据有必要去查证，避免错引文献和错引数据。",
+      "fix": "对所有\"据某某报道\"的数据回到原始论文核对数值与条件；无法核对的数据删掉或改为不依赖该数据的论证。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "literature",
+        "integrity",
+        "references"
+      ],
+      "source": {
+        "file": "references/论文写作方法论骨架.md",
+        "line": 611
+      }
+    },
+    {
+      "id": "W-METH-01",
+      "title": "Methods 的核心判据是读者能重复你的实验",
+      "severity": "hard",
+      "sections": [
+        "methods"
+      ],
+      "statement": "核心判据：读者看完能重复你的实验。",
+      "fix": "把 Methods 读一遍交给同事看能否复现；凡是需要口头补充的步骤都补进正文（参数、阈值、异常处理）。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "methods",
+        "reproducibility"
+      ],
+      "source": {
+        "file": "prompts/04-methods.md",
+        "line": 7
+      }
+    },
+    {
+      "id": "W-METH-02",
+      "title": "Methods 按四段式组织",
+      "severity": "hard",
+      "sections": [
+        "methods",
+        "geological-setting"
+      ],
+      "statement": "1. 客观描述区域地质背景、气候背景、环境参数；2. 样品采样方法、样品数量；3. 本研究所采用的实验方法、仪器检测条件、软件版本；4. 🔴 重点：让读者看完知道如何开展、如何重现实验。",
+      "fix": "按 背景 → 采样 → 方法与仪器 → 可重现说明 四段重排 Methods；每段起首句就点明本段写什么。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "(?:geological setting|regional geology|stratigraphy|地质概况|区域地质|地层背景)",
+            "(?:sampling|samples? (?:were )?collected|采样|取样)",
+            "(?:instrument|microscope|spectrometer|analy[sz]er|仪器|显微镜|光谱)",
+            "(?:software|python|matlab|r ?studio|origin|版本)"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "methods",
+        "structure"
+      ],
+      "source": {
+        "file": "prompts/04-methods.md",
+        "line": 27
+      }
+    },
+    {
+      "id": "W-METH-03",
+      "title": "必须交代采样点位、深度、坐标与时间",
+      "severity": "hard",
+      "sections": [
+        "methods"
+      ],
+      "statement": "自查（缺任一项即不合格）：采样点位 / 深度 / 坐标 / 时间。",
+      "fix": "补齐样品的具体位置（坐标 / 深度 / 剖面与层位）与采集时间窗；没有坐标的给出图件与剖面编号。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "\\d+\\s*(?:°|º)",
+            "(?:coordinates?|latitude|longitude|depth|位置|坐标|经纬|深度|采样点|剖面)"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "methods",
+        "sampling",
+        "data"
+      ],
+      "source": {
+        "file": "prompts/04-methods.md",
+        "line": 34
+      }
+    },
+    {
+      "id": "W-METH-04",
+      "title": "必须交代样品数量与保存条件",
+      "severity": "hard",
+      "sections": [
+        "methods"
+      ],
+      "statement": "自查（缺任一项即不合格）：样品数量与保存条件。",
+      "fix": "写出每个类群/每个分组的样品数与存放方式（薄片、溶液、−20 ℃、干燥器）；把散落在正文里的数量集中成一张表。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "\\b\\d+\\s*(?:specimens?|samples?|individuals?|items?|slides?|g\\b)",
+            "\\d+\\s*(?:枚|个|件|片|份|组)"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "methods",
+        "sampling",
+        "data"
+      ],
+      "source": {
+        "file": "prompts/04-methods.md",
+        "line": 35
+      }
+    },
+    {
+      "id": "W-METH-05",
+      "title": "必须交代仪器型号与检测条件",
+      "severity": "hard",
+      "sections": [
+        "methods"
+      ],
+      "statement": "自查（缺任一项即不合格）：仪器型号 + 检测条件（温度、压力、pH、浓度、标定）。",
+      "fix": "补上仪器型号与关键检测条件（温度、压力、pH、浓度、标定曲线）；条件为默认值时也要写出\"按厂家默认设置\"。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "\\b(?:model|no\\.|serial)\\b",
+            "\\b[A-Z][A-Za-z]{1,12}[- ]?\\d{3,4}\\b",
+            "\\d+(?:\\.\\d+)?\\s*(?:°C|℃|psi|MPa|kPa|bar|rpm|mA|V\\b|pH\\b)"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "methods",
+        "instrument",
+        "conditions"
+      ],
+      "source": {
+        "file": "prompts/04-methods.md",
+        "line": 36
+      }
+    },
+    {
+      "id": "W-METH-06",
+      "title": "必须交代数据处理软件与版本",
+      "severity": "hard",
+      "sections": [
+        "methods"
+      ],
+      "statement": "自查（缺任一项即不合格）：数据处理软件与版本。",
+      "fix": "写出所用软件及其版本号（含 Python/PyTorch/CUDA 等环境版本）；脚本仓库地址写进 Data/Code availability。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "\\b(?:python|matlab|r\\s?studio|origin|arcgis|arcgis pro|spss|igspy|github)\\b",
+            "\\bv?\\d+\\.\\d+(?:\\.\\d+)?\\b"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "methods",
+        "software",
+        "reproducibility"
+      ],
+      "source": {
+        "file": "prompts/04-methods.md",
+        "line": 37
+      }
+    },
+    {
+      "id": "W-METH-07",
+      "title": "必须交代缺失值与异常值处理方法及理由",
+      "severity": "hard",
+      "sections": [
+        "methods"
+      ],
+      "statement": "自查（缺任一项即不合格）：缺失值 / 异常值处理方法及理由。",
+      "fix": "写明缺失值、离群值的判定阈值与处理动作（剔除/保留/插补），并说明选择该做法的理由（文献依据或数据分布依据）。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "(?:missing|outlier|exclud|remov|imput|缺失值|异常值|剔除|离群|插补)"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "methods",
+        "data",
+        "transparency"
+      ],
+      "source": {
+        "file": "prompts/04-methods.md",
+        "line": 38
+      }
+    },
+    {
+      "id": "W-METH-08",
+      "title": "用了指标就必须给公式与逐符号定义",
+      "severity": "hard",
+      "sections": [
+        "methods"
+      ],
+      "statement": "🔴 没有\"必须写满 Methods\"的规则；但只要用了指标就必须给公式与符号定义（如 ARM = CM × DBD / LSR），并逐符号定义。",
+      "fix": "对每个自定义指标写出计算式，并在公式后用 where 句逐符号解释；没有公式的指标补公式，公式已有的补符号定义。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "\\b[A-Za-z]{2,6}\\s*=\\s*[^\\n]{3,}",
+            "where\\s+[A-Za-z]{1,6}\\s+(?:is|are|stands for|represents)"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "methods",
+        "formula",
+        "reproducibility"
+      ],
+      "source": {
+        "file": "references/fulltext-reading-evidence.md",
+        "line": 69
+      }
+    },
+    {
+      "id": "W-METH-09",
+      "title": "方法章节同样需要引用",
+      "severity": "soft",
+      "sections": [
+        "methods"
+      ],
+      "statement": "方法章节同样需要引用——引用的是标准流程与既有方法，不是你的结果。采用标准方法 ✅ 引该方法的原始文献或标准；自创改进方法 ✅ 引原始方法，说明改进点。",
+      "fix": "给每一步标准方法挂上原始文献或标准编号；自创改进方法同时引原方法并写清改进点。",
+      "check": {
+        "type": "citationDensity",
+        "params": {
+          "min": 1,
+          "max": 30
+        }
+      },
+      "tags": [
+        "methods",
+        "citation"
+      ],
+      "source": {
+        "file": "prompts/04-methods.md",
+        "line": 48
+      }
+    },
+    {
+      "id": "W-METH-10",
+      "title": "常规操作可免引但必须写清参数",
+      "severity": "soft",
+      "sections": [
+        "methods"
+      ],
+      "statement": "常规操作（清洗、干燥）可不引，但需写清参数；缺少参考文献和标准流程（自创？没认可度）是常见错误。",
+      "fix": "免引的常规步骤逐条补上参数（温度、时间、次数、试剂浓度）；自创流程补引文献并说明与标准流程的差异。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "\\d+(?:\\.\\d+)?\\s*(?:°C|℃|min\\.?|h\\b|hours?|rpm|mL|%|MPa|psi)"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "methods",
+        "citation",
+        "detail"
+      ],
+      "source": {
+        "file": "prompts/04-methods.md",
+        "line": 54
+      }
+    },
+    {
+      "id": "W-METH-11",
+      "title": "你的实验结果不得写进 Methods",
+      "severity": "hard",
+      "sections": [
+        "methods"
+      ],
+      "statement": "你的实验结果 ❌ 不引（属 Results）；Methods 只写做法，不写结果。",
+      "fix": "把 Methods 中的结果句（\"X 的产率为 23%\"\"Y 组显著更高\"）移到 Results，只留做法与条件。",
+      "check": {
+        "type": "forbidden",
+        "params": {
+          "patterns": [
+            "(?:we (?:found|show|observed)|the results show that|结果表明|结果显示|显著(?:高于|低于|优于))",
+            "(?:这(?:说明|表明)|这(?:一|些)?(?:结果|数据)(?:说明|表明))"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "methods",
+        "results",
+        "separation"
+      ],
+      "source": {
+        "file": "prompts/04-methods.md",
+        "line": 55
+      }
+    },
+    {
+      "id": "W-METH-12",
+      "title": "必须有数据可用性声明，不可用时须说明原因",
+      "severity": "hard",
+      "sections": [
+        "methods",
+        "declarations"
+      ],
+      "statement": "数据可用性：repository DOI / 附件 / 申请获取。🔴 不可用时必须说明原因，而非沉默省略。",
+      "fix": "加 Data availability 段：给出仓库 + DOI；不能公开的写明原因与获取途径（如向通讯作者申请、含商业限制）。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "(?:data availability|数据可用性|数据可获得性)",
+            "(?:doi\\.org/10\\.|zenodo|figshare|dryad|mendeley|osf\\.io|available|request|申请|获取)"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "methods",
+        "declarations",
+        "transparency"
+      ],
+      "source": {
+        "file": "prompts/04-methods.md",
+        "line": 63
+      }
+    },
+    {
+      "id": "W-METH-13",
+      "title": "方法类论文须给代码可用性声明",
+      "severity": "soft",
+      "sections": [
+        "methods",
+        "declarations"
+      ],
+      "statement": "代码可用性：GitHub URL + DOI（Zenodo）。🔴 代码发布的三个层次：① 只给 GitHub 链接；② GitHub + Zenodo DOI（带版本）；③ Zenodo + Software Heritage 永久归档。化石类论文里 ② 已成主流。",
+      "fix": "加 Code availability 段，给出 GitHub 链接与 Zenodo DOI（含版本号）；只给链接的补上归档 DOI。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "(?:code availability|代码可用性|源代码)",
+            "github",
+            "(?:zenodo|doi\\.org/10\\.5281|softwareheritage)"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "methods",
+        "declarations",
+        "reproducibility"
+      ],
+      "source": {
+        "file": "prompts/04-methods.md",
+        "line": 62
+      }
+    },
+    {
+      "id": "W-METH-14",
+      "title": "数据集必须交代六件套",
+      "severity": "hard",
+      "sections": [
+        "methods"
+      ],
+      "statement": "在方法类语料中，数据集交代几乎总是包含以下六项，缺一项就会在审稿时被追问：来源与检索式 / 初样本→清洗规则→终样本 / 每类样本量 / 标注方式 / 划分方式与比例 / 不平衡的显式承认 + 补偿手段。",
+      "fix": "逐项补齐六件套：检索式与下载日期、初样本与剔除规则与终样本数、逐类样本量表、标注人与方式、划分方式与比例、不平衡处理与补偿。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "(?:download|retriev|search (?:quer|strateg)|检索式|下载)",
+            "(?:removed|excluded|outlier|clean|剔除|清洗)",
+            "(?:labeled|labelled|annotated|curated|by an expert|标注)"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "methods",
+        "dataset",
+        "ai-ml"
+      ],
+      "source": {
+        "file": "references/ai-ml-paper-patterns.md",
+        "line": 193
+      }
+    },
+    {
+      "id": "W-METH-15",
+      "title": "训练/测试划分比例必须写清",
+      "severity": "soft",
+      "sections": [
+        "methods"
+      ],
+      "statement": "🔴 本批 12 种写法互不相同，不要照抄任何一篇；必须写清划分方式与比例（如 ~85% / ~15%、80/10/10、10 折交叉验证）。",
+      "fix": "写明划分方式（随机/分层/交叉验证）+ 具体比例或折数 + 划分脚本或种子；不要照抄别篇的比例。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "\\d+\\s*%",
+            "(?:cross-validation|cross validation|k-fold|fold|training set|test set|训练集|测试集|交叉验证)"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "methods",
+        "dataset",
+        "ai-ml"
+      ],
+      "source": {
+        "file": "prompts/04-methods.md",
+        "line": 74
+      }
+    },
+    {
+      "id": "W-METH-16",
+      "title": "类别不平衡必须显式承认并说明补偿手段",
+      "severity": "hard",
+      "sections": [
+        "methods"
+      ],
+      "statement": "五种处理：加权损失 / 下采样并写出下采样后数字 / 重采样 / 剔除样本过少的类 / 承认不平衡并声明是行业常态；并交代类别不平衡时为何不以 accuracy 为主指标。",
+      "fix": "写明不平衡的具体表现（哪几类差多少倍）+ 采用的补偿（加权/下采样/重采样/剔除）+ 为何选它；若以 accuracy 为主指标必须给出理由。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "(?:imbalanc|不平衡|偏斜|类别不均)",
+            "(?:weighted|weights?|subsampl|resampl|加权|下采样|重采样|剔除)"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "methods",
+        "dataset",
+        "ai-ml"
+      ],
+      "source": {
+        "file": "references/ai-ml-paper-patterns.md",
+        "line": 589
+      }
+    },
+    {
+      "id": "W-METH-17",
+      "title": "必须交代运行环境版本",
+      "severity": "soft",
+      "sections": [
+        "methods"
+      ],
+      "statement": "🔴 环境版本是化石类论文里最少被写、但审稿人最常要的一项——本批只有个别论文写全 Python/PyTorch/CUDA/GPU 四件套。",
+      "fix": "补写 操作系统、Python 版本、框架版本、CUDA 版本与 GPU 型号，四件套一次写全。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "python",
+            "(?:pytorch|tensorflow|keras|scikit-learn|sklearn)",
+            "(?:cuda|gpu|nvidia|geforce|rtx)"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "methods",
+        "ai-ml",
+        "reproducibility"
+      ],
+      "source": {
+        "file": "references/ai-ml-paper-patterns.md",
+        "line": 218
+      }
+    },
+    {
+      "id": "W-METH-18",
+      "title": "独立超参表不是标配，但超参必须交代清楚",
+      "severity": "info",
+      "sections": [
+        "methods",
+        "tables"
+      ],
+      "statement": "🔴 超参表不是标配：合并 21 篇口径，有独立超参表的只有 2 篇（9.5%）。其余三种写法：写在正文散文 / 只列架构而不列学习率 / 直接声明沿用默认配置。",
+      "fix": "不必硬造超参表，但必须交代超参：给学习率/批大小/轮数，或明确写\"沿用作者默认配置（引用）\"。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "(?:learning rate|batch size|epochs?|optimizer|hyperparameter|dropout|学习率|批大小|轮数|超参)"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "methods",
+        "ai-ml",
+        "tables"
+      ],
+      "source": {
+        "file": "prompts/04-methods.md",
+        "line": 77
+      }
+    },
+    {
+      "id": "W-RES-01",
+      "title": "Results 只讲\"发现了什么\"，\"为什么\"留给 Discussion",
+      "severity": "hard",
+      "sections": [
+        "results"
+      ],
+      "statement": "核心原则：Results 只讲\"发现了什么\"，\"为什么\"留给 Discussion。Results 里出现机制解释（\"这说明…\"）是错误。",
+      "fix": "把 Results 中的因果句改成事实句：\"X 增加 23%\"而不是\"这说明 X 促进了 Y\"；机制解释整段移到 Discussion。",
+      "check": {
+        "type": "forbidden",
+        "params": {
+          "patterns": [
+            "(?:this|these|such)\\s+(?:results?|data|findings?|observations?)\\s+(?:indicates?|suggests?|demonstrates?|explains?|means|imply|implies)\\s+that",
+            "(?:这|这些)(?:说明|表明|意味着|反映)",
+            "(?:because|due to|owing to)\\s+(?:the\\s+)?(?:higher|lower|increased|decreased|larger|smaller)\\s+\\w+\\s+(?:content|level|concentration|abundance)"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "results",
+        "separation",
+        "writing-craft"
+      ],
+      "source": {
+        "file": "prompts/05-results.md",
+        "line": 45
+      }
+    },
+    {
+      "id": "W-RES-02",
+      "title": "Results 须剔除主观性、解释性、推测性语言",
+      "severity": "hard",
+      "sections": [
+        "results"
+      ],
+      "statement": "客观性陈述：剔除所有主观性、解释性或推测性语言（例如「惊人地发现」「出乎意料的是」「这似乎表明」）。",
+      "fix": "把\"惊人地发现\"\"出乎意料的是\"\"似乎表明\"全部删除，改成中性事实陈述；需要指出反常时放到讨论里并说明是反常。",
+      "check": {
+        "type": "forbidden",
+        "params": {
+          "patterns": [
+            "(?:surprisingly|unexpectedly|amazingly|remarkably|astonishingly|interestingly)",
+            "(?:令人惊讶|出人意料|出乎意料|出人意料的是|令人震惊|这似乎表明|似乎表明|似乎可以)"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "results",
+        "tone",
+        "objectivity"
+      ],
+      "source": {
+        "file": "prompts/05-results.md",
+        "line": 12
+      }
+    },
+    {
+      "id": "W-RES-03",
+      "title": "Results 呈现顺序须与研究问题顺序一致",
+      "severity": "soft",
+      "sections": [
+        "results"
+      ],
+      "statement": "逻辑结构：检查结果的呈现顺序是否与研究问题或假设的提出顺序保持一致，确保逻辑清晰、便于读者跟随。",
+      "fix": "把 Results 的小节顺序改成与引言研究问题一一对应；并在每节开头用一句话点明它回答的是哪个问题。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "results",
+        "structure",
+        "logic"
+      ],
+      "source": {
+        "file": "prompts/05-results.md",
+        "line": 13
+      }
+    },
+    {
+      "id": "W-RES-04",
+      "title": "每个图表都必须在正文中被明确引用",
+      "severity": "hard",
+      "sections": [
+        "results"
+      ],
+      "statement": "确保文中对每个图、表均有明确引用（如「如图 1 所示」）。",
+      "fix": "逐图逐表核对正文引用；正文用面板级引用（\"(Fig. 2C and D)\"），不要笼统写\"Fig. 3\"。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "\\b(?:fig(?:ure)?|table)\\s*\\d+[A-Za-z]?",
+            "(?:如图|见图|如表|见表|图\\s*\\d|表\\s*\\d)"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "results",
+        "figure",
+        "cross-reference"
+      ],
+      "source": {
+        "file": "prompts/05-results.md",
+        "line": 14
+      }
+    },
+    {
+      "id": "W-RES-05",
+      "title": "图表类型须与数据类型匹配",
+      "severity": "soft",
+      "sections": [
+        "results",
+        "figures",
+        "tables"
+      ],
+      "statement": "图表类型检查：图表类型是否与数据类型匹配（如分类变量用柱状图、连续变量关系用散点图、趋势变化用折线图）。",
+      "fix": "把类型不匹配的图换掉：分类变量改柱状/箱线，连续变量关系改散点，趋势改折线；并在图注写清坐标轴、图例、单位、缩写。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "results",
+        "figure",
+        "data-viz"
+      ],
+      "source": {
+        "file": "prompts/05-results.md",
+        "line": 15
+      }
+    },
+    {
+      "id": "W-RES-06",
+      "title": "Results 必须先给总量与采样密度",
+      "severity": "hard",
+      "sections": [
+        "results"
+      ],
+      "statement": "🔴 Results 两条硬要求：① 先给总量与采样密度（\"The 23 species and 7 genera BF were identified in the 245 samples of the core PC-7R.\"）；② 直接说某组不具信息量。",
+      "fix": "在 Results 开头（或每个数据小节开头）交代总量：多少类、多少样本/标本、来自多少个采样点，再展开分项数据。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "\\b\\d+\\s*(?:species|gen(?:era)?|individuals?|specimens?|taxa)\\b",
+            "\\b\\d+\\s*(?:samples?|cores?|sections?|levels?|slides?)\\b"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "results",
+        "data",
+        "evidence"
+      ],
+      "source": {
+        "file": "references/fulltext-reading-evidence.md",
+        "line": 78
+      }
+    },
+    {
+      "id": "W-RES-07",
+      "title": "对不具信息量的分组要直接说明",
+      "severity": "soft",
+      "sections": [
+        "results"
+      ],
+      "statement": "🔴 直接说某组不具信息量（\"Therefore, this group is not informative (Fig. 4).\"）。",
+      "fix": "对样本量过少或无变化规律的分组，直接写一句\"该组不具信息量（Fig. 4）\"并说明原因（样本太少 / 无变化），不要沉默略过。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "(?:is|are|was|were)\\s+not\\s+informative",
+            "(?:no|without)\\s+(?:clear|discernible|apparent)\\s+(?:signal|pattern|trend|variation)",
+            "(?:不具|没有|未显示)(?:信息量|明显|清晰)(?:的)?(?:变化|趋势|信号)"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "results",
+        "writing-craft",
+        "evidence"
+      ],
+      "source": {
+        "file": "references/fulltext-reading-evidence.md",
+        "line": 80
+      }
+    },
+    {
+      "id": "W-RES-08",
+      "title": "Results 几乎没有参考文献",
+      "severity": "hard",
+      "sections": [
+        "results"
+      ],
+      "statement": "Results 几乎没有引用（引文密度表：Results 行）。Results 里夹杂大量已发表的（带文献的）数据是错误。",
+      "fix": "把 Results 中的文献引用删到最少：只保留\"把自己数据与文献数据直接对比\"时被比较的那一篇。",
+      "check": {
+        "type": "citationDensity",
+        "params": {
+          "min": 0,
+          "max": 4
+        }
+      },
+      "tags": [
+        "results",
+        "citation",
+        "density"
+      ],
+      "source": {
+        "file": "references/AGENTS.md",
+        "line": 131
+      }
+    },
+    {
+      "id": "W-RES-09",
+      "title": "Results 不得写入机制解释",
+      "severity": "hard",
+      "sections": [
+        "results"
+      ],
+      "statement": "Results 里出现机制解释（\"这说明…\"）是错误的；那是 Discussion 的内容。",
+      "fix": "把 Results 中的机制推断整句移到 Discussion；Results 只保留观测、数据与必要的显著性说明。",
+      "check": {
+        "type": "forbidden",
+        "params": {
+          "patterns": [
+            "(?:this|these)\\s+(?:results?|data|findings?)\\s+(?:indicates?|suggests?|demonstrates?|explains?|means)\\s+that",
+            "(?:这|这些)(?:说明|表明|意味着)",
+            "(?:because|due to)\\s+(?:the|its)\\s+\\w+\\s+(?:content|level|concentration)"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "results",
+        "separation",
+        "discussion"
+      ],
+      "source": {
+        "file": "prompts/05-results.md",
+        "line": 45
+      }
+    },
+    {
+      "id": "W-RES-10",
+      "title": "Results 与 Discussion 的分离或合并须符合目标期刊",
+      "severity": "hard",
+      "sections": [
+        "results",
+        "discussion"
+      ],
+      "statement": "期刊差异（动笔前必须确认）：GCA — Results 与 Discussion 必须分离，各自独立编号；Results 只提供数据与观测，不讨论机制；ES&T — 合并为 Results and Discussion。",
+      "fix": "动笔前查目标刊稿约，确认 Results/Discussion 是否分离；分离时 Results 不写机制，合并时也不要写成长篇机制推演。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "results",
+        "discussion",
+        "journal-fit"
+      ],
+      "source": {
+        "file": "prompts/05-results.md",
+        "line": 35
+      },
+      "journals": [
+        "geochimica-et-cosmochimica-acta"
+      ]
+    },
+    {
+      "id": "W-RES-11",
+      "title": "Results 按产物/表征手段平行铺开，Discussion 按机理收拢",
+      "severity": "soft",
+      "sections": [
+        "results",
+        "discussion"
+      ],
+      "statement": "同一批结果，在两部分用不同坐标系重组：Results 按产物/表征手段平行铺开（3.1 OH 产率 · 3.2 H₂O₂ 产率 …）；Discussion 按机理收拢（4.1 无氧氧化机理 · 4.2 有氧氧化机理）。",
+      "fix": "把 Results 的小标题改成按产物/表征手段命名；把 Discussion 的小标题改成按机理命名，不要两处用同一套标题。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "results",
+        "discussion",
+        "structure"
+      ],
+      "source": {
+        "file": "prompts/05-results.md",
+        "line": 28
+      }
+    },
+    {
+      "id": "W-RES-12",
+      "title": "结果陈述须让读者感到\"关键影响因素是什么\"",
+      "severity": "soft",
+      "sections": [
+        "results"
+      ],
+      "statement": "读完结果应让人感觉：这个实验条件确实有重要影响，且关键影响因素是什么——要引导读者跟着节奏走。",
+      "fix": "在每个数据小节末尾补一句点明该条件的关键性（\"产率对 pH 的敏感度远高于对温度的敏感度\"），把描述提升为引导。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "(?:the (?:strongest|largest|main|dominant|key) (?:effect|influence|control|factor|driver)|关键(?:因素|影响)|主导(?:因素|作用)|最主要(?:的)?影响)"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "results",
+        "writing-craft"
+      ],
+      "source": {
+        "file": "references/论文写作方法论骨架.md",
+        "line": 238
+      }
+    },
+    {
+      "id": "W-RES-13",
+      "title": "结果段可以嵌入反常发现为讨论埋伏笔",
+      "severity": "info",
+      "sections": [
+        "results"
+      ],
+      "statement": "结果段里嵌\"反常发现\"，为讨论埋伏笔（\"However, during … the ARs of … showed sharp increases, which were contrary to the drop in the AR of BF and productivity.\"）。",
+      "fix": "在结果中用 However 引出与预期相反的数据点，但只陈述现象不解释；解释留到 Discussion。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "results",
+        "writing-craft",
+        "evidence"
+      ],
+      "source": {
+        "file": "references/fulltext-reading-evidence.md",
+        "line": 84
+      }
+    },
+    {
+      "id": "W-RES-14",
+      "title": "引用文献数据做对比时只引被比较的那一篇",
+      "severity": "soft",
+      "sections": [
+        "results"
+      ],
+      "statement": "只有当你对比自己数据与文献数据时才引，且只引被比较的那篇。",
+      "fix": "把结果段的对比句收敛为：一句自述数据 + 一句与某篇文献的对照 + 该篇引用；其余文献引用移到 Discussion。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "results",
+        "citation"
+      ],
+      "source": {
+        "file": "prompts/05-results.md",
+        "line": 47
+      }
+    },
+    {
+      "id": "W-RES-15",
+      "title": "结果中的百分数必须落在 0–100 之间",
+      "severity": "soft",
+      "sections": [
+        "results",
+        "abstract"
+      ],
+      "statement": "实验描述是否清楚且能被读者重复、数据是否真实可靠；结果中的百分数不得越界或自相矛盾（0–100 之外即为失实）。",
+      "fix": "核对每一个百分数：越界（如 130%）或有前后矛盾（同一指标两个值）的，改成正确数值或改用原始量表示。",
+      "check": {
+        "type": "numeric",
+        "params": {
+          "pattern": "(?<![\\d.])(\\d+(?:\\.\\d+)?)(?![\\d.])\\s*%",
+          "min": 0,
+          "max": 100,
+          "flags": ""
+        }
+      },
+      "tags": [
+        "results",
+        "data",
+        "integrity"
+      ],
+      "source": {
+        "file": "prompts/10-reviewer-response.md",
+        "line": 76
+      }
+    },
+    {
+      "id": "W-DISC-01",
+      "title": "讨论必须走完六步框架",
+      "severity": "hard",
+      "sections": [
+        "discussion"
+      ],
+      "statement": "讨论必须走完 6 步框架（六步框架，缺一不可），含\"表明局限性\"：① 引言 ② 重述主要发现 ③ 解释结果 ④ 表明局限性 ⑤ 对以后研究的启示 ⑥ 结论。",
+      "fix": "按六步逐条核对 Discussion：缺哪一步补哪一步；每步用一个小标题或首句标明，便于读者跟随。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "discussion",
+        "structure"
+      ],
+      "source": {
+        "file": "references/AGENTS.md",
+        "line": 139
+      }
+    },
+    {
+      "id": "W-DISC-02",
+      "title": "讨论不得省略\"局限性\"一步",
+      "severity": "hard",
+      "sections": [
+        "discussion"
+      ],
+      "statement": "🔴 最常被跳过的是第 4 步「局限性」——但它恰恰是审稿人判断作者是否诚实的关键。局限必须说明对结果的潜在影响。",
+      "fix": "在 Discussion 中补一段局限性：写清限制是什么（仪器/样本/覆盖范围）+ 对结论的影响范围（哪些结论受影响、哪些不受影响）。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "(?:limitation|limitations|constrained by|restricted by)",
+            "(?:despite its advantages|has some limitations|也存在(?:一些)?局限)",
+            "(?:受限|局限)"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "discussion",
+        "limitation",
+        "integrity"
+      ],
+      "source": {
+        "file": "prompts/06-discussion.md",
+        "line": 35
+      }
+    },
+    {
+      "id": "W-DISC-03",
+      "title": "讨论每段 5–8 句：主题句 + 3–4 句带引用 + 2–3 句自己数据",
+      "severity": "hard",
+      "sections": [
+        "discussion"
+      ],
+      "statement": "🔴 引文密度：Discussion 每段 5–8 句 = topic sentence（1 句）+ 有文献标注的句子（3–4 句）+ 有自己数据支撑的句子（2–3 句）。",
+      "fix": "把讨论段落拆成三段功能：段首一句点题 → 中间 3–4 句与文献对话（每句挂引用）→ 末 2–3 句回扣自己的数据。",
+      "check": {
+        "type": "count",
+        "params": {
+          "pattern": "[.!?。！？]",
+          "min": 5,
+          "max": 8,
+          "flags": ""
+        }
+      },
+      "tags": [
+        "discussion",
+        "citation",
+        "paragraph"
+      ],
+      "source": {
+        "file": "prompts/06-discussion.md",
+        "line": 42
+      }
+    },
+    {
+      "id": "W-DISC-04",
+      "title": "讨论的引文密度必须高",
+      "severity": "hard",
+      "sections": [
+        "discussion"
+      ],
+      "statement": "引文密度（引文密度表：Discussion 行）：每段 5–8 句 = topic sentence + 3–4 句带引用 + 2–3 句自己数据；整段没有任何参考文献是错误。",
+      "fix": "逐段检查讨论：任何一整段没有引用，就把其中与他人成果有关的句子补上引用，或把该段改写成自己数据段。",
+      "check": {
+        "type": "citationDensity",
+        "params": {
+          "min": 10,
+          "max": 50
+        }
+      },
+      "tags": [
+        "discussion",
+        "citation",
+        "density"
+      ],
+      "source": {
+        "file": "references/AGENTS.md",
+        "line": 132
+      }
+    },
+    {
+      "id": "W-DISC-05",
+      "title": "讨论段落必须有自己的数据支撑",
+      "severity": "soft",
+      "sections": [
+        "discussion"
+      ],
+      "statement": "整段没有自己数据实验、全是参考内容 → 写成了 review，不是 discussion。",
+      "fix": "给每个只讲他人工作的段落补 1–3 句自己的数据（数值 + 图号），或把纯文献段落移回文献综述。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "(?:fig\\.|figure\\s*\\d|table\\s*\\d|图\\s*\\d|表\\s*\\d)",
+            "\\d+(?:\\.\\d+)?\\s*(?:%|mg|mL|µm|μm|mm|cm|km|°C|Ma|ka)"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "discussion",
+        "writing-craft"
+      ],
+      "source": {
+        "file": "prompts/06-discussion.md",
+        "line": 50
+      }
+    },
+    {
+      "id": "W-DISC-06",
+      "title": "讨论须显式写出一致或矛盾",
+      "severity": "soft",
+      "sections": [
+        "discussion"
+      ],
+      "statement": "🔴 \"consistent with … but contradicts …\" 是本领域讨论的标准句式，把分歧显性化，而不是和稀泥。",
+      "fix": "把\"与前人相符\"这类模糊表述改成显式句式：\"consistent with X (2020) but contradicts Y (2021) because …\"。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "(?:consistent with|in agreement with|in contrast (?:to|with)|differs? from|contradicts?|disagrees? with)"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "discussion",
+        "comparison",
+        "evidence"
+      ],
+      "source": {
+        "file": "references/fulltext-reading-evidence.md",
+        "line": 96
+      }
+    },
+    {
+      "id": "W-DISC-07",
+      "title": "不确定的归因用 likely due to，不用断言",
+      "severity": "soft",
+      "sections": [
+        "discussion"
+      ],
+      "statement": "不确定性用 \"likely due to\" 而非断言；关键句式：\"consistent with ... but contradicts ...\"；不确定用 \"likely due to\"。",
+      "fix": "把\"这是由于…造成的\"改为\"这很可能源于…\"或\"可能与…有关\"；把确定语气降一档但保留具体原因。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "(?:likely|probably|presumably) (?:due to|because of|resulting from|attributable to)",
+            "(?:可能|也许|大概)(?:是|由于|源于|因为)"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "discussion",
+        "hedging",
+        "evidence"
+      ],
+      "source": {
+        "file": "references/fulltext-reading-evidence.md",
+        "line": 110
+      }
+    },
+    {
+      "id": "W-DISC-08",
+      "title": "机制归因用 rather than 做排除",
+      "severity": "soft",
+      "sections": [
+        "discussion",
+        "conclusion"
+      ],
+      "statement": "机制归因用 \"rather than\" 做排除（\"… was mostly supported by … rather than from …\"）。",
+      "fix": "给出主机制时补一个被排除的候选机制，用 rather than 写明；被排除机制也要给依据。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "rather than"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "discussion",
+        "mechanism",
+        "evidence"
+      ],
+      "source": {
+        "file": "references/fulltext-reading-evidence.md",
+        "line": 106
+      }
+    },
+    {
+      "id": "W-DISC-09",
+      "title": "讨论须给出环境或地学意义",
+      "severity": "soft",
+      "sections": [
+        "discussion"
+      ],
+      "statement": "前言 + 方法 + 结果讨论写完后，读者知道\"做了什么、解决了什么问题\"，但意犹未尽——知道了这些有什么用？这一节回答它，常作为 Discussion 的独立小节（如 4.3 Environmental significance / 4.3 Geological implications）。",
+      "fix": "在 Discussion 末尾加一节\"环境/地学意义\"，写清本文结果对区域环境演变或资源评价意味着什么。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "(?:environmental|geological|implications?|significance|意义|启示|应用前景)"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "discussion",
+        "significance"
+      ],
+      "source": {
+        "file": "prompts/06-discussion.md",
+        "line": 85
+      }
+    },
+    {
+      "id": "W-DISC-10",
+      "title": "推论与证据之间必须显式焊合",
+      "severity": "soft",
+      "sections": [
+        "discussion"
+      ],
+      "statement": "🔴 推论与证据之间是 \"Because …, we propose that …\" 的显式焊合；讨论主体为逐项对照 + 显式焊合证据与推论。",
+      "fix": "每个推论句前补一句依据（Because / Given that / As shown in Fig. X），再给推论（we propose that / we infer that）。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "because[^.]{0,160}(?:we (?:propose|suggest|argue|infer|conclude)|we therefore)",
+            "(?:因此|由于)[^。]{0,80}(?:我们)?(?:提出|认为|推断|主张)"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "discussion",
+        "logic",
+        "evidence"
+      ],
+      "source": {
+        "file": "references/micropaleo-paper-patterns.md",
+        "line": 509
+      }
+    },
+    {
+      "id": "W-DISC-11",
+      "title": "讨论应为逐项对照，而不是逐条罗列文献",
+      "severity": "soft",
+      "sections": [
+        "discussion"
+      ],
+      "statement": "🔴 写法模板：把本文的组合按形态类型 / 属种逐项列出，逐项对应已有组合，最后用\"只差 X\"收口。这是本领域讨论与通用 SCI 模板最大的差别。",
+      "fix": "把讨论段落改成\"本文项 → 前人项 → 异同 → 差异归因\"的逐项对照，而不是\"某某 (年) 发现了…；另一些作者 (年) 认为…\"的流水账。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "(?:compared? (?:with|to)|in comparison (?:with|to)|相似|相比|不同于)",
+            "(?:only differ|only differs|差异仅|只差)"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "discussion",
+        "structure",
+        "evidence"
+      ],
+      "source": {
+        "file": "references/micropaleo-paper-patterns.md",
+        "line": 415
+      }
+    },
+    {
+      "id": "W-DISC-12",
+      "title": "讨论收尾不得写成\"未来展望\"",
+      "severity": "soft",
+      "sections": [
+        "discussion"
+      ],
+      "statement": "🔴 八种收尾没有一种是\"未来展望 / future research will…\"——本领域讨论段的尾声是限定、归因、推测、地质陈述或方法自陈。",
+      "fix": "把\"未来需要更多研究\"式收尾换成限定或归因收口（让步限定 / 需要进一步研究 / 归因 / 审慎推测 / 地层陈述 / 否定限定 / 结论重述 / 方法缺陷自陈）。",
+      "check": {
+        "type": "forbidden",
+        "params": {
+          "patterns": [
+            "(?:future (?:research|studies|work|efforts?) (?:will|should|could)|it is hoped that [^.]{0,60}future)",
+            "(?:未来(?:将|会|有望|还需|需要)|今后(?:将|会|需要))"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "discussion",
+        "ending",
+        "evidence"
+      ],
+      "source": {
+        "file": "references/micropaleo-paper-patterns.md",
+        "line": 431
+      }
+    },
+    {
+      "id": "W-DISC-13",
+      "title": "以\"仍未决\"收尾时必须指名缺哪类数据",
+      "severity": "soft",
+      "sections": [
+        "discussion"
+      ],
+      "statement": "🔴 第 ④ 步是硬要求：说清\"还缺哪类数据\"，不要只写\"有待进一步研究\"。",
+      "fix": "把\"有待进一步研究\"改成\"还缺 X 类数据（如浮游与沉积物陷阱数据）才能厘清该问题\"。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "(?:more (?:information|data|research|samples?)[^.]{0,60}(?:needed|required|are needed|is needed))",
+            "(?:remain(?:s)?|is|are) (?:unknown|unresolved|unclear|still)",
+            "(?:仍|尚)(?:未|不)(?:解决|清楚|明确)"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "discussion",
+        "ending",
+        "specificity"
+      ],
+      "source": {
+        "file": "references/micropaleo-paper-patterns.md",
+        "line": 446
+      }
+    },
+    {
+      "id": "W-DISC-14",
+      "title": "讨论须凝练 1–3 个理论贡献",
+      "severity": "soft",
+      "sections": [
+        "discussion"
+      ],
+      "statement": "理论贡献：基于研究发现，帮助我凝练出 1-3 个清晰、具体的理论贡献（新的概念框架？修正现有理论？揭示新的因果关系？）。",
+      "fix": "在讨论末尾用 1–3 句显式写出理论贡献，每条对应一个具体发现（\"The decoupled Fe(II)/NO3- cycling implies …\"）。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "(?:we (?:propose|present|introduce|put forward)|we introduce|conceptual framework|theoretical contribution|我们(?:提出|构建|引入))"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "discussion",
+        "contribution"
+      ],
+      "source": {
+        "file": "prompts/06-discussion.md",
+        "line": 15
+      }
+    },
+    {
+      "id": "W-DISC-15",
+      "title": "讨论须给出具体可操作的实践建议",
+      "severity": "soft",
+      "sections": [
+        "discussion"
+      ],
+      "statement": "实践启示：思考并提出本研究发现对相关领域（如工业界、政策制定、临床实践等）可能产生的具体、可操作的建议。",
+      "fix": "把\"具有重要意义\"式空话换成可执行建议：说明谁在什么场景下该改变什么做法。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "(?:should be (?:adopted|enforced|monitored|implemented|considered)|recommend|policy|practitioners?|建议|应当(?:加强|实施|采取措施))"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "discussion",
+        "implication"
+      ],
+      "source": {
+        "file": "prompts/06-discussion.md",
+        "line": 16
+      }
+    },
+    {
+      "id": "W-DISC-16",
+      "title": "局限必须落到数据或对象本身，而不是\"模型不够强\"",
+      "severity": "hard",
+      "sections": [
+        "discussion"
+      ],
+      "statement": "🔴 本批的局限写法有一个共同点：局限一律指向「数据/对象本身」而非「模型不够强」——标本残缺、纹理破坏、类别不平衡、寿命期形态差异、视角差异。",
+      "fix": "把\"模型精度有限\"这类自陈改写成对象层面的限制（标本残缺、纹理破坏、类别不平衡、形态变异），并说明它对哪些结论有影响。",
+      "check": {
+        "type": "forbidden",
+        "params": {
+          "patterns": [
+            "(?:the )?(?:model|algorithm|classifier) is not (?:robust|accurate|good enough|powerful)",
+            "(?:模型|算法|分类器)(?:本身)?(?:还)?(?:不够|不足|不够强|不够好|能力有限)",
+            "(?:由于|受限于)(?:样本量|数据量)(?:较少|不足|有限)[^。]{0,20}(?:模型|精度|性能)"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "discussion",
+        "limitation",
+        "ai-ml"
+      ],
+      "source": {
+        "file": "references/ai-ml-paper-patterns.md",
+        "line": 272
+      }
+    },
+    {
+      "id": "W-DISC-17",
+      "title": "失败案例与误差须归因到对象本身",
+      "severity": "soft",
+      "sections": [
+        "discussion"
+      ],
+      "statement": "🔴 误差归因必须落到化石保存状态/形态变异上，而不是\"模型能力不足\"（\"… were rarely seen and mostly occurred in poor-preserved fossils.\"）。",
+      "fix": "给每个误分类/失败案例配一条归因说明（保存状态、形态变异、视角差异），并指出这类样本在数据中的比例。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "(?:poor[- ]preserv|fracture|damag|incomplete|deform|保存|残缺|破碎|纹理|形态变异)"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "discussion",
+        "error-analysis",
+        "ai-ml"
+      ],
+      "source": {
+        "file": "references/ai-ml-paper-patterns.md",
+        "line": 388
+      }
+    },
+    {
+      "id": "W-DISC-18",
+      "title": "无独立 Discussion 时必须明确讨论的落位",
+      "severity": "info",
+      "sections": [
+        "discussion",
+        "methods",
+        "results"
+      ],
+      "statement": "无 Discussion 时讨论的去处（10 篇里 9 篇无独立 Discussion）：装进 METHODS / 嵌在引言 / 嵌在 Results / 用类群块的 Comparison / Remarks 承担；\"没有 Discussion 标题\"不等于\"没有讨论内容\"。",
+      "fix": "先判断本文属于哪一种骨架；若不设 Discussion 段，明确把讨论内容放进相应容器（Methods 内的分节、Results 末段或类群块 Remarks），不要让它无处可寻。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "discussion",
+        "structure",
+        "evidence"
+      ],
+      "source": {
+        "file": "references/fulltext-reading-evidence.md",
+        "line": 575
+      }
+    },
+    {
+      "id": "W-CONC-01",
+      "title": "结论必须包含总结、亮点、局限性、未来方向",
+      "severity": "hard",
+      "sections": [
+        "conclusion"
+      ],
+      "statement": "结论四要素 = 总结 + 亮点 + 局限性 + 未来方向（缺一不可），且不引入新信息。",
+      "fix": "按 总结要点与创新点 → 理论/实际意义 → 局限性与未解问题 → 今后研究方向 四块重写结论，每块 1–3 句。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "(?:we (?:found|show|demonstrate|conclude)|we found that|the results show)",
+            "(?:limitation|局限|限制)",
+            "(?:further (?:research|work|studies) should|future (?:research|work|studies) should|今后(?:应当|应该|需要))"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "conclusion",
+        "structure"
+      ],
+      "source": {
+        "file": "references/AGENTS.md",
+        "line": 140
+      }
+    },
+    {
+      "id": "W-CONC-02",
+      "title": "结论不得引入新信息",
+      "severity": "hard",
+      "sections": [
+        "conclusion"
+      ],
+      "statement": "避免引入新信息：检查结论是否引入了前文未曾提及的新概念、新数据或新论点。结论应是对全文的收束，而非新的起点。",
+      "fix": "把结论中新出现的概念、数据、文献移到结果或讨论；结论只做收束与升华。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "conclusion",
+        "integrity"
+      ],
+      "source": {
+        "file": "prompts/07-conclusion.md",
+        "line": 14
+      }
+    },
+    {
+      "id": "W-CONC-03",
+      "title": "结论不得重复引言背景",
+      "severity": "hard",
+      "sections": [
+        "conclusion"
+      ],
+      "statement": "Summarise your overall findings ✅；Repeat background information from the Introduction ❌；未重复引言背景。",
+      "fix": "把结论首句从\"某某问题一直是研究热点\"改成直接复述本研究做了什么与发现了什么；背景内容不再重述。",
+      "check": {
+        "type": "forbidden",
+        "params": {
+          "patterns": [
+            "(?:is widely known|has attracted widespread attention|has been widely studied|remains? a hot (?:research )?topic)",
+            "(?:是(?:一个|个)?(?:长期|广泛)(?:的)?(?:研究)?热点|受到(?:了)?(?:广泛|极大)的关注)"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "conclusion",
+        "redundancy"
+      ],
+      "source": {
+        "file": "prompts/07-conclusion.md",
+        "line": 26
+      }
+    },
+    {
+      "id": "W-CONC-04",
+      "title": "结论不得下数据不支持的结论",
+      "severity": "hard",
+      "sections": [
+        "conclusion"
+      ],
+      "statement": "Draw conclusions that are not supported by your data ❌；未下数据不支持的结论。",
+      "fix": "逐句核对结论中的每个断言是否在结果中有对应数据；没有对应的，改成有数据支撑的表述或删掉。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "conclusion",
+        "integrity"
+      ],
+      "source": {
+        "file": "references/checklist.md",
+        "line": 87
+      }
+    },
+    {
+      "id": "W-CONC-05",
+      "title": "结论须以有力的一句收尾",
+      "severity": "soft",
+      "sections": [
+        "conclusion"
+      ],
+      "statement": "End with a strong, final sentence ✅；以有力的一句收尾。",
+      "fix": "在结论末句写一句凝练的判断句（一句，含具体对象与认识），不要以\"还需要更多研究\"或半句结束。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "conclusion",
+        "writing-craft"
+      ],
+      "source": {
+        "file": "references/论文写作方法论骨架.md",
+        "line": 301
+      }
+    },
+    {
+      "id": "W-CONC-06",
+      "title": "局限性用 First… Second… Further research should… 句式列出",
+      "severity": "soft",
+      "sections": [
+        "conclusion",
+        "discussion"
+      ],
+      "statement": "局限性用了 \"First… Second… Further research should…\" 句式；可套用骨架：`尽管有优势，方法仍有局限：First… Second… Further research should focus on…`。",
+      "fix": "把散在的局限性改写成编号段：先一句转折，再 First / Second 逐条列出，最后一句 Further research should focus on…。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "\\bfirst\\b",
+            "\\bsecond\\b",
+            "(?:further research should|future (?:research|work) should|今后(?:应|应)该)"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "conclusion",
+        "limitation",
+        "template"
+      ],
+      "source": {
+        "file": "references/checklist.md",
+        "line": 83
+      }
+    },
+    {
+      "id": "W-CONC-07",
+      "title": "结论段不应出现引用",
+      "severity": "hard",
+      "sections": [
+        "conclusion"
+      ],
+      "statement": "Abstract / Conclusion 不应出现引用（引文密度表：Conclusion 行）。结论里不得出现任何引文标记。",
+      "fix": "把结论里的引文标记删掉，改成对结论负责的陈述（必要时把被引文献的作者与年份写进句子本身并去掉括号标记，或整句移到讨论）。",
+      "check": {
+        "type": "citationDensity",
+        "params": {
+          "min": 0,
+          "max": 0
+        }
+      },
+      "tags": [
+        "conclusion",
+        "citation"
+      ],
+      "source": {
+        "file": "references/AGENTS.md",
+        "line": 133
+      }
+    },
+    {
+      "id": "W-CONC-08",
+      "title": "结论段推荐 1–2 个段落",
+      "severity": "soft",
+      "sections": [
+        "conclusion"
+      ],
+      "statement": "推荐 1–2 个段落，简短地介绍全文中最重要的结论。",
+      "fix": "把过长结论压到 1–2 段：第 1 段写做了什么 + 主要发现与原理，第 2 段写影响与意义；细节回到讨论。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "conclusion",
+        "length"
+      ],
+      "source": {
+        "file": "prompts/07-conclusion.md",
+        "line": 59
+      }
+    },
+    {
+      "id": "W-CONC-09",
+      "title": "结论段可能不独立存在，动笔前先确认稿约",
+      "severity": "hard",
+      "sections": [
+        "conclusion"
+      ],
+      "statement": "🔴 期刊差异：结论段可能不独立存在。ES&T ❌ \"A separate conclusion is not to be used\"——concluding statements 并入 Results and Discussion；GCA 允许。动笔前先确认目标期刊的稿约。",
+      "fix": "查目标刊稿约确认有无独立结论段；若没有，把结论性陈述并入 Results and Discussion 的末节，并保证仍含局限性。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "conclusion",
+        "journal-fit"
+      ],
+      "source": {
+        "file": "prompts/07-conclusion.md",
+        "line": 50
+      },
+      "journals": [
+        "environmental-science-and-technology"
+      ]
+    },
+    {
+      "id": "W-CONC-10",
+      "title": "结论末尾应留下明确的开放问题",
+      "severity": "soft",
+      "sections": [
+        "conclusion"
+      ],
+      "statement": "末尾留明确的开放问题（\"… they present an important subject for further high-resolution investigation.\"）。",
+      "fix": "在结论末段点名一个具体的未决问题及其证据来源，而不是泛泛说\"需要进一步研究\"。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "(?:may|might) (?:lie|lay) in",
+            "(?:subject|matter) for further",
+            "(?:remains?|is) an (?:open|important) (?:question|issue|topic|matter)",
+            "(?:open question|remains to be (?:clarified|resolved|investigated))"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "conclusion",
+        "ending",
+        "evidence"
+      ],
+      "source": {
+        "file": "references/fulltext-reading-evidence.md",
+        "line": 116
+      }
+    },
+    {
+      "id": "W-CONC-11",
+      "title": "方法类论文结论必须写明适用边界",
+      "severity": "hard",
+      "sections": [
+        "conclusion"
+      ],
+      "statement": "🔴 结论里必须写「适用边界」——这在描述类论文里不存在。「不是所有任务都适合用 AI」这句话在本批论文里反复出现，是领域共识。",
+      "fix": "在结论中加一段\"什么时候不该用这个方法\"：写明在什么数据条件或科学目标下本方法会失效或需谨慎，并给出警示句。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "should be used with caution",
+            "(?:is|are) not (?:suitable|recommended|appropriate|recommended) (?:for|when|to)",
+            "(?:不适用于|慎用|需谨慎使用|不建议)"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "conclusion",
+        "ai-ml",
+        "applicability"
+      ],
+      "source": {
+        "file": "references/ai-ml-paper-patterns.md",
+        "line": 411
+      }
+    },
+    {
+      "id": "W-CONC-12",
+      "title": "引言提编号问题，结论须按同编号逐条回答",
+      "severity": "soft",
+      "sections": [
+        "introduction",
+        "conclusion"
+      ],
+      "statement": "🔴 引言末尾用编号问句列研究问题，结论段再按同样的编号逐条回答；编号要一致、顺序要一致、动词形态要镜像（Can → can）。",
+      "fix": "在结论中按引言的编号顺序逐条回答，每条用同一动词形态改写问句为陈述句；引言与结论的编号必须一一对应。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "conclusion",
+        "logic",
+        "evidence"
+      ],
+      "source": {
+        "file": "references/micropaleo-paper-patterns.md",
+        "line": 493
+      }
+    },
+    {
+      "id": "W-CONC-13",
+      "title": "结论不得草率收尾",
+      "severity": "soft",
+      "sections": [
+        "conclusion"
+      ],
+      "statement": "Be abrupt and leave a reader hanging ❌；未重复引言背景、未引入新论点或新证据。",
+      "fix": "删掉仓促结尾，补一句完整的收束句；检查结论末句是否独立成立、是否与研究问题呼应。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "conclusion",
+        "writing-craft"
+      ],
+      "source": {
+        "file": "references/checklist.md",
+        "line": 85
+      }
+    },
+    {
+      "id": "W-CONC-14",
+      "title": "中文结论可写成编号清单式",
+      "severity": "info",
+      "sections": [
+        "conclusion"
+      ],
+      "statement": "中文结论可写成三条编号句，每条一句、关键词在句首（\"… are divisible lithologically into two units…\"）；结论有两种形态：连续散文式 vs 编号清单式。",
+      "fix": "中文稿可把结论写成 3 条编号句，每条只讲一件事并把关键词放在句首；不要写成三行流水账。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "conclusion",
+        "chinese",
+        "evidence"
+      ],
+      "source": {
+        "file": "references/micropaleo-paper-patterns.md",
+        "line": 494
+      }
+    },
+    {
+      "id": "W-DEAI-01",
+      "title": "去 AI 化必须在正文全部定稿后进行",
+      "severity": "hard",
+      "sections": [
+        "introduction",
+        "methods",
+        "results",
+        "discussion",
+        "conclusion"
+      ],
+      "statement": "🔴 必须在前 7 章全部定稿后再使用。这是最后一步，不分章节。",
+      "fix": "把去 AI 化放到全文定稿之后整体执行；不要边写正文边做去 AI 化，否则后续改动会让已润色的段落重新变味。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "deai",
+        "workflow"
+      ],
+      "source": {
+        "file": "prompts/08-deai-polish.md",
+        "line": 7
+      }
+    },
+    {
+      "id": "W-DEAI-02",
+      "title": "去 AI 化不得改动数据、单位、图表编号",
+      "severity": "hard",
+      "sections": [
+        "introduction",
+        "methods",
+        "results",
+        "discussion",
+        "conclusion"
+      ],
+      "statement": "红线：改动数据、单位、图表编号 = 学术不端。",
+      "fix": "润色时锁定所有数字、单位、图号表号；对每个改动做前后对照，确认没有触碰任何数据。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "deai",
+        "integrity",
+        "red-line"
+      ],
+      "source": {
+        "file": "prompts/08-deai-polish.md",
+        "line": 45
+      }
+    },
+    {
+      "id": "W-DEAI-03",
+      "title": "去 AI 化不得把\"结论 A\"改成\"结论 B\"",
+      "severity": "hard",
+      "sections": [
+        "introduction",
+        "methods",
+        "results",
+        "discussion",
+        "conclusion"
+      ],
+      "statement": "红线：把\"结论 A\"改成\"结论 B\" = 改变科学主张。",
+      "fix": "润色只改表达不改主张；遇到语气需要加强的结论，只调整措辞强度，不改变命题本身。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "deai",
+        "integrity",
+        "red-line"
+      ],
+      "source": {
+        "file": "references/AGENTS.md",
+        "line": 113
+      }
+    },
+    {
+      "id": "W-DEAI-04",
+      "title": "不得加入未经证实的推测并写成事实",
+      "severity": "hard",
+      "sections": [
+        "introduction",
+        "methods",
+        "results",
+        "discussion",
+        "conclusion"
+      ],
+      "statement": "红线：加入未经证实的推测并写成事实 = 学术不端。",
+      "fix": "凡新增的推断都要加上不确定标记（likely / 可能 / suggest），或补上支撑证据；不得以陈述句写未经证实的推测。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "deai",
+        "integrity",
+        "red-line"
+      ],
+      "source": {
+        "file": "references/AGENTS.md",
+        "line": 114
+      }
+    },
+    {
+      "id": "W-DEAI-05",
+      "title": "不得为降低重复率而删掉关键引用",
+      "severity": "hard",
+      "sections": [
+        "introduction",
+        "methods",
+        "results",
+        "discussion"
+      ],
+      "statement": "红线：为降低重复率而删掉关键引用 = 知而不引，学术不端。",
+      "fix": "核对润色前后参考文献清单与正文引用位置；被删的引用若指向关键前人成果，必须恢复。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "deai",
+        "citation",
+        "red-line"
+      ],
+      "source": {
+        "file": "references/AGENTS.md",
+        "line": 115
+      }
+    },
+    {
+      "id": "W-DEAI-06",
+      "title": "禁止机械式逻辑连接词",
+      "severity": "soft",
+      "sections": [
+        "introduction",
+        "methods",
+        "results",
+        "discussion",
+        "conclusion"
+      ],
+      "statement": "机械连接（AI 高频词黑名单）：首先、其次、最后、总之、综上所述、应该注意的是。",
+      "fix": "删掉这些连接词，改用逻辑自然过渡：靠句子之间的因果、递进关系衔接；确需标示顺序时用\"在此基础上\"\"与之相对\"等更具体的表述。",
+      "check": {
+        "type": "forbidden",
+        "params": {
+          "patterns": [
+            "(?:首先|其次|最后|总之|综上所述|应该注意的是)",
+            "(?:first(?:ly)?|second(?:ly)?|finally|in conclusion|in summary|to sum up)"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "deai",
+        "connector",
+        "blacklist"
+      ],
+      "source": {
+        "file": "prompts/08-deai-polish.md",
+        "line": 32
+      }
+    },
+    {
+      "id": "W-DEAI-07",
+      "title": "禁止绝对化 AI 高频词",
+      "severity": "soft",
+      "sections": [
+        "introduction",
+        "methods",
+        "results",
+        "discussion",
+        "conclusion"
+      ],
+      "statement": "绝对化（AI 高频词黑名单）：值得注意的是、毫无疑问、一般来说、显而易见。",
+      "fix": "把绝对化词改成审慎的学术判断：\"值得注意的是\"→ 直接陈述该事实；\"一般来说\"→ 给出本研究的适用范围；\"显而易见\"→ 删掉。",
+      "check": {
+        "type": "forbidden",
+        "params": {
+          "patterns": [
+            "(?:值得注意的是|毫无疑问|一般来说|显而易见|众所周知|不用说|不难看出)",
+            "(?:it is worth noting that|undoubtedly|without doubt|it goes without saying|obviously|as is well known|in general)"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "deai",
+        "absolute-language",
+        "blacklist"
+      ],
+      "source": {
+        "file": "prompts/08-deai-polish.md",
+        "line": 33
+      }
+    },
+    {
+      "id": "W-DEAI-08",
+      "title": "禁止空泛评价",
+      "severity": "soft",
+      "sections": [
+        "introduction",
+        "results",
+        "discussion",
+        "conclusion"
+      ],
+      "statement": "空泛评价（AI 高频词黑名单）：惊人地发现、出乎意料的是、这似乎表明。",
+      "fix": "把空泛评价替换为可核查的陈述：\"令人惊讶\"→ 给出具体数值与对比基准；\"这似乎表明\"→ 明确结论并给出依据或改到讨论中加限定。",
+      "check": {
+        "type": "forbidden",
+        "params": {
+          "patterns": [
+            "(?:惊人地发现|出人意料|出乎意料的是|令人震惊|这似乎表明|似乎表明)",
+            "(?:amazingly|surprisingly|remarkably|it seems that|it appears that)"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "deai",
+        "evaluation",
+        "blacklist"
+      ],
+      "source": {
+        "file": "prompts/08-deai-polish.md",
+        "line": 34
+      }
+    },
+    {
+      "id": "W-DEAI-09",
+      "title": "禁止套话式开头与空洞意义句",
+      "severity": "soft",
+      "sections": [
+        "introduction",
+        "discussion",
+        "conclusion"
+      ],
+      "statement": "套话（AI 高频词黑名单）：在当今社会、随着科技的不断发展、具有重要的现实意义。",
+      "fix": "删掉这类套话；把\"具有重要的现实意义\"改成具体的意义陈述（对哪个领域/哪个决策产生什么影响）。",
+      "check": {
+        "type": "forbidden",
+        "params": {
+          "patterns": [
+            "(?:在当今社会|随着(?:科学|科技|技术)(?:的)?不断发展|具有重要的现实意义)",
+            "(?:in today's society|with the rapid development of|has important practical significance|plays an increasingly important role)"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "deai",
+        "cliche",
+        "blacklist"
+      ],
+      "source": {
+        "file": "prompts/08-deai-polish.md",
+        "line": 35
+      }
+    },
+    {
+      "id": "W-DEAI-10",
+      "title": "避免过度元话语",
+      "severity": "soft",
+      "sections": [
+        "introduction",
+        "methods",
+        "results",
+        "discussion",
+        "conclusion"
+      ],
+      "statement": "避免过度元话语（本文将…／我们可以看到…／不难发现…）——用具体内容代替对写作行为的描述；结构调整：打破模板痕迹，让逻辑自然流动。",
+      "fix": "把\"本文将讨论…\"\"我们可以看到…\"\"不难发现…\"直接改成陈述内容本身（\"X 组产率提高 23%\"），或把部分陈述句改为设问句增强对话感。",
+      "check": {
+        "type": "forbidden",
+        "params": {
+          "patterns": [
+            "(?:本文将|本文首先|本文主要|我们可以看到|我们注意到|不难发现|可以看出|需要指出的是|需要强调的是)",
+            "(?:it should be noted that|needless to say|as can be seen|we can see that|it is worth noting that|in this paper,? we will)"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "deai",
+        "meta-discourse",
+        "blacklist"
+      ],
+      "source": {
+        "file": "prompts/08-deai-polish.md",
+        "line": 19
+      }
+    },
+    {
+      "id": "W-DEAI-11",
+      "title": "避免老套比喻",
+      "severity": "soft",
+      "sections": [
+        "introduction",
+        "discussion",
+        "conclusion"
+      ],
+      "statement": "可加入审慎的个人判断或反思性表述，但不得改变核心结论或引入未经证实的推测。避免老套比喻。",
+      "fix": "删掉\"如同…一样\"\"是…的灯塔\"\"打开了大门\"一类比喻，改用具体的动作或数据描述同一件事。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "deai",
+        "metaphor",
+        "writing-craft"
+      ],
+      "source": {
+        "file": "prompts/08-deai-polish.md",
+        "line": 15
+      }
+    },
+    {
+      "id": "W-DEAI-12",
+      "title": "不得长句堆砌，长短句应交错",
+      "severity": "soft",
+      "sections": [
+        "introduction",
+        "methods",
+        "results",
+        "discussion",
+        "conclusion"
+      ],
+      "statement": "语态与句式：将被动语态转为主动语态，避免长句堆砌，长短句交错使用。",
+      "fix": "把超过 180 字符才出现句末标点的长句拆成 2–3 句；再把相邻的三个短句合并成一句，形成长短交错。",
+      "check": {
+        "type": "forbidden",
+        "params": {
+          "patterns": [
+            "[^.!?。！？\\n]{180,}"
+          ],
+          "flags": ""
+        }
+      },
+      "tags": [
+        "deai",
+        "sentence",
+        "readability"
+      ],
+      "source": {
+        "file": "prompts/08-deai-polish.md",
+        "line": 14
+      }
+    },
+    {
+      "id": "W-DEAI-13",
+      "title": "参考文献区不做去 AI 化",
+      "severity": "hard",
+      "sections": [
+        "references"
+      ],
+      "statement": "🔴 参考文献是机器可读的规范条目，不要改写、不要换格式、不要调整顺序（除非换投期刊）。去 AI 化只针对正文。",
+      "fix": "把去 AI 化的范围限定在正文；对参考文献区只做格式核对（标点、大小写、DOI），不改写条目内容。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "deai",
+        "references",
+        "red-line"
+      ],
+      "source": {
+        "file": "prompts/08-deai-polish.md",
+        "line": 60
+      }
+    },
+    {
+      "id": "W-DEAI-14",
+      "title": "去 AI 化的目标是像人写且信息密度高，不是过检测",
+      "severity": "info",
+      "sections": [
+        "introduction",
+        "methods",
+        "results",
+        "discussion",
+        "conclusion"
+      ],
+      "statement": "多数期刊的相似度检测只看正文，且 AI 检测器本身误判率高。不要把\"过检测\"当作写作目标——目标是\"读起来像人写的、且信息密度高\"。",
+      "fix": "把去 AI 化的验收标准定为：具体名词与动词替代抽象名词堆砌、每句都有信息、句长有变化；不要以检测分数为验收指标。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "deai",
+        "goal"
+      ],
+      "source": {
+        "file": "prompts/08-deai-polish.md",
+        "line": 66
+      }
+    },
+    {
+      "id": "W-DEAI-15",
+      "title": "不得把被动句一律改成主动句",
+      "severity": "soft",
+      "sections": [
+        "abstract",
+        "introduction",
+        "methods",
+        "results"
+      ],
+      "statement": "本领域摘要口径 = 现在时 95% + 被动 87% + \"we\" 仅 18%——与通用\"避免被动\"建议相反，别把被动句都改成主动。",
+      "fix": "保留陈述客观结果所需的被动句；只把确实指向施事者、且主动更清楚的句子改成主动（\"we measured …\"）。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "\\b(?:was|were|is|are|be|been|being)\\s+[a-z]+(?:ed|en)\\b"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "deai",
+        "voice",
+        "evidence"
+      ],
+      "source": {
+        "file": "prompts/08-deai-polish.md",
+        "line": 4
+      }
+    },
+    {
+      "id": "W-DEAI-16",
+      "title": "允许适度冗余与限定词",
+      "severity": "info",
+      "sections": [
+        "introduction",
+        "methods",
+        "results",
+        "discussion",
+        "conclusion"
+      ],
+      "statement": "适度冗余：在不影响核心信息的前提下，可插入少量口语化插入语（如\"说起来\"\"实际上\"）、限定词（如\"在多数情况下\"\"或许\"）或轻微语气词，使文本更接近真人写作的思维节奏。",
+      "fix": "在不影响事实的前提下，给绝对化表述加限定词（\"在多数样品中\"\"在本研究范围内\"），并允许一处自然的过渡插入语。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "deai",
+        "hedging",
+        "writing-craft"
+      ],
+      "source": {
+        "file": "prompts/08-deai-polish.md",
+        "line": 17
+      }
+    },
+    {
+      "id": "W-DEAI-17",
+      "title": "不得承诺保证通过 AI 检测",
+      "severity": "hard",
+      "sections": [
+        "introduction",
+        "methods",
+        "results",
+        "discussion",
+        "conclusion"
+      ],
+      "statement": "🔴 红线：不得承诺\"保证过 AI 检测\"；不得改动数据/单位/图表编号；不得把\"结论 A\"改成\"结论 B\"；不得为降重删掉关键引用；不得编造参考文献。",
+      "fix": "把任何\"保证过 AI 检测/保证降重到 X%\"的措辞改为\"按信息密度与可读性标准润色\"；不得在文中或回复中作出此类承诺。",
+      "check": {
+        "type": "forbidden",
+        "params": {
+          "patterns": [
+            "保证[^，。]{0,12}(?:通过|过)[^，。]{0,6}(?:检测|查重)",
+            "guarantee[^.]{0,30}pass[^.]{0,20}detection"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "deai",
+        "red-line",
+        "integrity"
+      ],
+      "source": {
+        "file": "references/AGENTS.md",
+        "line": 117
+      }
+    },
+    {
+      "id": "W-DEAI-18",
+      "title": "AI 使用声明按目标期刊要求处理",
+      "severity": "info",
+      "sections": [
+        "acknowledgements",
+        "declarations",
+        "cover-letter"
+      ],
+      "statement": "部分期刊（如 Elsevier 部分刊物）要求声明 AI 使用情况。若使用了 AI 辅助润色，按目标期刊要求在 Acknowledgements 或 Cover Letter 中说明。",
+      "fix": "查目标刊的 AI 政策；在 Acknowledgements 或 Cover Letter 中按其指定格式声明 AI 的使用范围。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "(?:\\bai\\b|artificial intelligence|generative|large language model|\\bllm\\b|chatgpt|人工智能|大模型)",
+            "(?:assist|used (?:to|in)|润色|辅助|使用)"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "deai",
+        "declarations"
+      ],
+      "source": {
+        "file": "prompts/08-deai-polish.md",
+        "line": 68
+      }
+    },
+    {
+      "id": "W-CRAFT-01",
+      "title": "全文段落以 5–8 句为合理单位",
+      "severity": "hard",
+      "sections": [
+        "introduction",
+        "methods",
+        "results",
+        "discussion",
+        "conclusion"
+      ],
+      "statement": "段落：5–8 句最合理。1–2 句话的段落是非常差的结构。换了对象主体就分段——一段集中讲清一个问题。",
+      "fix": "把全文的碎段（1–2 句）与相邻段合并，或把多主体段落按主体拆开，使每段落在 5–8 句。",
+      "check": {
+        "type": "count",
+        "params": {
+          "pattern": "[.!?。！？]",
+          "min": 5,
+          "max": 8,
+          "flags": ""
+        }
+      },
+      "tags": [
+        "paragraph",
+        "structure",
+        "writing-craft"
+      ],
+      "source": {
+        "file": "references/AGENTS.md",
+        "line": 138
+      }
+    },
+    {
+      "id": "W-CRAFT-02",
+      "title": "正文骨架必须遵循 IMRaD 顺序",
+      "severity": "hard",
+      "sections": [
+        "introduction",
+        "methods",
+        "results",
+        "discussion"
+      ],
+      "statement": "SCI 论文结构：Title / Authors / Abstract / Keywords → Main text (IMRaD)：Introduction → Methods → Results → Discussion (Conclusion)。各部分功能不同。",
+      "fix": "按 IMRaD 顺序排正文各节；把放错节的段落移回其功能位（方法进 Methods、解释进 Discussion）。",
+      "check": {
+        "type": "sectionOrder",
+        "params": {
+          "order": [
+            "introduction",
+            "methods",
+            "results",
+            "discussion"
+          ]
+        }
+      },
+      "tags": [
+        "structure",
+        "order",
+        "imrad"
+      ],
+      "source": {
+        "file": "references/论文写作方法论骨架.md",
+        "line": 70
+      }
+    },
+    {
+      "id": "W-CRAFT-03",
+      "title": "结论段是否独立由目标期刊决定",
+      "severity": "hard",
+      "sections": [
+        "conclusion",
+        "discussion"
+      ],
+      "statement": "🔴 铁律 0：先定期刊，再动笔。ES&T 合并 Results and Discussion 且 ❌\"A separate conclusion is not to be used\"；GCA 必须分离 Results 与 Discussion。结构要求因刊而异。",
+      "fix": "写正文前查目标刊 Aims & Scope 与稿约，确认 Results/Discussion 分离与否、有无独立结论段；把结构决策写进提纲。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "structure",
+        "journal-fit"
+      ],
+      "source": {
+        "file": "references/论文写作方法论骨架.md",
+        "line": 234
+      },
+      "journals": [
+        "environmental-science-and-technology"
+      ]
+    },
+    {
+      "id": "W-CRAFT-04",
+      "title": "地质年代单位不得混用：Ga/Ma/ka 与 Gyr/Myr/kyr",
+      "severity": "hard",
+      "sections": [
+        "introduction",
+        "methods",
+        "results",
+        "discussion",
+        "conclusion"
+      ],
+      "statement": "🔴 地质年代：Ga/Ma/ka = 年代（dates），Gyr/Myr/kyr = 时间跨度（duration）；两个方向都要查。",
+      "fix": "逐处核对：描述\"距今多久\"用 Ma/ka/Ga；描述\"持续多久\"用 Myr/kyr/Gyr；把写反的句子改正。",
+      "check": {
+        "type": "forbidden",
+        "params": {
+          "patterns": [
+            "\\b\\d+(?:\\.\\d+)?\\s*(?:Ma|ka|Ga)\\b[^.]{0,60}\\b(?:duration|span|lasted|persisted for|over a period)",
+            "\\b(?:duration|span|lasted|persisted for)\\s+(?:of\\s+)?\\d+(?:\\.\\d+)?\\s*(?:Ma|ka|Ga)\\b"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "units",
+        "geology",
+        "consistency"
+      ],
+      "source": {
+        "file": "references/AGENTS.md",
+        "line": 156
+      }
+    },
+    {
+      "id": "W-CRAFT-05",
+      "title": "界线用斜杠、时间范围用短横线",
+      "severity": "soft",
+      "sections": [
+        "introduction",
+        "methods",
+        "results",
+        "discussion",
+        "conclusion"
+      ],
+      "statement": "界线用 /，时间范围用 –（en-dash）；仅正式 ICS 时间单元才大写 Early / Middle / Late；upper/middle/lower 用于岩石或时间地层单位。",
+      "fix": "统一符号：界线写 \"Cenomanian/Turonian\"，时间范围写 \"120–90 Ma\"；把误大写的 Early/Middle/Late 按 ICS 规则改回。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "units",
+        "geology",
+        "format"
+      ],
+      "source": {
+        "file": "SKILL.md",
+        "line": 167
+      }
+    },
+    {
+      "id": "W-CRAFT-06",
+      "title": "参考文献不得有五个误区",
+      "severity": "hard",
+      "sections": [
+        "references"
+      ],
+      "statement": "五个引用误区：知而不引 · 断章取义 · 引而不确 · 来源不实 · 盲目自引。",
+      "fix": "逐条排查：借鉴了同行工作却故意不引用→补引；截取作者试图否定的部分→改回原意；没看原文→核对原文；来源不可靠→补注来源；为提高被引的无关自引→删除。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "references",
+        "integrity"
+      ],
+      "source": {
+        "file": "SKILL.md",
+        "line": 152
+      }
+    },
+    {
+      "id": "W-CRAFT-07",
+      "title": "参考文献须精选且已引 Science/Nature/Annual Reviews 系列",
+      "severity": "soft",
+      "sections": [
+        "references"
+      ],
+      "statement": "精选 — 最好是近年的；一定要引 Science、Nature、Annual Reviews 系列等近期文献以增强立论权威性；尽量阅读原文；仔细核对，书写规范。",
+      "fix": "补引近 5 年（尤其 1–3 年）的高水平综述或关键论文；对直接引用的数据回到原文核对。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "references",
+        "recency"
+      ],
+      "source": {
+        "file": "references/论文写作方法论骨架.md",
+        "line": 325
+      }
+    },
+    {
+      "id": "W-CRAFT-08",
+      "title": "必须用文献管理器保证引文与参考文献一致",
+      "severity": "soft",
+      "sections": [
+        "references"
+      ],
+      "statement": "用文献管理器（Zotero、EndNote）：建自己的知识文献库；保证引文与参考文献一致；统一改格式，换投期刊很方便。",
+      "fix": "改用文献管理器统一管理全文引用，插入/删除条目后重新生成参考文献表，核对正文与文表一一对应。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "references",
+        "workflow"
+      ],
+      "source": {
+        "file": "references/论文写作方法论骨架.md",
+        "line": 339
+      }
+    },
+    {
+      "id": "W-CRAFT-09",
+      "title": "排版硬参数：12 号字、双倍行距、连续行号、页码",
+      "severity": "hard",
+      "sections": [
+        "title",
+        "abstract",
+        "introduction",
+        "methods",
+        "results",
+        "discussion",
+        "conclusion",
+        "references"
+      ],
+      "statement": "排版：12 号字 + 双倍行距 + 连续行号 + 页码；Paleobiology 另要求 US Letter 纸张、四边 1 英寸、不用两端对齐、不在右边界断词。",
+      "fix": "交稿前在 Word 里打开行号并确认连续；设置 12 号字、双倍行距、页码；按目标刊的纸张与对齐要求再核一遍。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "format",
+        "submission-ready"
+      ],
+      "source": {
+        "file": "SKILL.md",
+        "line": 201
+      },
+      "journals": [
+        "paleobiology"
+      ]
+    },
+    {
+      "id": "W-CRAFT-10",
+      "title": "不得改动数据、单位与图表编号",
+      "severity": "hard",
+      "sections": [
+        "introduction",
+        "methods",
+        "results",
+        "discussion",
+        "conclusion"
+      ],
+      "statement": "🔴 红线：不得改动数据 / 单位 / 图表编号；不得把\"结论 A\"改成\"结论 B\"；不得为降重删掉关键引用；不得编造参考文献。",
+      "fix": "任何润色、压缩、重排之后，逐项核对数字、单位与图表编号与原稿一致；建立一份\"不可改项\"清单逐条签核。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "integrity",
+        "red-line"
+      ],
+      "source": {
+        "file": "references/AGENTS.md",
+        "line": 112
+      }
+    },
+    {
+      "id": "W-CRAFT-11",
+      "title": "不得编造参考文献",
+      "severity": "hard",
+      "sections": [
+        "references"
+      ],
+      "statement": "🔴 红线：不得编造参考文献。",
+      "fix": "逐条核对参考文献的作者、题名、期刊、年份与 DOI；查不到原文的条目删除，绝不补全猜测的信息。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "references",
+        "integrity",
+        "red-line"
+      ],
+      "source": {
+        "file": "references/AGENTS.md",
+        "line": 116
+      }
+    },
+    {
+      "id": "W-CRAFT-12",
+      "title": "标题须把核心内容关键词放开头",
+      "severity": "soft",
+      "sections": [
+        "title"
+      ],
+      "statement": "题目：准确、简洁、清楚；长度/缩写/大小写参照目标期刊作者指南 + 该刊近期论文；核心内容的关键词尽量放开头。",
+      "fix": "把标题里最能代表本文贡献的对象/主题词移到最前；再按目标刊近期论文的长度与大小写规范校准。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "title",
+        "writing-craft"
+      ],
+      "source": {
+        "file": "references/论文写作方法论骨架.md",
+        "line": 83
+      }
+    },
+    {
+      "id": "W-CRAFT-13",
+      "title": "署名按实际贡献大小确定",
+      "severity": "hard",
+      "sections": [
+        "title"
+      ],
+      "statement": "按实际贡献大小定署名；每位作者都要对论点、数据、结果负责；责任作者须有答辩能力与义务。贡献很少者放致谢，不进署名。",
+      "fix": "按贡献清单重排署名顺序；把贡献很少的作者移到致谢；共同一作注明 \"These authors contributed equally to the work\"。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "title",
+        "authorship",
+        "integrity"
+      ],
+      "source": {
+        "file": "references/论文写作方法论骨架.md",
+        "line": 97
+      }
+    },
+    {
+      "id": "W-CRAFT-14",
+      "title": "致谢须写明经费项目号或合同号",
+      "severity": "soft",
+      "sections": [
+        "acknowledgements"
+      ],
+      "statement": "外部基金 — 资助、协议、奖学金；有时需附注资助项目号、合同书编号；致谢是否含项目号/合同号。",
+      "fix": "在致谢的资助句后补上项目号/合同号；同时确认已致谢提供仪器设备、协作实验与学术建议的人。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "(?:grant (?:no\\.|number)|project no\\.|contract no\\.|资助(?:项目|课题)号|合同(?:号|书编号)|(?:NSFC|NNSF|EPSRC) no\\.)"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "acknowledgements"
+      ],
+      "source": {
+        "file": "references/checklist.md",
+        "line": 110
+      }
+    },
+    {
+      "id": "W-CRAFT-15",
+      "title": "严禁直接复制已发表的图",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "🔴 版权红线：严禁直接粘贴复制已发表的图（除 OA 或已获许可）；修改后必须标注文献来源；不使用有政治分歧的地图等。",
+      "fix": "逐图确认来源：自绘、OA、已获许可三选一；借用或改造的图在图注写 From X / Slightly modified from X / modified from X (year) / Original。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "figures",
+        "copyright",
+        "red-line"
+      ],
+      "source": {
+        "file": "references/AGENTS.md",
+        "line": 118
+      }
+    },
+    {
+      "id": "W-CRAFT-16",
+      "title": "不得使用有政治分歧的地图",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "🔴 版权红线：不使用有政治分歧的地图等。",
+      "fix": "区域图件先确认边界画法与目标刊所在国的规范一致；有争议区域加中性处理或改用文字描述。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "figures",
+        "copyright",
+        "red-line"
+      ],
+      "source": {
+        "file": "prompts/05-results.md",
+        "line": 72
+      }
+    },
+    {
+      "id": "W-CRAFT-17",
+      "title": "图注必须自明：只看图注就能把图看明白",
+      "severity": "soft",
+      "sections": [
+        "figures",
+        "tables"
+      ],
+      "statement": "🔴 图注：只看图注就能把图看明白；表名写在表上。",
+      "fix": "每条图注补齐：图号、对象/范围、坐标轴与单位、图例含义、缩写全称、统计量与显著性标记、比例尺或放大倍数。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "(?:fig\\.|figure|table|图|表)",
+            "(?:unit|单位|\\bμm\\b|\\bmm\\b|\\bcm\\b|%|\\bMa\\b|\\bka\\b|scale bar|比例尺)"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figures",
+        "caption",
+        "readability"
+      ],
+      "source": {
+        "file": "SKILL.md",
+        "line": 186
+      }
+    },
+    {
+      "id": "W-CRAFT-18",
+      "title": "审稿人 8 项关注点须反向自查",
+      "severity": "hard",
+      "sections": [
+        "title",
+        "abstract",
+        "introduction",
+        "methods",
+        "results",
+        "discussion",
+        "conclusion",
+        "references",
+        "figures",
+        "tables"
+      ],
+      "statement": "🔴 审稿人关注什么（反向自查 8 项）：1 作者是否合适地引用了自己的论文；2 论题是否适合该期刊；3 内容是否新颖、重要；4 论证是否合乎逻辑，讨论和结论是否合理；5 参考文献引用是否妥当；6 文字表达是否正确、简明、清楚；7 实验描述是否清楚且能被读者重复、数据是否真实可靠；8 图表使用和设计是否必要、规范、清楚。",
+      "fix": "按 8 项逐条自查并把结果写进自查表；任何一项不合格就先修再投。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "reviewer",
+        "self-check"
+      ],
+      "source": {
+        "file": "prompts/10-reviewer-response.md",
+        "line": 70
+      }
+    },
+    {
+      "id": "W-RESP-01",
+      "title": "所有审稿意见必须逐条回答，不合并不跳过",
+      "severity": "hard",
+      "sections": [
+        "response"
+      ],
+      "statement": "🔴 六条纪律 1：所有问题必须逐条回答（编辑会认为作者不配合，直接拒稿）。",
+      "fix": "把 Decision letter 逐条编号成清单，每条在回复信中都有对应段落；检查没有遗漏项。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "comment\\s*\\d+"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "response",
+        "completeness"
+      ],
+      "source": {
+        "file": "prompts/10-reviewer-response.md",
+        "line": 59
+      }
+    },
+    {
+      "id": "W-RESP-02",
+      "title": "回复必须用 Comment / Response / Changes in manuscript 三段格式",
+      "severity": "hard",
+      "sections": [
+        "response"
+      ],
+      "statement": "输出格式：Comment N: [审稿人意见原文] / Response: [回复] / Changes in manuscript: [具体改在第几行，改前 vs 改后]。",
+      "fix": "把每条回复统一改成三段式：先原样引用审稿意见，再写 Response，最后写 Changes in manuscript 并注明行号。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "comment\\s*\\d+",
+            "response",
+            "changes in manuscript"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "response",
+        "format"
+      ],
+      "source": {
+        "file": "prompts/10-reviewer-response.md",
+        "line": 23
+      }
+    },
+    {
+      "id": "W-RESP-03",
+      "title": "每条回复必须包含四要素",
+      "severity": "hard",
+      "sections": [
+        "response"
+      ],
+      "statement": "🔴 回复四要素：① 感谢（具体到审稿人的哪个意见）→ ② 采取的行动（补做实验 / 修改论述 / 补充文献）→ ③ 指出原文哪一行（Lines）改成了什么 → ④ 附加材料编号对应。",
+      "fix": "逐条核对四要素：先谢具体意见，再写做了什么，然后给行号与改前改后原文，最后给新图表/补充材料编号。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "thanks (?:for|to) (?:this|the) (?:concern|comment|suggestion|point|remark)",
+            "(?:we |we have )?(?:revised|added|supplemented|performed|carried out|reanalysed|reanalyzed)",
+            "\\(?lines?\\s*\\d+",
+            "(?:fig\\.?|figure|table)\\s*s?\\d+"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "response",
+        "structure"
+      ],
+      "source": {
+        "file": "prompts/10-reviewer-response.md",
+        "line": 51
+      }
+    },
+    {
+      "id": "W-RESP-04",
+      "title": "必须指出原文哪一行改成了什么",
+      "severity": "hard",
+      "sections": [
+        "response"
+      ],
+      "statement": "🔴 指出原文哪一行（Lines）改成了什么——把改前改后原文都引用出来。",
+      "fix": "在 Changes in manuscript 中给出改前原文与改后原文，并把行号标在句末（如 \"(Lines 193–195)\"）。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "\\(?lines?\\s*\\d+",
+            "(?:was|were|is|are) revised to",
+            "(?:original(?:ly)? (?:statement|text|description|sentence))"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "response",
+        "traceability"
+      ],
+      "source": {
+        "file": "prompts/10-reviewer-response.md",
+        "line": 19
+      }
+    },
+    {
+      "id": "W-RESP-05",
+      "title": "审稿人推荐的文献一定要引用并讨论透彻",
+      "severity": "hard",
+      "sections": [
+        "response",
+        "references"
+      ],
+      "statement": "🔴 六条纪律 4：审稿人推荐的文献一定要引用，并讨论透彻（不引用等于不听劝告）。",
+      "fix": "把审稿人推荐的每篇文献加入参考文献，并在正文相关处引用 + 一段实质讨论（不是只列在文献表里）。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "response",
+        "citation"
+      ],
+      "source": {
+        "file": "prompts/10-reviewer-response.md",
+        "line": 62
+      }
+    },
+    {
+      "id": "W-RESP-06",
+      "title": "满足不了的意见不要回避，要说明合理理由",
+      "severity": "hard",
+      "sections": [
+        "response"
+      ],
+      "statement": "🔴 六条纪律 3：满足不了的也不要回避，说明不能做的合理理由（回避显得心虚）。",
+      "fix": "对每条无法满足的意见写明：不能做的客观原因（样本已不可得/超出数据范围/工作量）+ 已采取的折中方案。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "response",
+        "tone"
+      ],
+      "source": {
+        "file": "prompts/10-reviewer-response.md",
+        "line": 61
+      }
+    },
+    {
+      "id": "W-RESP-07",
+      "title": "不得与审稿人硬扛",
+      "severity": "soft",
+      "sections": [
+        "response"
+      ],
+      "statement": "🔴 六条纪律 5：从审稿人角度理解并回答；拒绝修改意见要有理有据，尽量不要与审稿人硬扛（即使你有理，审稿人有最终发言权）。",
+      "fix": "把\"审稿人误解了\"改成\"我们理解审稿人的关切是 X，我们补充了 Y 以回应\"；即使不同意，也先承认其合理性再说明分歧与依据。",
+      "check": {
+        "type": "forbidden",
+        "params": {
+          "patterns": [
+            "(?:the reviewer is (?:wrong|mistaken)|we disagree with the reviewer|as (?:already )?stated above[^.]{0,40}(?:is|are) incorrect)",
+            "(?:审稿人(?:的)?(?:意见|理解)(?:是)?错误|不同意审稿人|审稿人搞错了)"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "response",
+        "tone"
+      ],
+      "source": {
+        "file": "prompts/10-reviewer-response.md",
+        "line": 63
+      }
+    },
+    {
+      "id": "W-RESP-08",
+      "title": "回复信须感谢编辑和审稿人",
+      "severity": "soft",
+      "sections": [
+        "response"
+      ],
+      "statement": "🔴 六条纪律 6：感谢编辑和审稿人（基本礼貌）。",
+      "fix": "在回复信开头一段感谢编辑与审稿人，在每条回复的句首感谢该条具体意见。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "thank"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "response",
+        "tone"
+      ],
+      "source": {
+        "file": "prompts/10-reviewer-response.md",
+        "line": 64
+      }
+    },
+    {
+      "id": "W-RESP-09",
+      "title": "返修不能只改文字不改实质内容",
+      "severity": "hard",
+      "sections": [
+        "response",
+        "results",
+        "methods"
+      ],
+      "statement": "🔴 返修时最忌：只改文字不改实质内容——编辑会看出你\"表面应付\"。",
+      "fix": "对每条意见核对是否有实质动作（补数据、补分析、补文献、补讨论）；只改措辞的意见要在回复中说明理由。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "(?:we (?:have )?(?:added|performed|carried out|re-?analy[sz]ed|included|conducted)|new (?:experiment|analysis|figure|table|supplementary))"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "response",
+        "substantive"
+      ],
+      "source": {
+        "file": "prompts/10-reviewer-response.md",
+        "line": 120
+      }
+    },
+    {
+      "id": "W-RESP-10",
+      "title": "大修 2–3 个月、小修 1–2 周，须快速响应",
+      "severity": "soft",
+      "sections": [
+        "response"
+      ],
+      "statement": "大修：需大改后重新送审，通常 2–3 个月；小修：完善即可，通常 1–2 周，策略是快速响应，别拖。",
+      "fix": "按修改期限倒排计划：先做需要补实验/补数据的条目，再做文字修改；回复信开头给出完成时间。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "response",
+        "timeline"
+      ],
+      "source": {
+        "file": "prompts/10-reviewer-response.md",
+        "line": 117
+      }
+    },
+    {
+      "id": "W-RESP-11",
+      "title": "回复须先从审稿人角度理解问题",
+      "severity": "soft",
+      "sections": [
+        "response"
+      ],
+      "statement": "从审稿人角度理解并回答；回复原则 5：尽量不要与审稿人硬扛。",
+      "fix": "在回复每条意见前先用一句话复述审稿人的关切（\"审稿人关心的是样品的保存状态是否影响定量\"），再作答。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "response",
+        "empathy"
+      ],
+      "source": {
+        "file": "prompts/10-reviewer-response.md",
+        "line": 13
+      }
+    },
+    {
+      "id": "W-RESP-12",
+      "title": "返修须过 ACCEPTANCE 十点自查",
+      "severity": "hard",
+      "sections": [
+        "response",
+        "title",
+        "abstract",
+        "introduction",
+        "methods",
+        "results",
+        "discussion",
+        "conclusion",
+        "references"
+      ],
+      "statement": "🔴 ELSEVIER「ACCEPTANCE」十点：Attention to details / Check and double check your work / Consider the reviews / English must be as good as possible / Presentation is important / Take your time with revision / Acknowledge those who have helped you / New, original and previously unpublished / Critically evaluate your own manuscript / Ethical rules must be obeyed。",
+      "fix": "把 ACCEPTANCE 十点做成返修前的勾选表，逐条打勾；任何一条未过就先修再提交回复信。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "response",
+        "self-check",
+        "acceptance"
+      ],
+      "source": {
+        "file": "prompts/10-reviewer-response.md",
+        "line": 86
+      }
+    },
+    {
+      "id": "W-LIT-20",
+      "title": "综述成稿的章节顺序：摘要 → 引言 → 主体 → 讨论 → 结论",
+      "severity": "soft",
+      "sections": [
+        "abstract",
+        "introduction",
+        "literature",
+        "discussion",
+        "conclusion"
+      ],
+      "statement": "综述 18 步：prepare(1-4) → structure(5-7) → draft(8-13) → revise(14-18)；成稿章节顺序为 Title → Author → Abstract → Introduction → Summary of major issues → Model and discussion → Perspective on future study → Acknowledgement → References。",
+      "fix": "按 引言 → 主体（分节综述）→ 模型与讨论 → 未来展望 → 结论 的成稿顺序排版；缺哪一块补哪一块。",
+      "check": {
+        "type": "sectionOrder",
+        "params": {
+          "order": [
+            "abstract",
+            "introduction",
+            "literature",
+            "discussion",
+            "conclusion"
+          ]
+        }
+      },
+      "tags": [
+        "literature",
+        "structure",
+        "order"
+      ],
+      "source": {
+        "file": "prompts/03-literature-review.md",
+        "line": 27
+      }
+    },
+    {
+      "id": "W-LIT-21",
+      "title": "综述必须按 18 步起草：主体(11) → 结论(12) → 引言(13) → 摘要(14)",
+      "severity": "info",
+      "sections": [
+        "literature",
+        "introduction",
+        "abstract",
+        "conclusion"
+      ],
+      "statement": "🔴 综述准备的 18 个步骤：顺序反直觉——主体(11) → 结论(12) → 引言(13) → 摘要(14)；引言和摘要在结构定稿后才写得出来。",
+      "fix": "按 主体 → 结论 → 引言 → 摘要 的顺序写，不要从摘要开始；结构定稿后再回头写摘要。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "literature",
+        "workflow"
+      ],
+      "source": {
+        "file": "prompts/03-literature-review.md",
+        "line": 75
+      }
+    },
+    {
+      "id": "W-LIT-22",
+      "title": "中文稿章节名用\"地质概况\"，不是\"地质背景\"",
+      "severity": "soft",
+      "sections": [
+        "introduction",
+        "geological-setting"
+      ],
+      "statement": "🔴 中文 / 日文论文的章节对应词：提要 = Abstract、地質概説 / 地质概况 = Geological setting、考察 = Discussion、まとめ = Conclusions；中文常叫\"地质概况\"，不是\"地质背景\"。",
+      "fix": "把中文稿的小节名统一改为本刊对应的中文术语（提要 / 地质概况 / 考察 / まとめ），不要按英文直译。",
+      "check": {
+        "type": "forbidden",
+        "params": {
+          "patterns": [
+            "地质背景"
+          ],
+          "flags": ""
+        }
+      },
+      "tags": [
+        "literature",
+        "chinese",
+        "terminology"
+      ],
+      "source": {
+        "file": "references/micropaleo-paper-patterns.md",
+        "line": 474
+      }
+    },
+    {
+      "id": "W-CRAFT-19",
+      "title": "引用语料结论必须写精确口径",
+      "severity": "hard",
+      "sections": [
+        "references"
+      ],
+      "statement": "🔴 写\"阅读量 / 样本量\"必须写精确口径：说\"读了 N 篇\"要区分是骨架扫描还是全文通读，并给出正文字符量与抽取失败篇数。已重抽分层随机样本 181 篇（种子 20261103、不按文件大小排序），其中 164 篇可逐字读，正文约 570 万字符。",
+      "fix": "凡是引用本 skill 的语料统计，必须连口径一起写：分层随机抽样 / 181 篇（不按大小排序）/ 164 篇逐字读 / 约 570 万字符 / 抽取失败篇数；不得把\"骨架扫描\"写成\"逐篇精读\"。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "honesty",
+        "evidence",
+        "citation"
+      ],
+      "source": {
+        "file": "references/AGENTS.md",
+        "line": 188
+      }
+    },
+    {
+      "id": "W-CRAFT-20",
+      "title": "骨架扫描与全文通读不得混为一谈",
+      "severity": "hard",
+      "sections": [
+        "introduction",
+        "discussion",
+        "conclusion",
+        "systematic"
+      ],
+      "statement": "① 第一轮 = 骨架扫描（只读结构，不读论证）；② 第二轮 = 全文通读；③ 本节不给出任何\"命中率\"——词频只能证明\"某个词出现过\"，不能证明\"作者在这里做了什么论证动作\"。所有结论都附逐字原文供复核。",
+      "fix": "引用本 skill 的语料结论时注明属于哪一轮（骨架扫描 / 全文通读）与样本量；凡未逐字复读的例句，只写\"该句在语料中出现过\"，不写\"作者在此处做了什么论证\"。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "honesty",
+        "evidence"
+      ],
+      "source": {
+        "file": "references/micropaleo-paper-patterns.md",
+        "line": 241
+      }
+    },
+    {
+      "id": "W-CRAFT-21",
+      "title": "改稿时逐条处理并明确改动",
+      "severity": "soft",
+      "sections": [
+        "title",
+        "abstract",
+        "introduction",
+        "methods",
+        "results",
+        "discussion",
+        "conclusion"
+      ],
+      "statement": "改稿时的默认行为：③ 逐条处理——用户给多个问题时按顺序处理，不合并；④ 明确改动——输出时说明改了什么、为什么。",
+      "fix": "收到多个问题时按顺序逐条处理，不合并；每次输出都列出\"改了什么 / 为什么这么改\"。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "workflow",
+        "writing-craft"
+      ],
+      "source": {
+        "file": "references/AGENTS.md",
+        "line": 101
+      }
+    },
+    {
+      "id": "W-CRAFT-22",
+      "title": "未确认目标期刊前不得给结构层建议",
+      "severity": "hard",
+      "sections": [
+        "introduction",
+        "methods",
+        "results",
+        "discussion",
+        "conclusion"
+      ],
+      "statement": "改稿时的默认行为：先问目标期刊——未确认期刊时，不给结构层面的建议（因为 Results/Discussion 是否分离、有无结论段都取决于期刊）。",
+      "fix": "动笔改稿前先问目标期刊；若用户不提供，按通用 SCI 骨架给建议的同时注明\"结果/讨论是否分离、结论段是否存在取决于目标刊\"。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "workflow",
+        "journal-fit"
+      ],
+      "source": {
+        "file": "references/AGENTS.md",
+        "line": 99
+      }
+    },
+    {
+      "id": "W-CRAFT-23",
+      "title": "连续行号必须从标题页开始编",
+      "severity": "hard",
+      "sections": [
+        "title",
+        "abstract",
+        "introduction",
+        "methods",
+        "results",
+        "discussion",
+        "conclusion",
+        "references"
+      ],
+      "statement": "Paleobiology：🔴 从标题页开始编连续行号；全稿 12 号 Times New Roman + 双倍行距；US Letter；四边 1 英寸；不用两端对齐；不在右边界断词。",
+      "fix": "在 Word 中从标题页开启连续行号并确认编号不断档；再核对字体字号、行距、纸张与页边距。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "format",
+        "submission-ready"
+      ],
+      "source": {
+        "file": "references/AGENTS.md",
+        "line": 155
+      },
+      "journals": [
+        "paleobiology"
+      ]
+    },
+    {
+      "id": "W-CRAFT-24",
+      "title": "期刊硬规则必须引用官方英文原句",
+      "severity": "hard",
+      "sections": [
+        "title",
+        "abstract",
+        "introduction",
+        "methods",
+        "results",
+        "discussion",
+        "conclusion",
+        "figures",
+        "tables",
+        "declarations"
+      ],
+      "statement": "🔴 期刊硬规则必须附官方英文原句：中文只作定位标注，转述不算数；回答时直接引原句，不要用中文概括代替——转述会丢限定词与强度词（required / encouraged / must / may）。",
+      "fix": "凡陈述某刊的硬要求，直接贴官方英文原句并标出来源；不要用中文转述替代，也不要把 encouraged 写成强制。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "journal-fit",
+        "honesty",
+        "citation"
+      ],
+      "source": {
+        "file": "references/AGENTS.md",
+        "line": 183
+      }
+    },
+    {
+      "id": "W-CRAFT-25",
+      "title": "分类单元名必须斜体并带分类学记号",
+      "severity": "hard",
+      "sections": [
+        "systematic",
+        "results",
+        "discussion"
+      ],
+      "statement": "🔴 分类学记号固定为 gen. nov. / sp. nov. / n. sp. / aff. / cf. / ex gr.；种名斜体；新种用 sp. nov.、新属用 gen. nov.。",
+      "fix": "把新分类单元的属名种名改为斜体，并补上正确的分类学记号（gen. nov. / sp. nov. / cf. / aff. / ex gr.）。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "(?:gen\\.|sp\\.|n\\.\\s*sp\\.)\\s*nov\\."
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "systematics",
+        "format"
+      ],
+      "source": {
+        "file": "references/micropaleo-paper-patterns.md",
+        "line": 56
+      }
+    },
+    {
+      "id": "W-CRAFT-26",
+      "title": "本领域通用规则与目标刊冲突时以目标刊为准",
+      "severity": "soft",
+      "sections": [
+        "abstract",
+        "keywords",
+        "introduction",
+        "methods",
+        "results",
+        "discussion",
+        "conclusion"
+      ],
+      "statement": "🔴 本领域的\"摘要/关键词缺失\"不能一律判为格式错误——这与通用规则存在张力，以目标刊官方要求为准（摘要出现率 53%、关键词出现率仅 23%）。",
+      "fix": "遇到\"本领域常见做法\"与目标刊要求冲突时，先按目标刊官方要求改；把该刊实际做法写进回复/说明里。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "journal-fit",
+        "evidence"
+      ],
+      "source": {
+        "file": "references/micropaleo-paper-patterns.md",
+        "line": 215
+      }
+    },
+    {
+      "id": "W-ABS-19",
+      "title": "部分期刊要求随稿提交 Highlights",
+      "severity": "info",
+      "sections": [
+        "abstract"
+      ],
+      "statement": "常用前置部分规范：Highlights <5 条，每条 85 个字符（含空格）；Highlights 与摘要内容不得重复。",
+      "fix": "若目标刊要求 Highlights，按 <5 条、每条 ≤85 字符撰写；条目与摘要不重复，改写为面向读者的要点。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "abstract",
+        "submission-ready"
+      ],
+      "source": {
+        "file": "prompts/09-journal-submission.md",
+        "line": 84
+      }
+    },
+    {
+      "id": "W-ABS-20",
+      "title": "部分期刊要求 Non-technical Summary 与 Abstract 各 ≤300 词",
+      "severity": "soft",
+      "sections": [
+        "abstract"
+      ],
+      "statement": "Paleobiology：🔴 须提供 Non-technical Summary + Abstract，各自 ≤300 词。",
+      "fix": "同时准备非技术性摘要（≤300 词，面向非本领域读者）与正式摘要（≤300 词），两者内容不重复。",
+      "check": {
+        "type": "wordCount",
+        "params": {
+          "min": 1,
+          "max": 300
+        }
+      },
+      "tags": [
+        "abstract",
+        "length",
+        "journal-fit"
+      ],
+      "source": {
+        "file": "references/AGENTS.md",
+        "line": 153
+      },
+      "journals": [
+        "paleobiology"
+      ]
+    },
+    {
+      "id": "W-RESP-13",
+      "title": "遇到越过红线的请求须说明风险并拒绝该部分",
+      "severity": "hard",
+      "sections": [
+        "response"
+      ],
+      "statement": "遇到用户要求越过上述红线时：说明风险并拒绝该部分，继续完成其余合法部分。",
+      "fix": "把越过红线的部分单独列出，说明风险与拒绝理由；其余合法修改照常完成，不要因为一部分被拒就整体停摆。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "response",
+        "red-line"
+      ],
+      "source": {
+        "file": "references/AGENTS.md",
+        "line": 120
+      }
+    },
+    {
+      "id": "W-METH-19",
+      "title": "地质概况段必须排在 Methods 之前",
+      "severity": "hard",
+      "sections": [
+        "geological-setting",
+        "methods"
+      ],
+      "statement": "🔴 章节必备：Geological setting 几乎必选，且排在 Methods 之前（中文写作\"地质概况\"）。",
+      "fix": "把区域地质 / 地层背景段提到 Methods 之前；描述类论文缺这一段就补一段客观的区域地质背景。",
+      "check": {
+        "type": "sectionOrder",
+        "params": {
+          "order": [
+            "geological-setting",
+            "methods"
+          ]
+        }
+      },
+      "tags": [
+        "methods",
+        "structure",
+        "order"
+      ],
+      "source": {
+        "file": "references/micropaleo-paper-patterns.md",
+        "line": 505
+      }
+    },
+    {
+      "id": "W-METH-20",
+      "title": "必须交代标本存藏机构与藏号",
+      "severity": "hard",
+      "sections": [
+        "methods",
+        "systematic",
+        "declarations"
+      ],
+      "statement": "🔴 Repository（存放机构）——两种放法：① 单列一节放在系统描述之前；② 写在系统描述段的第一句。标本已按 ICZN 存入公开藏馆，收藏号已写明。",
+      "fix": "加一段 Repository 段（机构全称 + 藏号系列 + 标本号），或把存藏信息写在系统描述段第一句；并核对是否按 ICZN 要求存放。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "(?:repository|deposited|depository|museum|collection (?:number|catalog)|存藏|馆藏|存放|馆号)"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "methods",
+        "systematics",
+        "data"
+      ],
+      "source": {
+        "file": "references/micropaleo-paper-patterns.md",
+        "line": 585
+      }
+    },
+    {
+      "id": "W-METH-21",
+      "title": "新种新属必须给 Holotype（新属另给 Paratype 与 Type Species）",
+      "severity": "hard",
+      "sections": [
+        "systematic",
+        "results"
+      ],
+      "statement": "🔴 必备标签：Holotype / Paratype（正模/副模）——新种、新属必给；新属还要有 Type Species。",
+      "fix": "为每个新种补 Holotype 段（标本号、层位、产地、图版号、测量值）；新属另补 Paratype 与 Type Species。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "holotype"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "methods",
+        "systematics"
+      ],
+      "source": {
+        "file": "references/micropaleo-paper-patterns.md",
+        "line": 584
+      }
+    },
+    {
+      "id": "W-METH-22",
+      "title": "必须给 Occurrences（逐产地列出）",
+      "severity": "hard",
+      "sections": [
+        "systematic",
+        "results"
+      ],
+      "statement": "🔴 必备：Occurrences（逐产地列出，常带州/国）；Age / Stratigraphy / Horizon / Locality。",
+      "fix": "为每个分类单元补 Occurrences 段，逐产地列出并写明时代 / 层位；产地信息要具体到州或国。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "(?:occurrence|occurrences|产地|分布层位)"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "methods",
+        "systematics"
+      ],
+      "source": {
+        "file": "references/micropaleo-paper-patterns.md",
+        "line": 588
+      }
+    },
+    {
+      "id": "W-RES-16",
+      "title": "结果必须给出定量数据",
+      "severity": "hard",
+      "sections": [
+        "results"
+      ],
+      "statement": "结果章节要客观报告\"发现了什么\"，必须带具体数据支撑，不能只写\"显著提高\"\"大幅下降\"。",
+      "fix": "给每个结果判断补上具体数值与单位（百分比、浓度、厚度、速率、时代）；没有数值就回到原始记录补齐。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "\\d+(?:\\.\\d+)?\\s*(?:%|mg|mL|µm|μm|mm|cm|km|°C|MPa|Ma|ka|Myr|kyr)"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "results",
+        "data",
+        "evidence"
+      ],
+      "source": {
+        "file": "prompts/05-results.md",
+        "line": 14
+      }
+    },
+    {
+      "id": "W-DISC-19",
+      "title": "系统描述类论文的讨论由类群块 Remarks 承担",
+      "severity": "soft",
+      "sections": [
+        "systematic",
+        "discussion"
+      ],
+      "statement": "🔴 系统描述类论文通常没有独立的 Discussion 段，讨论功能由每个类群块里的 Remarks（+ Comparison）承担；Remarks 写全四步：吻合 → 差异点 → 分类处置 → 与他人处理的不同。",
+      "fix": "给每个类群块补 Remarks 段并按四步写；另设 Discussion 段时，做跨类群总结（数量 + 出处 + 与前人对照）。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "remarks"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "discussion",
+        "systematics"
+      ],
+      "source": {
+        "file": "references/micropaleo-paper-patterns.md",
+        "line": 529
+      }
+    },
+    {
+      "id": "W-INT-22",
+      "title": "引出研究不足必须用 However 引导的缺口句式",
+      "severity": "soft",
+      "sections": [
+        "introduction"
+      ],
+      "statement": "引言：引出研究不足（用 However 引导）——句式库：However, little information / little attention / little work / little data / little research；or few studies / few investigations / few researchers / few attempts / none of these studies；has (have) been less focused on / attempted to / conducted；failed to consider / ignored / misinterpreted / neglected to；overestimated / underestimated / misleading；thus, these previous results are inconclusive, misleading, unsatisfactory, questionable, controversial；Uncertainties (discrepancies) still exist ...",
+      "fix": "把\"某某研究存在不足\"改写成 However 引导的缺口句，并具体化：说明是哪个维度（信息 / 关注 / 数据 / 尝试）不足，以及不足到什么程度。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "(?:However, little (?:information|attention|work|data|research)|or few (?:studies|investigations|researchers|attempts)|none of these studies|failed to consider|ignored|misinterpreted|neglected to|overestimated|underestimated|inconclusive|uncertainties \\(discrepancies\\) still exist)"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "introduction",
+        "gap",
+        "template"
+      ],
+      "source": {
+        "file": "references/sentence-bank.md",
+        "line": 7
+      }
+    },
+    {
+      "id": "W-DISC-20",
+      "title": "讨论动词须按功能选词",
+      "severity": "soft",
+      "sections": [
+        "discussion",
+        "conclusion"
+      ],
+      "statement": "讨论常用动词按功能分三组：陈述论点、作者观点 → suggest, report, present, expect, describe；说明论证 → support, provide, indicate, identify, find, demonstrate, confirm, clarify；推荐和建议 → suggest, recommend, propose, necessity, necessary, expect。",
+      "fix": "按句子的实际功能选动词：陈述发现用 report / present / identify，说明证据用 support / provide / demonstrate，提出建议用 recommend / propose；不要一律用 suggest。",
+      "check": {
+        "type": "required",
+        "params": {
+          "patterns": [
+            "\\b(?:suggest|report|present|expect|describe)\\b",
+            "\\b(?:support|provide|indicate|identify|find|demonstrate|confirm|clarify)\\b"
+          ],
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "discussion",
+        "wording",
+        "writing-craft"
+      ],
+      "source": {
+        "file": "references/sentence-bank.md",
+        "line": 79
+      }
+    },
+    {
+      "id": "W-RESP-14",
+      "title": "编辑直接拒稿话术只用于识别，不必回复",
+      "severity": "info",
+      "sections": [
+        "response",
+        "review"
+      ],
+      "statement": "编辑直接拒稿（Deskmill）的三种格式化话术：① \"We regret to say that…\"；② \"We suggest that you might submit it to another journal\"；③ \"An increasing volume of submissions prevents us from publishing all worthwhile manuscripts we receive. Competition for space in our journal has increased sharply in recent months.\" —— 识别用，不必回复。",
+      "fix": "收到含这三类话术的 decision letter 时按编辑直接拒稿处理（改投其他刊物）；不要逐条回复这类信。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "response",
+        "editorial-decision"
+      ],
+      "source": {
+        "file": "references/sentence-bank.md",
+        "line": 177
+      }
+    },
+    {
+      "id": "W-CRAFT-27",
+      "title": "仿写练手不得连续 5 个字与原文相同",
+      "severity": "soft",
+      "sections": [
+        "introduction",
+        "methods",
+        "results",
+        "discussion",
+        "conclusion"
+      ],
+      "statement": "⚠️ 仿写句子练手可以，但连续 5 个字相同 = 抄袭；不标注引用 = 抄袭嫌疑。",
+      "fix": "仿写只用于练手，正式稿必须自己重写；若确实沿用了他人表述，必须标注引用。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "integrity",
+        "writing-craft"
+      ],
+      "source": {
+        "file": "SKILL.md",
+        "line": 366
+      }
+    },
+    {
+      "id": "W-CRAFT-28",
+      "title": "语料口径：8162 篇全库中分层随机抽 181 篇，164 篇逐字读，约 570 万字符",
+      "severity": "hard",
+      "sections": [
+        "references"
+      ],
+      "statement": "语料口径：PDF_Radiolaria 全库 8162 篇中按 28 个主子目录分层随机抽取 181 篇（种子 20261103，不按文件大小排序）；其中正文可逐字读取者 164 篇（≥3000 字符、文本层乱码率 ≤30%）；正文合计约 570 万字符（切掉参考文献后）。",
+      "fix": "引用本 skill 的语料统计时连口径一起写：8162 篇全库 / 28 个主子目录分层随机 / 181 篇 / 164 篇可逐字读 / 约 570 万字符；不得写成\"读过 181 篇全文\"。",
+      "check": {
+        "type": "manual",
+        "params": {}
+      },
+      "tags": [
+        "honesty",
+        "evidence",
+        "citation"
+      ],
+      "source": {
+        "file": "references/fulltext-reading-evidence.md",
+        "line": 4
+      }
+    },
+    {
+      "id": "W-RES-17",
+      "title": "混淆矩阵不是方法类论文的标配（实测 45.8%）",
+      "severity": "info",
+      "sections": [
+        "results",
+        "figures",
+        "tables"
+      ],
+      "statement": "🔴 混淆矩阵不是「标配」：合并 8 分片 24 篇口径，有混淆矩阵的只有 11 篇（45.8%），严格只算主文图是 41.7%；近一半的方法类论文用逐类 F1 / Precision / Recall 表替代。",
+      "fix": "不要把混淆矩阵当硬性要求：可改用逐类 F1 / Precision / Recall 表；确要用混淆矩阵时，图注写固定句式（行=真值、列=预测、单元格=百分比、对角线=100 %）。",
+      "check": {
+        "type": "numeric",
+        "params": {
+          "pattern": "(?<![\\d.])(\\d{1,3}(?:\\.\\d+)?)(?![\\d.])\\s*%",
+          "min": 0,
+          "max": 100,
+          "flags": ""
+        }
+      },
+      "tags": [
+        "results",
+        "figure",
+        "ai-ml",
+        "evidence"
+      ],
+      "source": {
+        "file": "references/ai-ml-paper-patterns.md",
+        "line": 502
+      }
+    },
+    {
+      "id": "W-METH-29",
+      "title": "统计检验是少数派（实测 16.7%）",
+      "severity": "info",
+      "sections": [
+        "methods",
+        "results"
+      ],
+      "statement": "🔴 统计检验是少数派：合并 8 分片 30 篇口径只有 5 篇（16.7%），出现时用的是 Shapiro–Wilk / Wilcoxon signed-rank / Kruskal–Wallis / Welch t / paired t / ANOVA / McNemar / Bland–Altman；多数论文改用「10 次重复运行的 mean ± SD」代替显著性检验。",
+      "fix": "不必强行补显著性检验；改用「10 次重复的 mean ± SD」等本领域主流写法，或在补做检验时说明选择该检验的理由。",
+      "check": {
+        "type": "numeric",
+        "params": {
+          "pattern": "(?<![\\d.])(\\d{1,3}(?:\\.\\d+)?)(?![\\d.])\\s*%",
+          "min": 0,
+          "max": 100,
+          "flags": ""
+        }
+      },
+      "tags": [
+        "methods",
+        "ai-ml",
+        "evidence"
+      ],
+      "source": {
+        "file": "references/ai-ml-paper-patterns.md",
+        "line": 505
+      }
+    }
+  ]
+}

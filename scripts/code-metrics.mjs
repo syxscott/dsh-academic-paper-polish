@@ -55,6 +55,7 @@ const groups = new Map([
   ['host', []],
   ['client', []],
   ['skill content', []],
+  ['rule database', []],
   ['scripts', []],
   ['preview code', []],
   ['preview assets', []],
@@ -64,9 +65,10 @@ const groups = new Map([
 for (const file of files) {
   const rel = relative(root, file).split(sep).join('/');
   if (rel.startsWith('skill/')) groups.get('skill content').push(rel);
-  else if (rel === 'index.js') groups.get('host').push(rel);
+  else if (rel === 'index.js' || rel.startsWith('lib/')) groups.get('host').push(rel);
   else if (rel === 'client.js') groups.get('client').push(rel);
   else if (rel.startsWith('scripts/')) groups.get('scripts').push(rel);
+  else if (rel.startsWith('data/')) groups.get('rule database').push(rel);
   else if (rel.startsWith('preview/')) {
     if (/\.(png|jpg|jpeg|gif|webp)$/i.test(rel)) groups.get('preview assets').push(rel);
     else groups.get('preview code').push(rel);
@@ -141,6 +143,18 @@ const embeddedIndexLines =
   indexStart === -1 ? 0 : client.slice(indexStart, indexEnd).split(/\r?\n/).length;
 
 console.log(`host  index.js    ${hostStats.total} lines total / ${hostStats.code} code / ${kb(host.length)}`);
+const libFiles = readdirSync(join(root, 'lib')).filter((f) => f.endsWith('.mjs'));
+let libCode = 0;
+let libTotal = 0;
+let libBytes = 0;
+for (const name of libFiles) {
+  const text = readFileSync(join(root, 'lib', name), 'utf8');
+  const stats = logicalLines(text);
+  libCode += stats.code;
+  libTotal += stats.total;
+  libBytes += Buffer.byteLength(text);
+}
+console.log(`host  lib/         ${libFiles.length} modules / ${libTotal} lines total / ${libCode} code / ${kb(libBytes)}`);
 console.log(`client client.js  ${clientStats.total} lines total / ${clientStats.code} code / ${kb(client.length)}`);
 console.log(`  JS logic        ${clientStats.code - cssRules - embeddedIndexLines} lines`);
 console.log(`  inline CSS      ${cssRules} lines`);

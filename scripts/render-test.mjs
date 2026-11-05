@@ -70,7 +70,7 @@ if (dockRegistrations.length > 0) {
 }
 console.log('✓ no composer-dock registration (right sidebar only)');
 
-const views = ['journal', 'matrix', 'match', 'figure', 'color', 'modules', 'checklist', 'rules'];
+const views = ['rules', 'journals', 'check', 'deai', 'checklist', 'manual'];
 const slots = ['sidebar.right.pane.tab'];
 let failures = 0;
 

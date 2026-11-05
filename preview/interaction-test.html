@@ -8,7 +8,7 @@
       html, body { margin: 0; background: var(--dsw-alias-bg-base); font-family: -apple-system, 'Segoe UI', 'Microsoft YaHei', system-ui, sans-serif; }
       #frame { width: 380px; height: 100vh; border-right: 1px solid var(--dsw-alias-border-l1); overflow: hidden; display: flex; flex-direction: column; }
       #root { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
-      #report { position: fixed; right: 0; top: 0; width: 380px; background: #111; color: #0f0; font: 12px monospace; padding: 8px; white-space: pre-wrap; z-index: 9999; max-height: 100vh; overflow: auto; }
+      #report { position: fixed; right: 0; top: 0; width: 380px; background: #111; color: #0f; font: 12px monospace; padding: 8px; white-space: pre-wrap; z-index: 9999; max-height: 100vh; overflow: auto; }
     </style>
   </head>
   <body>
@@ -30,6 +30,16 @@
         setter.call(el, value);
         el.dispatchEvent(new Event('input', { bubbles: true }));
       };
+      const setArea = (el, value) => {
+        const setter = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, 'value').set;
+        setter.call(el, value);
+        el.dispatchEvent(new Event('input', { bubbles: true }));
+      };
+      const setSelect = (el, value) => {
+        const setter = Object.getOwnPropertyDescriptor(window.HTMLSelectElement.prototype, 'value').set;
+        setter.call(el, value);
+        el.dispatchEvent(new Event('change', { bubbles: true }));
+      };
 
       window.__errors = [];
       window.addEventListener('error', (e) => window.__errors.push(`${e.message} @ ${e.filename}:${e.lineno}:${e.colno}`));
@@ -38,9 +48,9 @@
       const report = (t) => { document.getElementById('report').textContent = t; };
 
       window.__ModuleLoader__ = { load(def) { window.__definition = def; } };
-      // The panel persists its view, journal and filter state, so every run
-      // starts from a clean profile — otherwise the previous run's state leaks
-      // into the assertions.
+      // The panel persists its view, journal, checklist and filter state, so
+      // every run starts from a clean profile — otherwise the previous run's
+      // state leaks into the assertions.
       try {
         for (const key of Object.keys(window.localStorage)) {
           if (key.startsWith('dsh-academic-paper-polish.')) window.localStorage.removeItem(key);
@@ -49,13 +59,20 @@
 
       // ── stub of the host route ─────────────────────────────────────────
       // The preview page is a file:// document and cannot reach the plugin's
-      // same-origin route, so the host answers are faked here: the index
-      // request succeeds (which switches the panel to its 🟢 live state) and
-      // the `?q=` request answers with a full-text hit that only exists in the
-      // body of a file — exactly the case the local filter cannot solve.
+      // same-origin route, so the host answers are faked here. The shapes are
+      // the ones the host ships (see the host's API contract): rules carry
+      // `severity` / `source` / `domain`, journals carry `limits` /
+      // `structure` / `rules`, checklist items carry `stageId`.
+      //
+      // `window.__apiMode` switches the whole stub between the four states
+      // the panel must tell apart: 'ok' (data), '401' (unauthorized),
+      // '404' (not implemented) and 'offline' (unreachable).
+      window.__apiMode = 'ok';
+      window.__apiCalls = [];
       window.__indexFetched = false;
       window.__searchQueries = [];
-      const FIXTURE = [
+
+      const FIXTURE_INDEX = [
         {
           path: 'references/micropaleo-paper-patterns.md',
           kind: 'reference',
@@ -66,21 +83,252 @@
           bytes: 61439,
         },
       ];
-      window.fetch = async (url) => {
+
+      const FIXTURE_RULES = [
+        {
+          id: 'W-ABS-01',
+          title: '摘要必须包含四个部分',
+          severity: 'hard',
+          sections: ['abstract'],
+          statement: '摘要含背景 / 科学问题 / 研究结果 / 研究意义 四部分',
+          fix: '按 背景 → 科学问题 → 研究结果 → 研究意义 顺序重写摘要。',
+          tags: ['abstract', 'structure'],
+          source: { file: 'references/checklist.md', line: 30 },
+          domain: 'writing',
+          checkType: 'manual',
+        },
+        {
+          id: 'W-INT-02',
+          title: '引言必须倒金字塔',
+          severity: 'soft',
+          sections: ['introduction'],
+          statement: '引言自研究问题逐级收窄到本文贡献',
+          fix: '把 opening 句与 resolution 句对齐。',
+          tags: ['introduction'],
+          source: { file: 'references/checklist.md', line: 48 },
+          domain: 'writing',
+          checkType: 'manual',
+        },
+        {
+          id: 'F-FIG-01',
+          title: '照片分辨率不低于 300 dpi',
+          severity: 'hard',
+          sections: ['figures'],
+          statement: '彩色/灰度照片 ≥ 300 dpi，线条图 ≥ 1000 dpi',
+          fix: '用图像软件的 dpi 元数据重新导出。',
+          tags: ['figure', 'dpi'],
+          source: { file: 'references/figure-design-system.md', line: 12 },
+          domain: 'figures',
+          checkType: 'numeric',
+        },
+      ];
+
+      const FIXTURE_JOURNALS = [
+        {
+          key: 'palaeontology',
+          name: 'Palaeontology',
+          publisher: 'Wiley',
+          issn: '0031-0239',
+          field: ['古生物', '系统分类'],
+          scope: '系统古生物学与演化',
+          impactFactor: 3.2,
+          reviewDays: 60,
+          apc: 3800,
+          openAccess: false,
+          articleTypes: ['research', 'review'],
+          limits: { abstractWords: 300, titleWords: 20, keywords: 6, references: 60, figures: 12, tables: 8, dpi: 600 },
+          structure: ['Introduction', 'Geological setting', 'Systematic palaeontology', 'Discussion', 'Conclusions'],
+          rules: ['段结构固定为五段', '图件必须单独提交'],
+          notes: '审稿约两个月。',
+          source: { file: 'references/journal-constraints.md', line: 42 },
+        },
+        {
+          key: 'acta-palaeo',
+          name: 'Acta Palaeontologica Polonica',
+          publisher: 'PAN',
+          issn: '0004-9303',
+          field: ['古生物'],
+          scope: '古生物全领域',
+          impactFactor: 1.8,
+          reviewDays: 45,
+          apc: 0,
+          openAccess: true,
+          articleTypes: ['research', 'brief'],
+          limits: { abstractWords: 300, keywords: 6, figures: 14, dpi: 400 },
+          structure: ['Introduction', 'Material and methods', 'Results', 'Discussion', 'Conclusions'],
+          rules: ['ZooBank 命名注册强制'],
+          notes: '无投稿费，CC BY。',
+          source: { file: 'references/journal-constraints.md', line: 88 },
+        },
+      ];
+
+      const FIXTURE_STAGES = [
+        {
+          id: 'pre-submit',
+          title: '投稿前自查',
+          sections: ['title', 'abstract', 'introduction'],
+          items: [
+            { id: 'B-01', text: '摘要语法错误 ≤ 6 处', severity: 'hard', ruleId: 'W-ABS-04', tags: ['abstract'], stageId: 'pre-submit' },
+            { id: 'B-02', text: 'Highlights 每条 ≤ 85 字符', severity: 'soft', ruleId: '', tags: [], stageId: 'pre-submit' },
+          ],
+        },
+        {
+          id: 'figures',
+          title: '图件与表格',
+          sections: ['figures', 'tables'],
+          items: [
+            { id: 'F-01', text: '每图单独文件，图注另附', severity: 'hard', ruleId: 'F-FIG-01', tags: ['figure'], stageId: 'figures' },
+          ],
+        },
+      ];
+
+      const FIXTURE_PATTERNS = [
+        {
+          id: 'DEAI-001',
+          zh: '深入探讨',
+          en: 'delve into',
+          pattern: '\\bdelve\\s+into\\b',
+          flags: 'i',
+          severity: 'soft',
+          category: '空动词套话',
+          why: 'delve 是低信息量动词，常出现在 AI 生成文本里。',
+          suggestion: '换成具体动作：比较 / 测得 / 分离 / 重构。',
+        },
+      ];
+
+      const FIXTURE_VIOLATIONS = [
+        {
+          id: 'W-ABS-01',
+          ruleId: 'W-ABS-01',
+          title: '摘要必须包含四个部分',
+          severity: 'hard',
+          section: 'abstract',
+          statement: '摘要含背景 / 科学问题 / 研究结果 / 研究意义 四部分',
+          fix: '按 背景 → 科学问题 → 研究结果 → 研究意义 顺序重写摘要。',
+          source: { file: 'references/checklist.md', line: 30 },
+          matched: 'however',
+          actual: 7,
+          expected: '1-4 次',
+        },
+        {
+          id: 'W-INT-02',
+          ruleId: 'W-INT-02',
+          title: '引言必须倒金字塔',
+          severity: 'soft',
+          section: 'introduction',
+          statement: '引言自研究问题逐级收窄到本文贡献',
+          fix: '把 opening 句与 resolution 句对齐。',
+          source: { file: 'references/checklist.md', line: 48 },
+        },
+      ];
+
+      const json = (status, body) => ({
+        ok: status >= 200 && status < 300,
+        status,
+        json: async () => body,
+      });
+
+      window.fetch = async (url, init) => {
         const target = String(url);
+        const method = (init && init.method) || 'GET';
+        window.__apiCalls.push({ url: target, method, body: init && init.body });
+        const mode = window.__apiMode;
+        if (mode === '401') return json(401, null);
+        if (mode === '404') return json(404, null);
+        if (mode === 'offline') throw new TypeError('Failed to fetch');
+
         if (target.includes('skill-index?q=')) {
           const query = decodeURIComponent(target.split('q=')[1] || '');
           window.__searchQueries.push(query);
           const hits = query.toLowerCase().includes('zoobank')
-            ? [{ ...FIXTURE[0], snippet: '新分类单元必须登记 ZooBank 并给出解析号（LSID）。', line: 128 }]
+            ? [{ ...FIXTURE_INDEX[0], snippet: '新分类单元必须登记 ZooBank 并给出解析号（LSID）。', line: 128 }]
             : [];
-          return { ok: true, status: 200, json: async () => hits };
+          return json(200, hits);
         }
         if (target.includes('skill-index')) {
           window.__indexFetched = true;
-          return { ok: true, status: 200, json: async () => FIXTURE };
+          return json(200, FIXTURE_INDEX);
         }
-        return { ok: false, status: 404, json: async () => null };
+        if (target.includes('/api/meta')) {
+          return json(200, {
+            version: '3.0.0',
+            counts: { rules: 3, journals: 2, sentences: 1, checklists: 2 },
+            domains: ['figures', 'submission', 'writing'],
+            sections: ['title', 'abstract', 'introduction', 'methods', 'results', 'discussion', 'conclusion', 'figures', 'tables', 'references'],
+            severities: ['hard', 'soft', 'info'],
+          });
+        }
+        if (target.includes('/api/rules')) {
+          const params = new URLSearchParams(target.split('?')[1] || '');
+          const query = (params.get('query') || '').toLowerCase();
+          const section = params.get('section') || '';
+          const severity = params.get('severity') || '';
+          const rules = FIXTURE_RULES.filter((rule) => {
+            if (severity && rule.severity !== severity) return false;
+            if (section && !(rule.sections || []).includes(section)) return false;
+            if (!query) return true;
+            return `${rule.id} ${rule.title} ${rule.statement} ${rule.fix}`.toLowerCase().includes(query);
+          });
+          return json(200, { rules, total: rules.length });
+        }
+        if (target.includes('/api/journals')) {
+          const params = new URLSearchParams(target.split('?')[1] || '');
+          const query = (params.get('query') || '').toLowerCase();
+          const field = params.get('field') || '';
+          const openAccess = params.get('openAccess') || '';
+          const maxApc = params.get('maxApc') || '';
+          const journals = FIXTURE_JOURNALS.filter((journal) => {
+            if (field && !(journal.field || []).includes(field)) return false;
+            if (openAccess === 'true' && !journal.openAccess) return false;
+            if (maxApc && (journal.apc === null || journal.apc > Number(maxApc))) return false;
+            if (!query) return true;
+            return `${journal.name} ${journal.publisher} ${journal.issn}`.toLowerCase().includes(query);
+          });
+          return json(200, { journals });
+        }
+        if (target.includes('/api/checklists')) {
+          const params = new URLSearchParams(target.split('?')[1] || '');
+          const stage = params.get('stage') || '';
+          const stages = stage ? FIXTURE_STAGES.filter((item) => item.id === stage) : FIXTURE_STAGES;
+          return json(200, { stages });
+        }
+        if (target.includes('/api/sentences')) {
+          return json(200, { patterns: FIXTURE_PATTERNS });
+        }
+        if (target.includes('/api/check')) {
+          return json(200, {
+            violations: FIXTURE_VIOLATIONS,
+            advice: [{ id: 'W-MAN-09', ruleId: 'W-MAN-09', title: '摘要不得出现引用', severity: 'info', statement: '摘要中不得出现文献引用', fix: '删除摘要中的引用标记。', source: { file: 'references/checklist.md', line: 66 } }],
+            summary: { total: 2, hard: 1, soft: 1, info: 0, bySection: { abstract: 1, introduction: 1 }, checkedRules: 12, manualRules: 1, pass: false },
+          });
+        }
+        if (target.includes('/api/deai')) {
+          return json(200, {
+            hits: [
+              {
+                id: 'DEAI-001',
+                zh: '深入探讨',
+                en: 'delve into',
+                severity: 'soft',
+                category: '空动词套话',
+                why: 'delve 是低信息量动词，常出现在 AI 生成文本里。',
+                suggestion: '换成具体动作：比较 / 测得 / 分离 / 重构。',
+                matched: 'delve into',
+                match: 'delve into',
+                count: 2,
+              },
+            ],
+            score: 72,
+            total: 1,
+          });
+        }
+        if (target.includes('/api/send')) {
+          return json(200, { ok: true, sessionId: 'session-1' });
+        }
+        if (target.includes('/api/outline')) {
+          return json(200, { journal: FIXTURE_JOURNALS[0], sections: [], limits: {}, notes: '', rules: [] });
+        }
+        return json(404, null);
       };
     </script>
     <script src="../client.js?v=20261105"></script>
@@ -114,43 +362,223 @@
           const root = ReactDOM.createRoot(document.getElementById('root'));
           const render = (props) => root.render(React.createElement(Panel, { ctx, variant: 'sidebar', ...props }));
 
+          const tabByLabel = (label) => qa('.dapp-tab').find((tab) => tab.textContent.includes(label));
+          const callsTo = (fragment) => window.__apiCalls.filter((call) => call.url.includes(fragment));
+
           // ── 1. initial render ──────────────────────────────────────────
           render({});
-          await sleep(500);
+          await sleep(600);
           check('panel mounts', !!q('.dapp'));
           check('header shows the title', text().includes('论文助手'));
-          check('eight tabs render', qa('.dapp-tab').length === 8, `${qa('.dapp-tab').length} tabs`);
-          check('journal view is the default', text().includes('前置要素'));
+          check('six tabs render', qa('.dapp-tab').length === 6, `${qa('.dapp-tab').length} tabs`);
+          check(
+            'the capability tabs are the ones the user asked for',
+            ['速查', '期刊', '检查', '去AI', '清单', '手册'].every((label) => !!tabByLabel(label)),
+            qa('.dapp-tab').map((tab) => tab.textContent).join('/'),
+          );
+          check('the rules view is the default', tabByLabel('速查')?.getAttribute('data-active') === 'true');
 
-          // ── 2. journal: switch journal via the select ───────────────────
-          const select = q('.dapp-select');
-          check('journal selector present', !!select);
-          if (select) {
-            const setter = Object.getOwnPropertyDescriptor(window.HTMLSelectElement.prototype, 'value').set;
-            setter.call(select, 'gca');
-            select.dispatchEvent(new Event('change', { bubbles: true }));
-            await sleep(300);
-            check('selecting another journal updates the dossier', text().includes('Geochimica') || text().includes('GCA'));
+          // ── 2. 速查: rules load from the host API ──────────────────────
+          const ruleCards = qa('.dapp-card');
+          check('the rule list renders cards', ruleCards.length >= 3, `${ruleCards.length} cards`);
+          check('a rule shows its severity badge', !!q('.dapp-sev[data-tone=bad]'));
+          check('a rule shows its source', /references\/checklist\.md:30/.test(text()), text().slice(0, 0));
+          check('a rule shows its fix', text().includes('按 背景 → 科学问题'));
+          check('the rules came from the host API', callsTo('/api/rules').length > 0, `${callsTo('/api/rules').length} calls`);
+
+          // ── 3. 速查: filter chips ──────────────────────────────────────
+          const chip = (kind, label) =>
+            qa(`.dapp-chipbtn[data-kind=${kind}]`).find((item) => item.textContent.trim() === label);
+          const sectionChip = chip('section', '图件 figures');
+          check('section chips render', !!sectionChip, qa('.dapp-chipbtn[data-kind=section]').map((c) => c.textContent).join('/'));
+          if (sectionChip) {
+            click(sectionChip);
+            await sleep(500);
+            check(
+              'a section chip filters the query',
+              callsTo('/api/rules').some((call) => call.url.includes('section=figures')),
+              callsTo('/api/rules').map((call) => call.url).join(' | '),
+            );
+            check('the chip is highlighted', q('.dapp-chipbtn[data-kind=section][data-on=true]')?.textContent.trim() === '图件 figures');
+            click(chip('section', '全部'));
+            await sleep(400);
+          }
+          const severityChip = chip('severity', '🟡 soft');
+          check('severity chips render', !!severityChip, qa('.dapp-chipbtn[data-kind=severity]').map((c) => c.textContent).join('/'));
+          if (severityChip) {
+            click(severityChip);
+            await sleep(500);
+            check(
+              'a severity chip filters the query',
+              callsTo('/api/rules').some((call) => call.url.includes('severity=soft')),
+              callsTo('/api/rules').map((call) => call.url).join(' | '),
+            );
+            click(chip('severity', '全部'));
+            await sleep(400);
+          }
+          const domainChip = chip('domain', '图表 figures');
+          check('category chips render', !!domainChip, qa('.dapp-chipbtn[data-kind=domain]').map((c) => c.textContent).join('/'));
+
+          // ── 4. 速查: debounced search ──────────────────────────────────
+          const rulesSearch = q('.dapp-search input');
+          check('the rules search box is present', !!rulesSearch);
+          if (rulesSearch) {
+            setInput(rulesSearch, 'dpi');
+            await sleep(700);
+            check(
+              'the search reaches the host API',
+              callsTo('/api/rules').some((call) => call.url.includes('query=dpi')),
+              callsTo('/api/rules').map((call) => call.url).join(' | '),
+            );
+            check('the search narrows the list', qa('.dapp-card').length === 1, `${qa('.dapp-card').length} cards`);
+            setInput(rulesSearch, 'zzzznotfound');
+            await sleep(700);
+            check('an empty search shows the empty state', text().includes('暂无匹配规则'), text().slice(-80));
+            setInput(rulesSearch, '');
+            await sleep(500);
           }
 
-          // ── 3. module view: clicking a module produces feedback ─────────
-          const tabButtons = qa('.dapp-tab');
-          const modulesTab = tabButtons.find((b) => b.textContent.includes('模块'));
-          click(modulesTab);
-          await sleep(300);
-          check('modules view renders cards', qa('.dapp-mod').length > 0, `${qa('.dapp-mod').length} cards`);
-          const mod = q('.dapp-mod');
-          click(mod);
-          await sleep(350);
-          check('clicking a module gives feedback', /插入|复制/.test(text()), text().slice(-140));
+          // ── 5. keyboard: 「/」 focuses the search box, 「Esc」 clears it ─
+          const keyboardBox = q('.dapp-search input');
+          if (keyboardBox) {
+            keyboardBox.blur();
+            window.dispatchEvent(new KeyboardEvent('keydown', { key: '/', bubbles: true }));
+            await sleep(250);
+            check('「/」 focuses the search box', document.activeElement === keyboardBox, String(document.activeElement && document.activeElement.tagName));
+            setInput(keyboardBox, 'dpi');
+            await sleep(350);
+            keyboardBox.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+            await sleep(350);
+            check('「Esc」 clears the search box', q('.dapp-search input').value === '', q('.dapp-search input').value);
+            await sleep(400);
+          }
 
-          // ── 4. search filters the index ──────────────────────────────────
+          // ── 6. 期刊: list, sort, filter, target ───────────────────────
+          click(tabByLabel('期刊'));
+          await sleep(600);
+          const rows = qa('.dapp-jtable tbody tr');
+          check('the journal table renders rows', rows.length === 2, `${rows.length} rows`);
+          check('the journal table scrolls instead of breaking', !!q('.dapp-tablewrap'));
+          const ifHeader = qa('.dapp-jtable thead th').find((th) => th.textContent.includes('IF'));
+          check('the table has sortable headers', !!ifHeader);
+          const orderBefore = qa('.dapp-jtable tbody tr').map((row) => row.textContent.slice(0, 12));
+          if (ifHeader) {
+            click(ifHeader);
+            await sleep(300);
+            const orderAfter = qa('.dapp-jtable tbody tr').map((row) => row.textContent.slice(0, 12));
+            check('clicking a header re-sorts the table', JSON.stringify(orderBefore) !== JSON.stringify(orderAfter), orderAfter.join('/'));
+          }
+          const oaChip = qa('.dapp-chipbtn').find((chip) => chip.textContent.includes('仅开放获取'));
+          check('the open-access filter renders', !!oaChip);
+          if (oaChip) {
+            click(oaChip);
+            await sleep(500);
+            check(
+              'the open-access filter reaches the host API',
+              callsTo('/api/journals').some((call) => call.url.includes('openAccess=true')),
+              callsTo('/api/journals').map((call) => call.url).join(' | '),
+            );
+            click(oaChip);
+            await sleep(400);
+          }
+          const firstRow = q('.dapp-jtable tbody tr');
+          if (firstRow) {
+            const clickedKey = firstRow.getAttribute('data-key');
+            click(firstRow);
+            await sleep(300);
+            check('clicking a row opens the journal detail', text().includes('设为目标期刊'));
+            const targetButton = qa('.dapp-btn').find((btn) => btn.textContent.includes('设为目标期刊'));
+            if (targetButton) {
+              click(targetButton);
+              await sleep(300);
+              const stored = JSON.parse(localStorage.getItem('dsh-academic-paper-polish.journal') || 'null');
+              check('「设为目标期刊」 persists the journal key', stored === clickedKey, `stored: ${stored}, row: ${clickedKey}`);
+            } else {
+              check('「设为目标期刊」 persists the journal key', false, 'button missing');
+            }
+          }
+
+          // ── 6. 检查: live compliance check ─────────────────────────────
+          click(tabByLabel('检查'));
+          await sleep(400);
+          const checkArea = q('.dapp-textarea');
+          check('the check view has a textarea', !!checkArea);
+          const journalSelect = qa('.dapp-select').find((sel) => sel.value !== '');
+          check('the check view offers the target journal', !!journalSelect, qa('.dapp-select').map((s) => s.value).join('/'));
+          if (checkArea) {
+            setArea(checkArea, 'Abstract\nWe delve into the method. However the results are limited.');
+            await sleep(200);
+            const runButton = qa('.dapp-btn').find((btn) => btn.textContent.includes('开始检查'));
+            check('the check button renders', !!runButton);
+            if (runButton) {
+              click(runButton);
+              await sleep(700);
+              check('the check posts to the host API', callsTo('/api/check').some((call) => call.method === 'POST'));
+              check('the severity summary bar renders', !!q('.dapp-verdictbar'), text().slice(0, 0));
+              check('the summary counts hard / soft / info', qa('.dapp-summary-cell').length === 3, `${qa('.dapp-summary-cell').length} cells`);
+              check('the verdict reports the violations', text().includes('发现 2 条违规'), text().slice(0, 0));
+              check('the violations render as cards', text().includes('W-ABS-01') && text().includes('期望：1-4 次'));
+              check('the violation carries its source', /references\/checklist\.md:30/.test(text()));
+            }
+          }
+
+          // ── 7. 去AI: de-AI scan ───────────────────────────────────────
+          click(tabByLabel('去AI'));
+          await sleep(400);
+          const deaiArea = q('.dapp-textarea');
+          check('the de-AI view has a textarea', !!deaiArea);
+          if (deaiArea) {
+            setArea(deaiArea, 'We delve into the method, which is noteworthy.');
+            await sleep(200);
+            const scanButton = qa('.dapp-btn').find((btn) => btn.textContent.includes('开始扫描'));
+            check('the scan button renders', !!scanButton);
+            if (scanButton) {
+              click(scanButton);
+              await sleep(700);
+              check('the scan posts to the host API', callsTo('/api/deai').some((call) => call.method === 'POST'));
+              check('the de-AI score renders', q('.dapp-score-big')?.textContent === '72', q('.dapp-score-big')?.textContent);
+              check('the hits render with their category', text().includes('空动词套话'));
+              check('the hits render with a suggestion', text().includes('换成具体动作'));
+              check('the copy-all button renders', qa('.dapp-btn').some((btn) => btn.textContent.includes('复制全部建议')));
+            }
+          }
+
+          // ── 8. 清单: stage tabs + persisted ticks ──────────────────────
+          click(tabByLabel('清单'));
+          await sleep(600);
+          check('the checklist renders stage groups', qa('.dapp-group').length === 2, `${qa('.dapp-group').length} groups`);
+          const stageChip = qa('.dapp-chipbtn').find((chip) => chip.textContent.includes('投稿前自查'));
+          check('the checklist renders stage tabs', !!stageChip, qa('.dapp-chipbtn').map((c) => c.textContent).join('/'));
+          check('checkboxes are visible', qa('.dapp-box').length === 3, `${qa('.dapp-box').length} boxes`);
+          const before = text().match(/进度 (\d+)\/(\d+)/);
+          const item = q('.dapp-item');
+          check('checklist items render', !!item);
+          if (item) {
+            click(q('.dapp-box'));
+            await sleep(350);
+            const after = text().match(/进度 (\d+)\/(\d+)/);
+            check('ticking an item advances the progress', !!(before && after && Number(after[1]) === Number(before[1]) + 1), `${before && before[1]} -> ${after && after[1]}`);
+            check('ticked item is marked', !!q('.dapp-item[data-checked=true]'));
+            const saved = JSON.parse(localStorage.getItem('dsh-academic-paper-polish.checklist') || '{}');
+            check('tick persists to localStorage', Object.keys(saved).length === 1, JSON.stringify(saved));
+          }
+          if (stageChip) {
+            click(stageChip);
+            await sleep(300);
+            check('a stage tab narrows the list', qa('.dapp-group').length === 1, `${qa('.dapp-group').length} groups`);
+            click(stageChip);
+            await sleep(300);
+          }
+
+          // ── 9. 手册: the manual browser still works ───────────────────
+          click(tabByLabel('手册'));
+          await sleep(500);
           const search = q('.dapp-search input');
           check('search box present', !!search);
           check('the live index was fetched from the host route', window.__indexFetched === true);
           if (search) {
             setInput(search, 'ZooBank');
-            await sleep(500);
+            await sleep(600);
             const hits = qa('.dapp-file').length;
             check('a body-only term still finds its file', hits === 1, `${hits} hits for ZooBank`);
             check('the query was sent to the host route', window.__searchQueries.includes('ZooBank'), JSON.stringify(window.__searchQueries));
@@ -158,108 +586,71 @@
             check('the hit shows the matched snippet', !!snippet && snippet.textContent.includes('ZooBank'), snippet ? snippet.textContent.slice(0, 60) : '(none)');
             check('the hit shows the file path', /references\//.test(text()));
             setInput(search, 'zzzznotfound');
-            await sleep(500);
+            await sleep(600);
             check('search shows an empty state', text().includes('没有命中'));
             setInput(search, '');
-            await sleep(250);
+            await sleep(300);
           }
 
-          // ── 5. checklist: ticking an item updates the progress ───────────
-          const listTab = tabButtons.find((b) => b.textContent.includes('清单'));
-          click(listTab);
-          await sleep(300);
-          check('checklist view renders groups', qa('.dapp-group').length > 0, `${qa('.dapp-group').length} groups`);
-          check('checkboxes are visible', qa('.dapp-box').length > 0, `${qa('.dapp-box').length} boxes`);
-          const before = text().match(/进度 (\d+)\/(\d+)/);
-          const item = q('.dapp-item');
-          check('checklist items render', !!item);
-          if (item) {
-            click(item);
-            await sleep(350);
-            const after = text().match(/进度 (\d+)\/(\d+)/);
-            check('ticking an item advances the progress', !!(before && after && Number(after[1]) === Number(before[1]) + 1), `${before && before[1]} -> ${after && after[1]}`);
-            check('ticked item is marked', !!q('.dapp-item[data-checked=true]'));
-            const saved = JSON.parse(localStorage.getItem('dsh-academic-paper-polish.checklist.v1') || '{}');
-            check('tick persists to localStorage', Object.keys(saved).length === 1, JSON.stringify(saved));
+          // ── 10. 「发送到会话」 ─────────────────────────────────────────
+          click(tabByLabel('速查'));
+          await sleep(500);
+          const sendButton = qa('.dapp-btn').find((btn) => btn.textContent.includes('发给会话'));
+          check('the rule card offers 「发给会话」', !!sendButton);
+          if (sendButton) {
+            click(sendButton);
+            await sleep(600);
+            check('「发给会话」 posts to the host API', callsTo('/api/send').some((call) => call.method === 'POST'));
+            check('「发给会话」 confirms with a toast', text().includes('已发送到当前会话'), text().slice(-60));
           }
 
-          // ── 6. figure view: verdicts react to input ──────────────────────
-          const figTab = tabButtons.find((b) => b.textContent.includes('图件'));
-          click(figTab);
-          await sleep(300);
-          const verdicts = qa('.dapp-verdict');
-          check('figure view produces verdicts', verdicts.length > 0, `${verdicts.length} verdicts`);
-          const dpiInput = q('.dapp-field input');
-          check('figure inputs present', !!dpiInput);
-          if (dpiInput) {
-            setInput(dpiInput, '100');
-            await sleep(350);
-            const bad = qa('.dapp-verdict[data-state=bad]').length;
-            check('low dpi is flagged as bad', bad > 0, `${bad} bad verdicts`);
-            const okCount = qa('.dapp-verdict[data-state=ok]').length;
-            check('passing checks are marked ok', okCount > 0, `${okCount} ok verdicts`);
+          // ── 11. error states: unauthorized / unreachable / missing ─────
+          let probeTurn = 0;
+          const errorProbe = async (mode, expected) => {
+            window.__apiMode = mode;
+            click(tabByLabel('速查'));
+            await sleep(200);
+            const box = q('.dapp-search input');
+            // The probe text has to CHANGE, otherwise the debounced query
+            // never changes and no request goes out.
+            probeTurn += 1;
+            if (box) setInput(box, `probe${probeTurn}`);
+            await sleep(800);
+            const shown = text().includes(expected);
+            const chrome = qa('.dapp-tab').length === 6 && text().includes('论文助手');
+            return { shown, chrome };
+          };
+          const unauthorized = await errorProbe('401', '未授权：宿主拒绝了请求');
+          check('a 401 shows the unauthorized state', unauthorized.shown);
+          check('the panel chrome survives an unauthorized API', unauthorized.chrome);
+          const missing = await errorProbe('404', '宿主尚未提供该接口');
+          check('a 404 shows the not-implemented state', missing.shown);
+          check('the panel chrome survives a missing API', missing.chrome);
+          const offline = await errorProbe('offline', '宿主路由不可达');
+          check('an unreachable host shows its own state', offline.shown);
+          check('the panel chrome survives an unreachable API', offline.chrome);
+          check(
+            'the three failure states are distinguishable',
+            text().includes('宿主路由不可达') && !text().includes('未授权：宿主拒绝了请求'),
+          );
+          window.__apiMode = 'ok';
+          const box = q('.dapp-search input');
+          if (box) {
+            setInput(box, '');
+            await sleep(600);
           }
 
-          // ── 7. colour view: contrast + CVD simulation ────────────────────
-          const colorTab = tabButtons.find((b) => b.textContent.includes('配色'));
-          click(colorTab);
-          await sleep(300);
-          const palette = q('.dapp-search input');
-          check('palette input present', !!palette);
-          if (palette) {
-            setInput(palette, '#D30203 #75489A');
-            await sleep(400);
-            const swatches = qa('.dapp-swatch-card').length;
-            check('palette renders one card per colour', swatches === 2, `${swatches} cards`);
-            const strips = qa('.dapp-swatch-strip span').length;
-            check('CVD simulation strips rendered', strips === 8, `${strips} strips (2 colours × 4 views)`);
-          }
-
-          // ── 8. match view: picking a condition re-ranks ─────────────────
-          const matchTab = tabButtons.find((b) => b.textContent.includes('匹配'));
-          click(matchTab);
-          await sleep(300);
-          const chips = qa('.dapp-dim');
-          check('match view renders condition chips', chips.length >= 6, `${chips.length} chips`);
-          const orderBefore = qa('.dapp-score').map((n) => n.textContent.slice(0, 12));
-          const reviewChip = chips.find((c) => c.textContent.includes('综述'));
-          click(reviewChip);
-          await sleep(350);
-          const orderAfter = qa('.dapp-score').map((n) => n.textContent.slice(0, 12));
-          check('picking a condition changes the ranking', JSON.stringify(orderBefore) !== JSON.stringify(orderAfter));
-          check('selected chip is highlighted', q('.dapp-dim[data-on=true]') !== null);
-          check('a score is shown once conditions exist', /[0-9]+/.test(qa('.dapp-score-num')[0]?.textContent || ''));
-
-          // ── 9. comparison matrix ────────────────────────────────────────
-          const cmpTab = tabButtons.find((b) => b.textContent.includes('对比'));
-          click(cmpTab);
-          await sleep(300);
-          const dims = qa('.dapp-dim');
-          check('matrix renders dimension chips', dims.length >= 10, `${dims.length} dims`);
-          const rows = qa('.dapp-compare-row');
-          check('matrix lists every journal', rows.length > 0, `${rows.length} rows`);
-          const firstDim = dims[0];
-          const textBefore = q('.dapp-compare-row')?.textContent || '';
-          const otherDim = dims.find((d) => d !== firstDim);
-          click(otherDim);
-          await sleep(350);
-          const textAfter = q('.dapp-compare-row')?.textContent || '';
-          check('switching dimension changes the values', textBefore !== textAfter);
-          click(q('.dapp-compare-row'));
-          await sleep(350);
-          check('clicking a row jumps to that journal', text().includes('前置要素'), 'journal dossier opened');
-
-          // ── 10. keyboard shortcut ───────────────────────────────────────
-          window.dispatchEvent(new KeyboardEvent('keydown', { key: '7', bubbles: true }));
+          // ── 12. keyboard shortcut ──────────────────────────────────────
+          window.dispatchEvent(new KeyboardEvent('keydown', { key: '5', bubbles: true }));
           await sleep(350);
           const activeTab = q('.dapp-tab[data-active=true]')?.textContent || '';
           check('number key switches views', activeTab.includes('清单'), `active tab: ${activeTab}`);
 
-          // ── 11. persistence of the view state ──────────────────────────
+          // ── 13. persistence of the view state ──────────────────────────
           const storedView = JSON.parse(localStorage.getItem('dsh-academic-paper-polish.view') || 'null');
           check('the active view is persisted', storedView === 'checklist', `stored view: ${storedView}`);
 
-          // ── 12. no console errors ───────────────────────────────────────
+          // ── 14. no console errors ───────────────────────────────────────
           check('no uncaught errors during the run', window.__errors.length === 0, window.__errors.join(' | '));
         } catch (error) {
           results.push(`✗ harness crashed: ${error && error.message}`);

@@ -3,6 +3,78 @@
 All notable changes to this project are documented here. Format based on
 [Keep a Changelog](https://keepachangelog.com/); versions follow semver.
 
+## [3.0.0] - 2026-11-05
+
+### Added
+- **五个模型可调用的工具**（`ctx.tools.register`）：
+  `paper_check`（逐条跑规则库，返回违规 + 出处 + 修复建议）·
+  `paper_rules`（按关键词/段落/严重度/期刊切规则）·
+  `paper_journals`（主题 → 期刊排序）·
+  `paper_outline`（目标期刊段结构与篇幅上限）·
+  `paper_deai`（去 AI 化扫描 + 0–100 得分）。
+  描述均写明何时调用；输出有行数上限，规则库不回灌。
+- **五个斜杠命令**（`ctx.commands.register`）：
+  `/paper-check` `/paper-rules` `/paper-journals` `/paper-outline` `/paper-deai`。
+  前两者可带文件附件。
+- **一段常驻系统提示**（`ctx.systemPrompt.section`，order 2950，126 字符）：
+  告诉模型有这些工具、写改稿请调用、别凭记忆套规则。
+- **机器可读规则库** `data/`：**432 条规则**（329 通用 + 103 期刊专属）·
+  **28 本期刊**结构化档案 · **103 条**去 AI 化句式 · **16 阶段 / 112 项**自查清单。
+  291 条（67%）可自动判定，其余 141 条作为「无法自动判定但必须知道」的指导一并返回。
+- **宿主 JSON API**（同源，零 token）：`api/meta` `api/rules` `api/journals`
+  `api/sentences` `api/checklists` `api/check` `api/deai` `api/outline` `api/send`。
+- **`POST /api/send`**：把内容注入**当前会话**的 inbox（`agent.followup`），
+  冷会话走 `sessionController.resolveAgent`；消息带自定义来源标记
+  `academic-paper-polish`（**不是** `user`），因此在 Web UI 里渲染成带出处的注入行，
+  不会冒充人类发言，也不会让 goal 工具误以为那是真人输入。
+- **`scripts/eval-conformance.mjs`**：用上游 `evals/evals.json`（26 用例）反查手册完整性
+  —— 模块文件必须真的包含该模块的关键事实、相对链接必须可达、
+  每个文件都必须从 `SKILL.md` 可达、数字事实必须能从 `data/` 取到。
+- **`evals/evals.json`** 与 **`skill/academic-paper-polish/references/AGENTS.md`**：
+  补进之前漏掉的上游仓库级资产（跨工具规则单一来源，含分章引文密度表）。
+- **`scripts/tag-journal-rules.mjs`**（幂等）：给规则回填 `journals` 归属。
+- **`scripts/tighten-numeric-patterns.mjs`**：给数值正则加数字边界与量纲关键词锚定。
+
+### Changed
+- **面板从 8 个只读视图改为 6 个 API 驱动视图**：
+  速查（规则筛选 + 搜索 + 出处）· 期刊（可排序表 + 筛选 + 设为目标刊）·
+  检查（实时体检 + 严重度汇总 + 违规卡）· 去AI（得分 + 命中卡 + 句式库）·
+  清单（16 阶段 + 进度环 + 落盘）· 手册（原 markdown 浏览器）。
+  面板内容**全部来自宿主 API**，不内嵌任何规则对象（审计有断言守着）。
+- 面板新增「**发给会话**」：规则 / 违规 / 清单项一键注入当前会话。
+- 错误态从 2 种扩到 3 种并互不混淆：`unauthorized`（401/403）·
+  `notImplemented`（404/405）· `failed`（网络不可达）；面板 chrome 在任何状态下都在。
+- 宿主半边拆成 `index.js` + `lib/`（data / text / checker / outline / tools / commands），
+  零新增运行时依赖。
+- `package.json`：`version` → 3.0.0，`files` 增加 `lib` 与 `data`，`exports` 增加 `./lib/*`。
+
+### Fixed
+- 🔴 **期刊专属规则串台**：121 条只属于某一本期刊的规则（「PE 必须提供 plain language
+  summary」「Paleobiology 送审图 <40 兆像素」）此前对所有稿件生效 ——
+  给 ES&T 稿件体检会报「PE 必须提供 plain language summary」。
+  规则新增可选 `journals` 归属字段并已回填 103 条；检查时只应用目标期刊的专属规则，
+  未指定期刊时跳过并在输出里说明跳过了多少条。
+- 🔴 **数值检查读错数**：`(\d{1,2})\s*mm` 会把「220 mm」读成「20」（正则从中间一位开始匹配）；
+  `(\d+)\s*pt` 会把线宽当字号。全部数值正则加数字边界 + 量纲关键词锚定。
+- 🔴 **手册 7 处内容缺口 + 16 处失效链接**：
+  `docs/PROMPTS-EN.md` 的 13 个链接指向的是上游仓库布局（`../skills/academic-paper-polish/…`），
+  打包后全是死链；`prompts/01-abstract.md` 缺 Highlights 与「避免缩写」、
+  `prompts/02-introduction.md` 缺「倒金字塔」与 topic sentence、
+  `prompts/03-literature-review.md` 缺「18 步」、`prompts/06-discussion.md` 缺「6 步」、
+  `references/figure-specs.md` 缺 Palaeontologia Electronica 整节、
+  `references/micropaleo-paper-patterns.md` 缺 181 篇分层随机样本的口径说明。全部补齐。
+- 渲染测试的视图清单仍是 v2 的 8 个旧 id（全部落到默认视图，等于没测）——改为新的 6 个。
+
+### Removed
+- 面板的 4 个纯本地视图（对比矩阵 / 选刊匹配 / 图件体检 / 配色体检）。
+  对比与选刊由 `api/journals` + `paper_journals` 接管；
+  图件体检由规则库的 145 条图件规则接管（81.4% 可自动判定，比原先只查 dpi/宽/高更全）；
+  色觉模拟未重建。
+
+### Test
+- 断言总数 41 → **466**（audit 36 · eval-conformance 171 · host-route 183 · interaction 76）。
+- 交互测试：保留 17 · 改写 5 · 删除 19（旧视图断言）· 新增 54。
+
 ## [2.4.0] - 2026-11-05
 
 ### Changed

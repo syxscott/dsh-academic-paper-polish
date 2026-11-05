@@ -4,6 +4,11 @@
 *.log
 node_modules/
 
+# generated: rebuild with `node scripts/build-preview-data.mjs`
+preview/preview-data.js
+preview/.profile-*
+preview/dump-*.html
+
 # OS / editor
 Thumbs.db
 .DS_Store

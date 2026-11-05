@@ -56,6 +56,104 @@
         load(definition) { window.__definition = definition; },
       };
     </script>
+    <script src="./preview-data.js"></script>
+    <script>
+      // ── stub of the host route ─────────────────────────────────────────────
+      // The preview has no host process, so the host API is answered here from
+      // the REAL data and the REAL engine output (scripts/build-preview-data.mjs
+      // produces this file). A screenshot of the preview is therefore a
+      // screenshot of the production data.
+      (() => {
+        const DATA = window.__PREVIEW_DATA__;
+        if (!DATA) return;
+        const json = (body) =>
+          new Response(JSON.stringify(body), {
+            status: 200,
+            headers: { 'content-type': 'application/json; charset=utf-8' },
+          });
+        const text = (value) => String(value ?? '').trim().toLowerCase();
+        const match = (rule, query) => {
+          if (!query) return true;
+          const needle = text(query);
+          return [rule.id, rule.title, rule.statement, rule.fix, ...(rule.tags || []), ...(rule.sections || [])]
+            .join(' ')
+            .toLowerCase()
+            .includes(needle);
+        };
+        const realFetch = window.fetch?.bind(window);
+        window.fetch = async (input, init = {}) => {
+          const url = new URL(String(input), location.href);
+          const path = url.pathname;
+          const query = url.searchParams;
+          const method = (init.method || 'GET').toUpperCase();
+
+          if (path.endsWith('/api/meta')) return json(DATA.meta);
+          if (path.endsWith('/api/rules')) {
+            const section = query.get('section');
+            const severity = query.get('severity');
+            const q = query.get('query');
+            const rules = DATA.rules.filter(
+              (rule) =>
+                (!section || rule.sections.includes(section)) &&
+                (!severity || rule.severity === severity) &&
+                match(rule, q),
+            );
+            return json({ rules, total: rules.length });
+          }
+          if (path.endsWith('/api/journals')) {
+            const q = text(query.get('query'));
+            const field = text(query.get('field'));
+            const openAccess = query.get('openAccess');
+            const maxApc = Number(query.get('maxApc') || 0);
+            const journals = DATA.journals.filter((journal) => {
+              if (field && !(journal.field || []).some((f) => text(f).includes(field))) return false;
+              if (openAccess === 'true' && !journal.openAccess) return false;
+              if (maxApc > 0 && Number(journal.apc || 0) > maxApc) return false;
+              if (!q) return true;
+              return [journal.name, journal.publisher, journal.scope, ...(journal.field || [])]
+                .join(' ')
+                .toLowerCase()
+                .includes(q);
+            });
+            return json({ journals, total: journals.length });
+          }
+          if (path.endsWith('/api/sentences')) {
+            const q = text(query.get('query'));
+            const patterns = DATA.sentences.filter((pattern) =>
+              !q ? true : `${pattern.zh} ${pattern.en} ${pattern.category}`.toLowerCase().includes(q),
+            );
+            return json({ patterns, total: patterns.length });
+          }
+          if (path.endsWith('/api/checklists')) {
+            const stage = query.get('stage');
+            const stages = stage ? DATA.checklists.filter((s) => s.id === stage) : DATA.checklists;
+            return json({ stages, total: stages.length });
+          }
+          if (path.endsWith('/api/check')) {
+            let body = {};
+            try {
+              body = JSON.parse(init.body || '{}');
+            } catch (error) {
+              body = {};
+            }
+            return json(body.journal ? DATA.demo.check : DATA.demo.checkNoJournal);
+          }
+          if (path.endsWith('/api/deai')) return json(DATA.demo.deai);
+          if (path.endsWith('/api/outline')) return json(DATA.demo.outline);
+          if (path.endsWith('/api/send')) return json({ ok: true, sessionId: 'preview', mode: 'followup' });
+          if (path.endsWith('/skill-index')) {
+            const needle = text(query.get('q'));
+            const files = DATA.index || [];
+            const hits = needle
+              ? files.filter((file) => `${file.title} ${file.path}`.toLowerCase().includes(needle))
+              : files;
+            return json({ files: hits, hits });
+          }
+          if (realFetch) return realFetch(input, init);
+          return new Response('not found', { status: 404 });
+        };
+      })();
+    </script>
     <script src="../client.js"></script>
     <script>
       const plugin = window.__definition.factory((name) => {
@@ -82,6 +180,28 @@
       ReactDOM.createRoot(document.getElementById('root')).render(
         React.createElement(registered, { ctx }),
       );
+      // ?demo=1 fills the textarea and presses the button, so a screenshot can
+      // show the RESULT of a check instead of the empty input state.
+      if (new URLSearchParams(location.search).get('demo') === '1' && window.__PREVIEW_DATA__) {
+        const sample = window.__PREVIEW_DATA__.demo.sample;
+        setTimeout(() => {
+          const area = document.querySelector('textarea');
+          if (area) {
+            const setter = Object.getOwnPropertyDescriptor(
+              window.HTMLTextAreaElement.prototype,
+              'value',
+            ).set;
+            setter.call(area, sample);
+            area.dispatchEvent(new Event('input', { bubbles: true }));
+          }
+          setTimeout(() => {
+            const button = [...document.querySelectorAll('button')].find((node) =>
+              /开始检查|开始扫描/.test(node.textContent || ''),
+            );
+            if (button) button.click();
+          }, 200);
+        }, 200);
+      }
       if (new URLSearchParams(location.search).get('diag') === '1') {
         setTimeout(() => {
           const el = document.querySelector('.dapp-dim');

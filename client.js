@@ -1,18 +1,20 @@
 // Client half of dsh-academic-paper-polish.
 //
-// Renders a "论文助手" panel in the right sidebar (`sidebar.right.pane.tab`):
-// journal hard-rule lookup, one-click module prompts, an interactive
-// submission checklist, the semantic figure colour dictionary, and the eight
-// cross-module hard rules.
+// The panel in the right sidebar (`sidebar.right.pane.tab`) is a capability
+// dashboard, not a manual: it reads the host's machine-readable rule /
+// journal / sentence / checklist data over the plugin's same-origin route
+// and turns every answer into an action the agent can execute — a live
+// compliance check, a de-AI scan, a submission checklist and a
+// 「发送到会话」 bridge into the live conversation.
 //
-// Data below is transcribed from the skill's own reference files
-// (references/journal-constraints.md, references/checklist.md,
-// references/figure-design-system.md, SKILL.md) so the panel stays in sync with
-// the skill content shipped in `skill/`.
+// Nothing is hardcoded here: every rule, journal, checklist item and
+// violation comes from the host API. When that API is missing the panel says
+// so (unauthorized / unreachable / not-implemented) instead of inventing
+// content.
 //
-// Styling uses only `--dsw-alias-*` theme tokens, so the panel follows the
-// host's light/dark theme. Plain React (no JSX) because the client module is
-// loaded as plain JavaScript by the browser module loader.
+// Styling uses the host theme tokens (`--dsw-alias-*`) through the panel's
+// own `--dapp-*` variables, so light and dark rendering follow the theme.
+// Plain React (no JSX): the client module is loaded as plain JavaScript.
 
 window.__ModuleLoader__.load({
   id: 'dsh-academic-paper-polish',
@@ -21,760 +23,66 @@ window.__ModuleLoader__.load({
     const h = React.createElement;
     const { useState, useEffect, useMemo, useRef } = React;
 
-    // ── data ────────────────────────────────────────────────────────────
-
-    const JOURNALS = [
-      {
-        id: 'gca',
-        name: 'GCA',
-        full: 'Geochimica et Cosmochimica Acta',
-        meta: ['Elsevier', '地球化学 / 宇宙化学'],
-        scope: '同位素地球化学与宇宙化学；强调示踪、机制与定量解释。',
-        structure: 'Results 与 Discussion 必须分离，各自独立编号。Results 只给数据与观测、尽量简洁；Discussion 把新结果置于前人工作中，并给出更广的地学意义与启示（每小节末点出意义）',
-        conclusion: '允许独立结论段',
-        length: '—',
-        front: [
-          'Cover Letter 必推荐 3 位副主编（Associate Editors，名单取自 GCA editorial board 页）',
-          '必备信息：通讯作者及邮箱 · 通信地址 · Keywords · Figures · Tables · Citations',
-          '回避特定审稿人 / 编辑仅为建议（purely advisory），不具约束力',
-        ],
-        figure: [
-          ['照片', '300 dpi'],
-          ['线绘', '1000 dpi'],
-          ['单栏宽', '<85 mm'],
-          ['双栏宽', '<180 mm'],
-          ['格式', 'TIFF / JPG'],
-          ['体积', '单图 <10 MB · 全文 <50 MB'],
-        ],
-        submit: ['每图单独文件（Figure_1、Figure_2）', '图注置于图下，另交单独文件', '禁把多图合并成一张'],
-        refs: 'Elsevier author-date；文末按第一作者字母序',
-        redlines: ['不收纯方法学 / 技术 / 模型论文', '不收 regional case studies', '摘要语法错误 >6 处 → 编辑不读正文'],
-        quotes: [
-          '"to present studies of fundamental significance and broad relevance for understanding geochemical systems, mechanisms, and processes, and of interest to a broad and diverse audience of geochemists"',
-          '"placing the new results in the context of published work"',
-          '"broader geochemical significance and implications"',
-          '"purely advisory"',
-        ],
-        ref: 'references/journal-constraints.md §GCA',
-      },
-      {
-        id: 'est',
-        name: 'ES&T',
-        full: 'Environmental Science & Technology',
-        meta: ['ACS（美国化学会）'],
-        scope: '环境科学与技术；强调机理、测量方法与可推广的环境意义。',
-        structure: 'Results 与 Discussion 合并为 Results and Discussion（Be complete but concise；avoid unsupported speculations；avoid long-winded discussion）',
-        conclusion: '禁用独立结论段（"A separate conclusion is not to be used"）',
-        length: 'Research Article ≤ 7,000 词',
-        front: [
-          '必填 Cover Letter（3–4 段）',
-          'Article header 每句首字母大写（非全部单词）',
-          '栏目制：必备 Abbreviations 与 Formulae and Equations 两个板块',
-        ],
-        figure: [
-          ['照片', '300 dpi'],
-          ['线绘', '1000 dpi'],
-          ['单栏宽', '<85 mm'],
-          ['双栏宽', '<180 mm'],
-          ['格式', 'TIFF / JPG'],
-        ],
-        submit: ['每图单独文件', '图注置于图下 + 单独文件', '连续行号'],
-        refs: 'ACS author-date',
-        redlines: ['Results 与 Discussion 必须合并', '不得另设 Conclusion 段', '摘要语法错误 >6 处 → 编辑不读正文'],
-        quotes: [
-          '"A separate conclusion is not to be used"',
-          '"Be complete but concise"',
-          '"avoid unsupported speculations"',
-          '"avoid long-winded discussion"',
-        ],
-        ref: 'references/journal-constraints.md §ES&T',
-      },
-      {
-        id: 'ppp',
-        name: 'PPP',
-        full: 'Palaeogeography, Palaeoclimatology, Palaeoecology',
-        meta: ['Elsevier', '古地理 / 古气候 / 古生态'],
-        scope: '地质记录优先的古地理、古气候与古生态；强调定量重建与证据链。',
-        structure: 'Abstract → Introduction → Geological setting → Materials and Methods → Results → Discussion → Conclusions',
-        conclusion: '有独立结论段（推荐 1–2 段；原文上限：最多两段、总长 ≤30 行）',
-        length: 'Articles 5,000–7,000 词（4–8 图）｜Reviews 8,000–10,000 词｜Short Communications 4,000 词（<3 图表）',
-        front: [
-          'Highlights <5 条，每条 85 个字符（含空格）',
-          'Abstract 300 词，避免缩写与参考文献',
-          'Keywords <6 个，避免与题目中的词重复',
-          'Article header 每句首字母大写',
-          'Graphical Abstract 可选（独立文件上传，最小 531×1328 px，缩至 5×13 cm 仍可读）',
-        ],
-        figure: [
-          ['照片', '300 dpi'],
-          ['位图线条图', '1000 dpi'],
-          ['线条+照片混合', '500 dpi'],
-          ['单栏宽', '<85 mm'],
-          ['双栏宽', '<180 mm（设计尺寸 ≤180 × 230 mm）'],
-          ['格式', 'TIFF / JPG（禁 GIF / BMP / PICT / WPG）'],
-          ['体积', '单图 <10 MB · 合计 <50 MB'],
-          ['panel 标签', '大写字母置每面板左上/左下，不加括号与框'],
-        ],
-        submit: [
-          '连续行号（送审必查项，不每页重起）',
-          '每图单独文件',
-          '图注置于图下 + 单独文件',
-          '正文首次提及处引用图，补充图用 Figure S1',
-          '🔴 不允许 Plates（化石标本图像集一律按 Figure 提交）',
-        ],
-        refs: '正文作者-年份括注制（Smith, 2011 / Smith et al., 2003）；同作者同年正文与文献清单都用 a/b/c；文末排序：字母序 → 单作者按年 → 双作者按第二作者字母 → 多作者按年；正文与清单双向一致',
-        redlines: [
-          'Highlights 每条 ≤85 字符',
-          'Abstract 不应出现引用',
-          'Abstract / Conclusion 不应出现文献',
-          'Introduction / Discussion 禁四级标题、禁切得过碎',
-          'Maps 不得显示政治争议边界',
-          '研究点位须给国际经纬度（≤10 个写正文，>10 个列表）',
-          '近 50,000 年内用 cal. B.P.；>2500 Ma 用 "m.y."',
-        ],
-        quotes: [
-          '"(Smith, 2011)"',
-          '"(Smith et al., 2003)"',
-          '"see Section 2.3.2"',
-          '"Figure S1"',
-          '"no more than 30 lines total"',
-        ],
-        ref: 'references/journal-constraints.md §格式与体裁规范',
-      },
-      {
-        id: 'paleobiology',
-        name: 'Paleobiology',
-        full: 'Paleobiology（Cambridge，古生物 / 化石形态学，规则最细）',
-        meta: ['Cambridge University Press', '化石形态学首选刊'],
-        scope: '古生物与化石形态学；接受度高的是图件方法学与系统发育工作。',
-        structure: 'Introduction → [Geological setting] → [Repository] → Systematic description → Discussion',
-        conclusion: '—',
-        length: 'Research Article 约 ≤20–25 印刷页（投稿上限 8,500 词 + 15 个图表）｜Review Article ca. 6,500–8,500 词 + 10–15 图表｜Methodological Advances 按 Research Article 提交',
-        front: [
-          '🔴 Non-technical Summary ≤300 词（在前）与 Abstract ≤300 词（各自独立成页、彼此空一行）',
-          'Non-technical Summary 须让非专业读者读懂',
-          'Keywords <6',
-          '全稿 12 号 Times New Roman + 双倍行距 + 连续行号',
-          'US Letter、四边 1 英寸、不用两端对齐、不在右边界断词',
-          '稿件顺序：title page → abstract page → text → Acknowledgements → Competing Interests → Literature Cited → appendix → figure captions → table captions',
-          '标题三级：Primary 居中加粗 / Secondary 加粗斜体 / Tertiary 加粗斜体 + 句点',
-          'Boxes 可选，正文 ≤150 字',
-          'running headers（LRH/RRH）≤50 字符全大写；标题仅首词与专有名词大写、结尾不加句号',
-        ],
-        figure: [
-          ['送审图', '<40 兆像素（宽×高 <40,000,000 px）才能进 PDF proof'],
-          ['终稿 照片', '600 dpi'],
-          ['终稿 线绘', '1200 dpi（1-bit 黑白或 CMYK）'],
-          ['终稿 组合图', '800 dpi'],
-          ['终稿 半调', '600 dpi（8-bit 灰度或 CMYK）'],
-          ['单栏宽', '9 cm'],
-          ['双栏宽', '18 cm'],
-          ['最大高', '24 cm'],
-          ['字号下限', '8 pt（终版，无衬线、嵌入、不用粗体）'],
-          ['线宽下限', '≥0.11 mm（0.3 pt）；突出线 0.75–1.0 pt'],
-          ['矢量图', 'eps / pdf / ai，无 dpi 要求'],
-          ['色彩避坑', '红 / 蓝·红 / 绿 / 蓝·绿 / 蓝·黄'],
-        ],
-        submit: [
-          '🔴 图不得嵌入正文，所有图作为独立文件提交',
-          '🔴 不用图注排位（no figure call outs）',
-          '送审文件名含图号（Figure_1.tif）',
-          '终稿命名如 Fig1_2col.tif',
-          '图注须解释所有缩写与制图方法',
-        ],
-        refs: '作者-年份制且作者与年份间不加逗号（Darwin 1859）；三位及以上用首位作者 + et al.；不同作者用分号、同一作者多次用逗号；引文须给页码；作者名粗体、期刊名斜体不缩写、卷号粗体、Hanging Indent；🔴 最终稿不用 Cite-While-You-Write；🔴 SI 文献不计入主 Literature Cited',
-        redlines: [
-          '标本照片必须带比例尺（数值随比例尺或图注给出），不可用 ×40 等放大倍数代替（终版可能缩放）',
-          'Ga/Ma/ka = 年代；Gyr/Myr/kyr = 跨度',
-          'DOI 必须是最终 DOI（数据仓库 DOI 须在 proof 前激活）',
-          'SI 文献不计入主 Literature Cited',
-          '🔴 Competing Interests 所有作者必写（无则 "the author/authors declare none"）',
-          'Author Contributions 参考 CRediT；数据与代码遵循 FAIR',
-          '正文 (Fig. 2)、(Fig. 3A)，Table / Appendix 不缩写',
-        ],
-        quotes: [
-          '"Research Articles present original, analytical results in any area of paleobiology. These should be timely, relevant, and of broad interest. Research Articles typically do not exceed about 20-25 printed pages. Submissions up to 8500 words and 15 figures and tables."',
-          '"Methodological Advances describe new analytical methods that are broadly relevant to the field of paleobiology … should be presented within the context of an in-depth application to a specific paleobiological problem, and submitted as a Research Article."',
-          '"All illustrative materials should be referred to in your manuscript text as "Figures". Tables and figures must be cited in the text, must be numbered consecutively in Arabic numerals, and captions must be provided in all cases."',
-          '"the author/authors declare none"',
-        ],
-        ref: 'references/paleobiology-journal.md',
-      },
-      {
-        id: 'app',
-        name: 'APP',
-        full: 'Acta Palaeontologica Polonica',
-        meta: ['PAN（波兰科学院）', 'CC BY 开放获取', 'IF 1.8（2025 JCR）'],
-        scope: '古生物全领域，偏好有普遍意义、可推广的研究。',
-        structure: 'Introduction → Material and methods → Results / Systematic palaeontology → Discussion → Conclusions',
-        conclusion: '有独立结论段（与讨论合并时须题为 "Concluding remarks"）',
-        length: 'Articles 中等篇幅（≤100 排版页）｜Brief reports 2,000–3,000 词（约 12 个双倍行距页）｜Discussions 1,000–1,500 词｜Prefaces 500–1,500 词｜Monographs 50,000–75,000 词',
-        front: [
-          '结构化摘要 100–300 词（方法/结果/结论），新分类单元须在摘要给出名称',
-          'Keywords 3–8 个（投稿系统主题 + 自拟 3–8 个）',
-          'Cover Letter ≤300 词（一页 A4）',
-          '建议推荐 3–5 位审稿人（须无利益冲突）',
-        ],
-        figure: [
-          ['照片', '400 dpi，黑背景、边缘清晰'],
-          ['线绘', '400 dpi TIFF（黑白位图）'],
-          ['单栏宽', '89 mm'],
-          ['双栏宽', '183 mm'],
-          ['最大长', '237 mm'],
-          ['字号', 'Calibri 8 pt'],
-          ['线宽', '0.2 mm'],
-          ['比例尺', '0.7 mm'],
-          ['格式', 'CDR / AI / EPS（矢量优先）/ 分层 TIFF / PSD'],
-        ],
-        submit: [
-          '图与表作为单独文件提交（投稿时标注位置）',
-          '标注单独图层，并另交一份无标注版',
-          '每图旁须留出插图注的空间',
-          '标本照片用比例尺，不用放大倍数',
-        ],
-        refs: '作者-年份制；作者、年份、题名各以"句点 + 单空格"分隔；不缩写刊名',
-        redlines: [
-          '🔴 ZooBank 命名注册强制（植物新类群注册 IPNI）',
-          '🔴 全稿 Times New Roman 12 pt + 双倍行距',
-          '不两端对齐、不在右边界断词',
-          '数据须存 Dryad / MorphoBank / GenBank（出版条件）',
-          '无投稿费；10 排版页内免版面费，超出每页 EUR 22；彩图自 69(1) 起免费',
-          'iThenticate 查重',
-          '🔴 缅甸琥珀禁令：2017 年起收集的缅甸琥珀不予发表（2020-04-23 生效）',
-          '所有图示与描述的化石须存于合适博物馆并给馆藏号',
-        ],
-        quotes: [
-          '"Illustrations can be printed at two-column width (183 mm) or one-column width (89 mm), maximum length 237 mm, and should be designed accordingly."',
-          '"Font: we recommend Calibri 8 pt., line thickness should be 0.2 mm, scale bars 0.7 mm"',
-          '"line art images scanned or saved in bitmap-based programs as TIFF format (black and white bitmap) at a resolution of 400 dpi."',
-          '"Provide a structured abstract of min 100, max 300 words summarizing methods, results, and conclusions of the study in terms accessible to the general reader."',
-          '"the registration in ZooBank of nomenclatural acts published in APP is mandatory prior to online publication"',
-          '"There are no obligatory page charges for papers up to 10 typesetted pages"',
-          '"Concluding remarks"',
-          '"Kowalski (1900) noted that..."',
-        ],
-        ref: '官方 Instructions for Authors（2024-01-03 复核）+ references/multi-journal-style-guides.md §六',
-      },
-      {
-        id: 'pe',
-        name: 'PE',
-        full: 'Palaeontologia Electronica',
-        meta: ['开放获取 · 最古老电子古生物刊', '无页限 · 无版面费'],
-        scope: '古生物全领域；纯数字化发行、无版面费、无页限。',
-        structure: 'title page → author page → abstract → translated abstracts（可选）→ plain language summary → 正文 → acknowledgements → references → 图/表/附录图注',
-        conclusion: '—',
-        length: '🔴 无页限',
-        front: [
-          'Abstract ≤250 词（大写标题、左对齐页顶），不含参考文献',
-          '🔴 必须提供 plain language summary',
-          'Keywords ≤6 个',
-          '标题简短左对齐、仅首字母大写',
-          '独立作者页（送审前移除）；每作者需传 72 ppi ≥300 px 照片与简介',
-        ],
-        figure: [
-          ['分辨率', '300 ppi（首次 PDF 投稿可 150 ppi）'],
-          ['单栏宽', '84 mm'],
-          ['双栏宽', '175 mm'],
-          ['字号', '≥8 pt'],
-          ['色彩模式', '🔴 RGB，不用 CMYK'],
-          ['照片格式', 'TIFF / PSD'],
-          ['矢量格式', 'AI（Illustrator CS6）/ EPS'],
-          ['图部件编号', '用字母 1A, 1B（非 1.1）'],
-        ],
-        submit: [
-          '图 / 表 / 附录作为单独文件；单文件 ≤50 MB，总计 ≤200 MB',
-          '全稿双倍行距（含摘要、正文、参考文献、图注）',
-          '右边界不对齐；不用脚注',
-          '🔴 文件名 ISO 9660：≤8 字符，仅小写 / 数字 / _ / .',
-        ],
-        refs: '作者-年份制',
-        redlines: [
-          '🔴 终稿图不得用 Word 或 PDF 提交',
-          '🔴 提交前须打印所有图，彩色图也要印黑白检查灰度是否够区分',
-          '线绘 / plot / sketch 背景白；照片背景白或黑（黑背景 RGB 0,0,0）',
-          '标题层级：一级全大写居中 / 二级粗体左对齐 / 三级粗体 + 句点',
-        ],
-        quotes: [
-          '"Figures should normally be created with widths equal to 175 mm or 84 mm at 300 ppi or higher (figures can be reproduced at 150 ppi for first PDF submission)."',
-          '"The size of letters, numbers and symbols should be chosen with the printed size in mind (8 point type or larger)."',
-          '"authors must ensure that the contrast between inscriptions and background is sufficient."',
-          '"Figures, Tables, and Appendices must be numbered in the order they are cited in the text."',
-          '"All material submitted to PE must meet the following electronic-submission requirements, which are based on ISO 9660 constraints for naming of files. Your file names may ONLY contain the following characters: 1. Lower case 2. Digits 0-9 3. The symbols underscore (_) or period (.). Your file names may _NOT_ contain any of the following: 1. More than 8 characters 2. File extensions longer than 3 characters 3. Spaces 4. Any other characters not listed above"',
-        ],
-        ref: 'references/multi-journal-style-guides.md §七（Contributor Instructions）',
-      },
-      {
-        id: 'jm',
-        name: 'JM',
-        full: 'Journal of Micropalaeontology（Copernicus 平台）',
-        meta: ['Copernicus 出版', '单栏 · 版心 177.0 mm'],
-        scope: '微体古生物方法学：有孔虫 / 介形虫 / 钙质超微化石 + 自动化与统计。',
-        structure: '章节标题必须编号（3 / 3.1 / 3.1.1，最多三级）；正文避免脚注；附录用大写字母编号（Appendix A），公式/图/表编号为 (A1)、Fig. B5、Table C6；稿件 1 栏（版心 177.0 mm，通栏图宽 175.0 mm）+ 行号 + 页码',
-        conclusion: '—',
-        length: '—',
-        front: [
-          '章节标题全部编号（introduction / results / discussions / summary）',
-          'Data availability 段置于正文末尾、致谢之前',
-          '使用过 AI 工具须在 Methods 或 Acknowledgements 说明',
-        ],
-        figure: [
-          ['分辨率', '300 dpi'],
-          ['最小图宽', '≥8 cm'],
-          ['格式', 'PDF / PS / EPS / JPG / PNG / TIFF'],
-          ['矢量优先', 'EPS 或 PDF，字体须嵌入'],
-          ['单图体积', '≤5 MB'],
-          ['全部文件', '≤30 MB（不含 SI）'],
-          ['稿件版式', '1 栏；文件 ≤50 MB；连续行号'],
-        ],
-        submit: [
-          '🔴 复合图必须合并成单文件',
-          '🔴 图例必须画在图里，不能靠图注解释',
-          '文件名 fig01 / fig02',
-          '图与图注插入正文首次提及处（不置于文末）',
-          'SI ≤50 MB',
-        ],
-        refs: '—',
-        redlines: [
-          '🔴 色觉无障碍：须用 Coblis 模拟器检查配色',
-          '🔴 表格不得交 PDF / 图片文件',
-          '地图须遵联合国地名规范，避免争议边界',
-          '附录编号 Appendix A / B',
-          '表格：Table 不缩写且随数字首字母大写、避免彩色单元格、横线仅在表头与表体上下',
-          '日期格式 dd month yyyy；年份用 CE / BCE',
-          '改字体要改原字体，而不是加文本框或额外图层',
-        ],
-        quotes: [
-          '"Composite figures containing multiple panels should be collected into one file before submission."',
-          '"A legend should clarify all symbols used and should appear in the figure itself, rather than verbal explanations in the captions"',
-          '"Individual figures should not exceed 5 MB, and the overall size of all submitted files excluding supplements should not exceed 30 MB."',
-          '"The width should not be less than 8 cm."',
-          '"it is important that the colour schemes used in your maps and charts allow readers with colour vision deficiencies to correctly interpret your findings. Please check your figures using the Coblis – Color Blindness Simulator"',
-        ],
-        ref: 'references/multi-journal-style-guides.md §十（Copernicus 平台官方投稿说明）',
-      },
-      {
-        id: 'palz',
-        name: 'PalZ',
-        full: 'Paläontologische Zeitschrift（Springer）',
-        meta: ['Springer', 'ISSN 0031-0220 / 1867-6812', 'IF 1.5（2025）', 'single-blind 评审'],
-        scope: '古生物全谱：Palaeozoology · Palaeobotany · Palaeoecology · Palaeogeography · Geobiology · 理论与方法。',
-        structure: '三种体裁：Review Article / Research Paper / Short Communication',
-        conclusion: '—',
-        length: 'Review ≤40 印刷页（约 32,000 词）｜Research ≤20 印刷页（约 16,000 词）｜Short Communication ≤6 印刷页（约 4,800 词）',
-        front: ['Abstract 150–250 词，不含未定义缩写与未指定引用', 'Covering letter 另需附本人近期该主题论文清单'],
-        figure: [
-          ['矢量', 'EPS（首选）'],
-          ['半调', 'TIFF'],
-          ['其他', 'MSOffice 文件亦可接受'],
-          ['字体', '矢量图必须嵌入字体'],
-          ['命名', 'Fig1.eps（"Fig" + 编号）'],
-        ],
-        submit: ['所有图件电子提交', '须注明绘制所用图形软件', '矢量图字体须嵌入'],
-        refs: '作者-年份制；参考 APA 7 的作者数规则',
-        redlines: [
-          '🔴 分类单元名用粗体（与 APP / Paleobiology 的斜体相反）',
-          '🔴 authority 后加逗号（正文引用不加逗号）',
-          '🔴 同义名列表隔行 hanging indent，缩进行垂直对齐',
-          '子标题斜体 + 句点；空行仅在属级与种级前后',
-        ],
-        quotes: [
-          '"Paläontologische Zeitschrift publishes three different types of contributions, Review Articles, Research Papers, and Short Communications."',
-          '"Review Articles are substantial papers, usually summarizing the state of research in some area or a specific topic or taxonomic group. These articles can be up to 40 printed pages long (approximately 32,000 words of text only or about 21,000 words plus figures [excluding figure captions])"',
-          '"Research papers communicate important research findings on specific topics of all fields of palaeontology and related topics. They should usually not exceed 20 printed pages in length (approximately 16,000 words of text only or about 10,500 words plus figures)."',
-          '"Short communications … are typically no more than 6 printed pages long (4,800 words of text only or approximately 3,000 words plus figures)."',
-          '"Please provide an abstract of 150 to 250 words. The abstract should not contain any undefined abbreviations or unspecified references."',
-          '"Cite references in the text by name and year in parentheses."',
-          '"For vector graphics, the preferred format is EPS; for halftones, please use TIFF format."',
-          '"Name your figure files with "Fig" and the figure number, e.g., Fig1.eps."',
-        ],
-        ref: 'references/multi-journal-style-guides.md §八（Springer Submission guidelines 官方原文）',
-      },
-      {
-        id: 'micropaleontology',
-        name: 'Micropaleontology',
-        full: 'Micropaleontology（AIP）',
-        meta: ['AIP（美国物理学会）', '微体古生物专业刊'],
-        scope: '微体古生物：放射虫、有孔虫、介形虫、钙质超微化石。',
-        structure: '—',
-        conclusion: '—',
-        length: '—',
-        front: [],
-        figure: [],
-        submit: [],
-        refs: '—',
-        redlines: [
-          '🔴 图件标签用 "TEXT-FIGURE" 而非 "Fig."',
-          '地质图用黑白花纹 + 插图定位图 + 比例尺 + 指北针',
-          '本领域 93% 的图为灰度（实测 376 张嵌入图），配色按灰度设计',
-        ],
-        quotes: [],
-        ref: 'references/micropaleo-paper-patterns.md',
-      },
-      {
-        id: 'esr',
-        name: 'ESR',
-        full: 'Earth-Science Reviews',
-        meta: ['Elsevier', 'IF 11.3 · CiteScore 20.8', 'single anonymized · ≥2 名审稿人'],
-        scope: '🔴 只发综述（review articles），覆盖地学全领域。',
-        structure: '编号章节（1.1 / 1.1.1），摘要不计入编号',
-        conclusion: '—',
-        length: 'Review paper 无字数上限（>20,000 词须先与编辑沟通）｜Discussion / Reply ≤3,000 词',
-        front: [
-          '🔴 Abstract 必填 ≤250 词，须能独立成篇、避免引用与非常用缩写',
-          '🔴 Keywords 必填 1–7 个',
-          '🟡 Highlights 鼓励（3–5 条，每条 ≤85 字符），非必须',
-          '🔴 投稿时须声明数据可用性',
-          '🔴 投稿时须声明生成式 AI 使用情况',
-        ],
-        figure: [
-          ['照片', '300 dpi（单栏 ≥1063 px / 整页 ≥2244 px）'],
-          ['线绘位图', '1000 dpi（单栏 ≥3543 px / 整页 ≥7480 px）'],
-          ['矢量', 'EPS / PDF，嵌入字体'],
-          ['图表', 'XLS / XLSX'],
-          ['标注图', 'PPT / PPTX，嵌入图 ≥300 dpi'],
-        ],
-        submit: [
-          '每图单独文件，Figure_1 / Figure_2',
-          '图注置于图下 + 单独文件，且必须在图外',
-          '禁多图合并（除非本就是对比图）',
-          'Word 单栏；双栏仅限 LaTeX',
-          '连续行号；PDF 非源文件',
-        ],
-        refs: 'author-date；文末按第一作者字母序、同作者按时间；摘要中引用的文献须完整给出；数据集引用前加 [dataset] 并含 6 项',
-        redlines: [
-          '🔴 只发综述，常规研究论文不收',
-          '🔴 文献计量研究不收（只能放 SI）',
-          '🔴 只堆文献不整合 → 不接受',
-          '实为研究论文 / 案例研究 → 转投专业刊',
-          '生物 / 生态 / 土壤农业 / 地质工程 → 投别刊',
-          '🔴 禁 AI 生成或修改代表原始观测数据的图像',
-          '🔴 Invited Review Article 仅限已受邀才可选',
-          'Discussion 须在原文发表后 6 个月内提交；Reply 须在接到通知后 1 个月内提交，双方各限 1 次',
-          '常规研究论文只在 occasional special issue 收录',
-        ],
-        quotes: [
-          '"Earth-Science Reviews publishes review articles dealing with all aspects of the Earth Sciences"',
-          '"Earth-Science Reviews offers authors the rare opportunity to explore a particular subject without any limitation on the number of words used."',
-          '"Review articles must integrate and advance existing knowledge and highlight new directions by synthesizing, evaluating and discussing previously published literature"',
-          '"Bibliometric studies will not be considered."',
-          '"You are required to provide a concise and factual abstract that does not exceed 250 words."',
-          '"You are required to provide 1 to 7 keywords for indexing purposes."',
-          '"You are encouraged to provide article highlights at submission. Highlights should consist of 3 to 5 bullet points, each a maximum of 85 characters, including spaces."',
-          '"Submit files with .doc/.docx extensions for Word and .tex for LaTeX files. A PDF is not an acceptable source file."',
-          '"Submit each image as a separate file using a logical naming convention for your files (for example, Figure_1, Figure_2 etc.)."',
-          '"Reference list must be in alphabetic order by first author."',
-        ],
-        ref: 'references/multi-journal-style-guides.md §一（Elsevier 官方 guide，2026-11-01 复核）',
-      },
-    ];
-
-    const MODULES = [
-      { no: '01', icon: '📝', name: '摘要', file: 'prompts/01-abstract.md', hint: '把整篇压缩进 300 词' },
-      { no: '02', icon: '🔭', name: '引言', file: 'prompts/02-introduction.md', hint: '倒金字塔 · 缺口 · 路线图' },
-      { no: '03', icon: '📚', name: '文献综述', file: 'prompts/03-literature-review.md', hint: '让文献对话而非罗列' },
-      { no: '04', icon: '🧪', name: '研究方法', file: 'prompts/04-methods.md', hint: '经得起同行复现' },
-      { no: '05', icon: '📊', name: '结果', file: 'prompts/05-results.md', hint: '只讲发现了什么' },
-      { no: '06', icon: '💡', name: '讨论', file: 'prompts/06-discussion.md', hint: '结果 ↔ 文献 ↔ 理论 ↔ 局限' },
-      { no: '07', icon: '🎯', name: '结论', file: 'prompts/07-conclusion.md', hint: '升华但不引入新信息' },
-      { no: '08', icon: '🤖', name: '去 AI 化', file: 'prompts/08-deai-polish.md', hint: '终稿通篇润色' },
-      { no: '09', icon: '🎯', name: '选刊投稿', file: 'prompts/09-journal-submission.md', hint: '先定期刊再动笔' },
-      { no: '10', icon: '💬', name: '审稿回复', file: 'prompts/10-reviewer-response.md', hint: '逐条答复的四要素' },
-    ];
-
-    const CHECKLIST = [
-      {
-        id: 'A',
-        name: '写作前',
-        items: [
-          '我能回答 Why / What / What did you find / What does it mean',
-          '已确定目标期刊（查过 Aims & Scope + 近期 3 篇作者指南）',
-          '已确认该刊 Results 与 Discussion 是分离还是合并',
-          '已确认该刊有无独立结论段',
-          '所有图表已制作完成，配色统一',
-          '已建文献库（Zotero / EndNote）',
-        ],
-      },
-      {
-        id: 'B',
-        name: '题目 · 署名 · 摘要',
-        items: [
-          '题名准确、简洁、清楚',
-          '核心内容的关键词放在题名开头',
-          '题名长度 / 缩写 / 大小写符合该刊格式',
-          '署名按实际贡献大小确定，每人都能对自己的论点 / 数据 / 结果答辩',
-          '贡献很少者已放入致谢而非署名',
-          '共同一作已注明 "These authors contributed equally to the work"',
-          '地址：详细通讯地址 + 邮政编码；多地址按作者顺序上标标注',
-          '出版时已调离 → 脚注 Present address',
-          '兼聘 / 客座 → 同时标注实际单位与受聘单位，明确有效通讯地址',
-          '摘要含 背景 / 科学问题 / 研究结果 / 研究意义 四部分',
-          '摘要无引用、无图表、无缩写、无化学式 / 数学式 / 角标 / 希腊文',
-          '摘要有 However / We found that / Based on we suggest that 等分层指示词',
-          '摘要语法错误 ≤ 6 处（★硬红线）',
-          '摘要未重复引言背景（结论不是引言的复述）',
-        ],
-      },
-      {
-        id: 'C',
-        name: '引言',
-        items: [
-          '四大内容齐：研究背景 / 研究现状（引出问题）/ 问题剖析 / 目的与手段',
-          '先大背景大意义，再逐渐聚焦，肯定前人贡献',
-          '已充分引用与本文相关的重要文献（不充分 → 审稿人认为阅读不够）',
-          '用 However 引出不足，而非直接批评前人',
-          '避免点名批评："The deficiency of Wang\'s approach is…"',
-          '避免 for the first time / 首次提出 / 首次发现 / 国际先进水平',
-          '未故意制造悬念（读者没耐心读到结尾）',
-          '结构为倒金字塔：由大到小收拢',
-          '★ opening（提出的问题）与 resolution（给出的答案）对齐：开口 = 收口才 on target',
-        ],
-      },
-      {
-        id: 'D',
-        name: '材料与方法',
-        items: [
-          '客观描述区域地质背景、气候背景、环境参数',
-          '样品采样方法与样品数量',
-          '实验方法、仪器检测条件、软件版本',
-          '读者看完能知道如何开展、如何重现实验',
-        ],
-      },
-      {
-        id: 'E',
-        name: '结果与讨论',
-        items: [
-          'Results 按产物 / 表征手段平行铺开',
-          'Discussion 按机理收拢',
-          '结果陈述能让人感觉出"关键影响因素是啥"',
-          '讨论走完 6 步：引言空白 → 重述发现 → 解释并比较 → 局限性 → 未来启示 → 结论',
-          '已说明局限性对结果的潜在影响',
-          '已给出环境 / 地学意义（"知道了这些有什么用？"）',
-          '结果与讨论的合并 / 分离方式符合目标期刊要求',
-          'ES&T：结论并入 R&D，未另设 Conclusion 段',
-        ],
-      },
-      {
-        id: 'F',
-        name: '结论',
-        items: [
-          '总结要点、突出亮点（创新点）',
-          '指明理论意义 / 实际意义（implication）',
-          '指明局限性与尚未解决的问题',
-          '提出今后研究方向',
-          '局限性用了 "First… Second… Further research should…" 句式',
-          '以有力的一句收尾',
-          '未重复引言背景',
-          '未引入新论点或新证据',
-          '未下数据不支持的结论',
-        ],
-      },
-      {
-        id: 'G',
-        name: '参考文献',
-        items: [
-          '全面：背景 / 方法参考 / 支持证据 / 冲突证据 / 论据比较',
-          '精选：近年文献，且已引 Science、Nature、Annual Reviews 系列',
-          '尽量读了原文（尤其直接引用的数据）',
-          '书写规范、逐条核对',
-          '无五误区：知而不引 / 断章取义 / 引而不确 / 来源不实 / 盲目自引',
-          '用文献管理器保证引文与参考文献一致',
-          '综述：约 100 篇量级；近 5 年（最好 1–3 年）；尽量一次文献',
-          '综述：未引用非公开发表文献、教材、专科书内容',
-        ],
-      },
-      {
-        id: 'H',
-        name: '致谢',
-        items: [
-          '致谢了学术 / 科学问题上有帮助或启发的人员',
-          '致谢了提供仪器、设备、实验材料、协作实验者',
-          '致谢了外部基金资助，并附注项目号 / 合同书编号',
-          '贡献很少但不宜署名者在致谢中体现',
-        ],
-      },
-      {
-        id: 'I',
-        name: '投稿',
-        items: [
-          'ACCEPTANCE 十点：细节 / 复核 / 审视审稿意见 / 英语尽善尽美 / 呈现很重要 / 耐心修改 / 致谢帮助过你的人 / 新颖且未发表 / 批判性审视自己的稿件 / 遵守伦理',
-          '已推荐 3-5 位审稿人（未找领域大牛）',
-          'Cover Letter 说明为何适合该刊',
-          'Cover Letter 披露潜在利益冲突',
-          'GCA：已提供 3 位 Associate Editors 姓名',
-          '上下标、字体大小、参考文献前后一致、格式统一',
-          '已按审稿人 8 项关注点反向自查',
-        ],
-      },
-      {
-        id: 'J',
-        name: '综述专项',
-        items: [
-          '题目收窄，定义了少量研究问题或假设',
-          '已确定 take-home message',
-          '已选定结构化原则（时间 / 方法 / 模型理论 / 正反对比 / 地理）',
-          '小标题至少三级',
-          '覆盖 Summary of major issues / Model and discussion / Perspective on future study',
-          '引言占正文核心部分 10%-20%',
-          '引言三段：Subject background → Problem → Motivation/justification',
-          '文献加工四步：筛选 / 鉴别 / 分类 / 归纳',
-          '用了问句式小标题（信息量高于"XX 研究现状"）',
-          '有 1-2 张机制总览图替代大段文字',
-          '遵循 18 步顺序：主体(11) → 结论(12) → 引言(13) → 摘要(14)',
-          '查文献用了滚雪球法 + 检索工具，避免单一方法遗漏',
-          '二次文献中的数据已回溯原文查证',
-          '综述正文一气呵成，发现旁的问题用便签备注、未中断',
-        ],
-      },
-      {
-        id: 'K',
-        name: '方法类（AI / 数据驱动）论文专项',
-        items: [
-          '[体裁] 已判定体裁：方法类（有独立 Results / Discussion）还是描述类（有 Systematic 段）',
-          '[体裁] 方法类论文没有搭 Geological setting / Repository / Systematic 三件套',
-          '[体裁] 方法类论文有独立 Results 段（实测 46%）',
-          '[体裁] 方法类论文有独立 Discussion 段（实测 48%）',
-          '[数据集] 数据来源写清（检索式 / 分类群名 + 下载日期）',
-          '[数据集] 初样本 → 清洗规则 → 终样本 三段都有',
-          '[数据集] 每类样本量进表（含占比列）',
-          '[数据集] 标注方式写清（专业实务员 / 公开数据库）',
-          '[数据集] 划分比例写清（跨验校验 / train-test split / 三分法）',
-          '[数据集] 类别不平衡已显式承认，并说明用什么补偿',
-          '[数据集] 数据量级已写出（本领域常见：几百至几万张图）',
-          '[方法与环境] 架构已指名（+ 架构图）',
-          '[方法与环境] 超参说法自洽（进表 / 写在正文）',
-          '[方法与环境] 环境版本全写（Python / PyTorch / CUDA / GPU 型号）',
-          '[方法与环境] 训练细节写清（batch / optimizer / epoch / 冻结策略）',
-          '[方法与环境] 有基线对比（尽量写出多数类基线数字）',
-          '[评估] 指标名写出了（accuracy / precision / recall / F1 / AUC）',
-          '[评估] 类别不平衡时，已说明为何不以 accuracy 为主指标',
-          '[评估] 混淆矩阵图注用固定句式（行=真值、列=预测、对角线=100%）',
-          '[评估] 表注写了"最佳值加粗"声明',
-          '[评估] 训练 / 推理时间与精度指标并列为列',
-          '[局限] 局限落到对象本身（标本残缺 / 纹理破坏 / 类别不平衡）',
-          '[局限] 局限不是"模型不够强"',
-          '[局限] 结论里写了适用边界（什么情况不该用 AI）',
-          '[局限] 讨论有独立 Threats to validity 或 Strengths+Limitations 段',
-          '[声明] Data availability（实物标本在哪 + 数据集 DOI，两件都有）',
-          '[声明] Code availability（GitHub + Zenodo DOI）',
-          '[声明] Author contributions / Competing interest / Funding',
-          '[声明] 声明块顺序与目标刊最近 3 篇一致',
-        ],
-      },
-    ];
-
-    const COLORS = [
-      { hex: '#D30203', role: '人工 / 基准' },
-      { hex: '#75489A', role: 'AI / 自动' },
-      { hex: '#F6A100', role: '单一系列散点' },
-      { hex: '#308E2C', role: '环境量验证' },
-      { hex: '#093576', role: '拟合线 / 单色阶（→ #00509D）' },
-    ];
-
-    const RULES = [
-      ['1', '引言 = 倒金字塔', '开口（提出的问题）必须与收口（给出的答案）对齐；开口 > 收口 = overpromising，收口 > 开口 = underpromising。'],
-      ['2', '引文密度', 'Introduction 除问题句与过渡句外都要有引用；Results 几乎没有引用；Discussion 每段 5–8 句（topic + 3–4 句带引用 + 2–3 句自己数据）；Abstract / Conclusion 不应出现引用。'],
-      ['3', '段落 5–8 句', '1–2 句话的段落是非常差的结构；换了对象主体就分段，一段集中讲清一个问题。'],
-      ['4', '讨论六步', '引言空白 → 重述发现（用数据/图）→ 解释并与他人比较 → 表明局限性 → 以后研究的启示 → 结论。'],
-      ['5', '结论含局限 + 未来', 'Despite its advantages… First… Second… Further research should focus on…'],
-      ['6', '措辞分寸', '禁 for the first time / 首次提出 / 国际先进水平；禁点名批评前人，改用 However, the mechanism has not been fully understood.'],
-      ['7', '参考文献五误区', '知而不引 · 断章取义 · 引而不确 · 来源不实 · 盲目自引；综述约 100 篇，优先近 5 年。'],
-      ['8', '地质年代', 'Ga / Ma / ka = 年代（dates）；Gyr / Myr / kyr = 跨度（duration）；界线用 /，时间范围用 –。'],
-    ];
-
-    // ── i18n: route text through the client locale service when it is usable ──
+    // ── identity ─────────────────────────────────────────────────────────
 
     const NS = 'dsh-academic-paper-polish';
-    /** This implementation's identity in the right-Sidebar tab system. */
     const TAB_ID = 'dsh-academic-paper-polish';
-    /** The tab kind the right Sidebar opens for this page. */
     const TAB_KIND = 'academic-paper-polish';
+
+    // ── locale ───────────────────────────────────────────────────────────
 
     const DICT_ZH = {
       'panel.title': '论文助手',
-      'panel.journal': '期刊',
-      'panel.modules': '模块',
-      'panel.checklist': '自查',
-      'panel.colors': '配色',
-      'panel.rules': '铁律',
+      'panel.rules': '速查',
+      'panel.journals': '期刊',
+      'panel.check': '检查',
+      'panel.deai': '去AI',
+      'panel.checklist': '清单',
+      'panel.manual': '手册',
       'panel.collapse': '收起',
       'panel.expand': '展开',
-      'panel.reset': '重置',
       'panel.copy': '复制',
       'panel.copied': '已复制',
-      'panel.inserted': '已插入输入框',
-      'panel.failed': '复制失败',
+      'panel.send': '发给会话',
+      'panel.sent': '已发送到当前会话（作为插件注入）',
+      'panel.sendUnauthorized': '未授权：宿主拒绝了请求',
+      'panel.sendMissing': '宿主尚未提供 /api/send，按钮暂不可用',
+      'panel.sendNoSession': '当前没有活动会话，无法发送',
+      'panel.sendNoChannel': '宿主未提供会话通道',
+      'panel.sendFailed': '发送失败',
       'panel.progress': '进度',
       'type.label': '论文助手',
       'guide.title': '论文助手',
-      'guide.description': '期刊硬规则 · 写作模块 · 投稿自查清单',
+      'guide.description': '规则速查 · 选刊 · 实时合规检查 · 去 AI 化 · 投稿清单',
     };
 
     const DICT_EN = {
       'panel.title': 'Paper assistant',
-      'panel.journal': 'Journal',
-      'panel.modules': 'Modules',
-      'panel.checklist': 'Checklist',
-      'panel.colors': 'Colours',
       'panel.rules': 'Rules',
+      'panel.journals': 'Journals',
+      'panel.check': 'Check',
+      'panel.deai': 'De-AI',
+      'panel.checklist': 'Checklist',
+      'panel.manual': 'Manual',
       'panel.collapse': 'Collapse',
       'panel.expand': 'Expand',
-      'panel.reset': 'Reset',
       'panel.copy': 'Copy',
       'panel.copied': 'Copied',
-      'panel.inserted': 'Inserted into the composer',
-      'panel.failed': 'Copy failed',
+      'panel.send': 'Send to chat',
+      'panel.sent': 'Sent to the current conversation (as a plugin inject)',
+      'panel.sendUnauthorized': 'Unauthorized: the host rejected the request',
+      'panel.sendMissing': 'The host does not expose /api/send yet — the button is unavailable',
+      'panel.sendNoSession': 'No live session — nothing can be sent',
+      'panel.sendNoChannel': 'The host offers no conversation channel',
+      'panel.sendFailed': 'Send failed',
       'panel.progress': 'Progress',
       'type.label': 'Paper assistant',
       'guide.title': 'Paper assistant',
-      'guide.description': 'Journal rules, writing modules, submission checklist',
+      'guide.description': 'Rules, journals, live compliance check, de-AI scan, submission checklist',
     };
 
     /** Live translator; replaced by the locale service's binding when available. */
     let translate = (key) => DICT_ZH[key] || key;
-
-    /** Live skill index fetched from the host's same-origin route (zero
-     *  tokens); falls back to the bundled copy when the route is absent. */
-    let liveIndex = null;
-    let liveIndexState = 'bundled'; // 'bundled' | 'live' | 'failed' | 'unauthorized'
-    const indexListeners = new Set();
-
-    /** Classifies a failed route call: an auth rejection is a different
-     *  problem from an unreachable route, and the panel says so. */
-    const stateForError = (error) => {
-      const status = error && error.status;
-      return status === 401 || status === 403 ? 'unauthorized' : 'failed';
-    };
-
-    function refreshLiveIndex() {
-      try {
-        fetch('/dsh-academic-paper-polish/skill-index', {
-          cache: 'no-store',
-          credentials: 'same-origin',
-        })
-          .then((response) => {
-            if (!response.ok) {
-              const error = new Error(`HTTP ${response.status}`);
-              error.status = response.status;
-              throw error;
-            }
-            return response.json();
-          })
-          .then((index) => {
-            if (Array.isArray(index) && index.length > 0) {
-              liveIndex = index;
-              liveIndexState = 'live';
-              for (const listener of indexListeners) listener();
-            }
-          })
-          .catch((error) => {
-            liveIndexState = stateForError(error);
-            for (const listener of indexListeners) listener();
-          });
-      } catch {
-        liveIndexState = 'failed';
-        for (const listener of indexListeners) listener();
-      }
-    }
 
     function registerLocale(ctx) {
       try {
@@ -801,87 +109,7 @@ window.__ModuleLoader__.load({
       }
     }
 
-    /** Original artwork for the guide entry (no host primitive is imported). */
-    function GuideIcon(props) {
-      const size = props && props.size ? props.size : 24;
-      return h(
-        'svg',
-        {
-          viewBox: '0 0 24 24',
-          width: size,
-          height: size,
-          'aria-hidden': true,
-          style: { color: 'inherit' },
-        },
-        h('rect', {
-          x: 3.5,
-          y: 2.5,
-          width: 12,
-          height: 16,
-          rx: 1.6,
-          fill: 'none',
-          stroke: 'currentColor',
-          strokeWidth: 1.6,
-        }),
-        h('line', { x1: 6.5, y1: 7, x2: 12.5, y2: 7, stroke: 'currentColor', strokeWidth: 1.4, strokeLinecap: 'round' }),
-        h('line', { x1: 6.5, y1: 10.5, x2: 12.5, y2: 10.5, stroke: 'currentColor', strokeWidth: 1.4, strokeLinecap: 'round' }),
-        h('line', { x1: 6.5, y1: 14, x2: 10.5, y2: 14, stroke: 'currentColor', strokeWidth: 1.4, strokeLinecap: 'round' }),
-        h('path', {
-          d: 'M13.5 17.2 L20 10.8 L21.6 12.4 L15.1 18.8 L13 19.3 Z',
-          fill: 'currentColor',
-          opacity: 0.85,
-        }),
-      );
-    }
-
-    // ── helpers ─────────────────────────────────────────────────────────
-
-    const STORAGE_KEY = 'dsh-academic-paper-polish.checklist.v1';
-
-    function readChecked() {
-      try {
-        const raw = window.localStorage.getItem(STORAGE_KEY);
-        if (!raw) return {};
-        const parsed = JSON.parse(raw);
-        return parsed && typeof parsed === 'object' ? parsed : {};
-      } catch {
-        return {};
-      }
-    }
-
-    function writeChecked(state) {
-      try {
-        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-      } catch {
-        /* storage unavailable: the checklist still works for this session */
-      }
-    }
-
-    async function copyToClipboard(text) {
-      try {
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-          await navigator.clipboard.writeText(text);
-          return true;
-        }
-      } catch {
-        /* fall through to the legacy path */
-      }
-      try {
-        const area = document.createElement('textarea');
-        area.value = text;
-        area.setAttribute('readonly', '');
-        area.style.position = 'fixed';
-        area.style.opacity = '0';
-        document.body.appendChild(area);
-        area.select();
-        const ok = document.execCommand('copy');
-        document.body.removeChild(area);
-        return ok;
-      } catch {
-        return false;
-      }
-    }
-
+    // ── bundled skill index (the 手册 fallback) ──────────────────────────
 
     const SKILL_INDEX = [
 [
@@ -1921,14 +1149,14 @@ window.__ModuleLoader__.load({
 ]
     ];
 
-    // ── components ──────────────────────────────────────────────────────
+    // ── icons ────────────────────────────────────────────────────────────
 
     const ICONS = {
       abstract: [
         { t: 'rect', x: 5, y: 3, width: 10, height: 14, rx: 1.6 },
         { t: 'line', x1: 7.4, y1: 7, x2: 12.6, y2: 7 },
-        { t: 'line', x1: 7.4, y1: 10, x2: 12.6, y2: 10 },
-        { t: 'line', x1: 7.4, y1: 13, x2: 10.6, y2: 13 },
+        { t: 'line', x1: 7.4, y1: 10.5, x2: 12.6, y2: 10.5 },
+        { t: 'line', x1: 7.4, y1: 14, x2: 10.6, y2: 14 },
       ],
       intro: [
         { t: 'circle', cx: 14.6, cy: 10, r: 3 },
@@ -1941,19 +1169,19 @@ window.__ModuleLoader__.load({
         { t: 'rect', x: 4, y: 12.8, width: 7.5, height: 3, rx: 1 },
       ],
       methods: [
-        { t: 'line', x1: 7, y1: 3, x2: 13, y2: 3 },
+        { t: 'line', x1: 4, y1: 3, x2: 13, y2: 3 },
         { t: 'path', d: 'M8 3v4.6L4.7 14.1A1.7 1.7 0 006.2 16.8h7.6a1.7 1.7 0 001.5-2.7L12 7.6V3' },
         { t: 'line', x1: 6.3, y1: 12.2, x2: 13.7, y2: 12.2 },
       ],
       results: [
         { t: 'line', x1: 4, y1: 16.2, x2: 16.5, y2: 16.2 },
-        { t: 'rect', x: 5.4, y: 10, width: 2.4, height: 6.2, rx: 0.6 },
-        { t: 'rect', x: 9, y: 6.4, width: 2.4, height: 9.8, rx: 0.6 },
-        { t: 'rect', x: 12.6, y: 12, width: 2.4, height: 4.2, rx: 0.6 },
+        { t: 'rect', x: 5.4, y1: 10, width: 2.4, height: 6.2, rx: 0.6 },
+        { t: 'rect', x: 9, y1: 6.4, width: 2.4, height: 9.8, rx: 0.6 },
+        { t: 'rect', x: 12.6, y1: 12, width: 2.6, height: 4.2, rx: 0.6 },
       ],
       discussion: [
         { t: 'path', d: 'M3.6 4.4h9.2a1.8 1.8 0 011.8 1.8v3.6a1.8 1.8 0 01-1.8 1.8H8.4L4.4 15.2v-3.6h-.8a1.8 1.8 0 01-1.8-1.8V6.2a1.8 1.8 0 011.8-1.8z' },
-        { t: 'path', d: 'M9.6 11.8h4.6a1.8 1.8 0 011.8 1.8v2.4l-3.4-2.4H9.6' },
+        { t: 'path', d: 'M9.6 11.8h4.6a1.8 1.8 0 011.8 1.8v2.4l-3.4-2.4h-4.6a1.8 1.8 0 00-1.8 1.8v2.4l-3.4-2.4z' },
       ],
       conclusion: [
         { t: 'circle', cx: 10, cy: 10, r: 7 },
@@ -1983,6 +1211,10 @@ window.__ModuleLoader__.load({
       copy: [
         { t: 'rect', x: 7, y: 7, width: 9, height: 9, rx: 1.6 },
         { t: 'path', d: 'M13 5.5H5.2A1.2 1.2 0 004 6.7V14' },
+      ],
+      send: [
+        { t: 'path', d: 'M3.4 10 16.6 4l-3 12.4-3.4-4.6L3.4 10z' },
+        { t: 'line', x1: 10.2, y1: 11.8, x2: 16.6, y2: 4 },
       ],
       expand: [{ t: 'path', d: 'M5 9l5 5 5-5' }],
       external: [{ t: 'path', d: 'M4 9.6 10 16l6-6M9 16H4V4h12v5' }],
@@ -2019,51 +1251,2119 @@ window.__ModuleLoader__.load({
       close: [{ t: 'path', d: 'M5.5 5.5 14.5 14.5M14.5 5.5 5.5 14.5' }],
     };
 
-    const MODULE_ICON = {
-      '01': 'abstract',
-      '02': 'intro',
-      '03': 'review',
-      '04': 'methods',
-      '05': 'results',
-      '06': 'discussion',
-      '07': 'conclusion',
-      '08': 'deai',
-      '09': 'journal',
-      '10': 'reply',
-    };
+    function Icon(props) {
+      const size = props.size || 16;
+      const parts = ICONS[props.name] || [];
+      return h(
+        'svg',
+        {
+          viewBox: '0 0 20 20',
+          width: size,
+          height: size,
+          fill: 'none',
+          stroke: 'currentColor',
+          strokeWidth: props.strokeWidth || 1.5,
+          strokeLinecap: 'round',
+          strokeLinejoin: 'round',
+          className: props.className,
+          'aria-hidden': true,
+        },
+        parts.map((part, index) => {
+          const { t, ...rest } = part;
+          return h(t, { ...rest, key: index });
+        }),
+      );
+    }
+
+    /** Original artwork for the guide entry (no host primitive is imported). */
+    function GuideIcon(props) {
+      const size = props && props.size ? props.size : 24;
+      return h(
+        'svg',
+        {
+          viewBox: '0 0 24 24',
+          width: size,
+          height: size,
+          'aria-hidden': true,
+          style: { color: 'inherit' },
+        },
+        h('rect', {
+          x: 3.5,
+          y: 2.5,
+          width: 12,
+          height: 16,
+          rx: 1.6,
+          fill: 'none',
+          stroke: 'currentColor',
+          strokeWidth: 1.6,
+        }),
+        h('line', { x1: 6.5, y1: 7, x2: 12.5, y2: 7, stroke: 'currentColor', strokeWidth: 1.4, strokeLinecap: 'round' }),
+        h('line', { x1: 6.5, y1: 10.5, x2: 12.5, y2: 10.5, stroke: 'currentColor', strokeWidth: 1.4, strokeLinecap: 'round' }),
+        h('line', { x1: 6.5, y1: 14, x2: 10.5, y2: 14, stroke: 'currentColor', strokeWidth: 1.4, strokeLinecap: 'round' }),
+        h('path', {
+          d: 'M13.5 17.2 L20 10.8 L21.6 12.4 L15.1 18.8 L13 19.3 Z',
+          fill: 'currentColor',
+          opacity: 0.85,
+        }),
+      );
+    }
+
+    // ── views ────────────────────────────────────────────────────────────
 
     const VIEWS = [
-      { id: 'journal', label: '期刊', icon: 'book' },
-      { id: 'matrix', label: '对比', icon: 'grid' },
-      { id: 'match', label: '匹配', icon: 'target' },
-      { id: 'figure', label: '图件', icon: 'ruler' },
-      { id: 'color', label: '配色', icon: 'palette' },
-      { id: 'modules', label: '模块', icon: 'mark' },
-      { id: 'checklist', label: '清单', icon: 'check' },
-      { id: 'rules', label: '铁律', icon: 'reply' },
+      { id: 'rules', label: '速查', icon: 'reply' },
+      { id: 'journals', label: '期刊', icon: 'book' },
+      { id: 'check', label: '检查', icon: 'check' },
+      { id: 'deai', label: '去AI', icon: 'deai' },
+      { id: 'checklist', label: '清单', icon: 'mark' },
+      { id: 'manual', label: '手册', icon: 'search' },
     ];
 
-    /** Documented genre / requirement flags, used by the match view.
-     *  Every entry is traceable to the skill's own reference files. */
-    const MATCH = {
-      gca: { genres: ['research'], taxonomy: 'ok', newTaxa: 'no', zoo: false, review: 'no', tags: ['方法学论文不收', '不收区域案例'] },
-      est: { genres: ['research'], taxonomy: 'ok', newTaxa: 'no', zoo: false, review: 'no', tags: ['Results/Discussion 必须合并', '禁独立结论段'] },
-      ppp: { genres: ['research', 'review'], taxonomy: 'ok', newTaxa: 'no', zoo: false, review: 'yes', tags: ['4–8 图', 'Highlights ≤85 字符'] },
-      paleobiology: { genres: ['research', 'review', 'methods'], taxonomy: 'strong', newTaxa: 'yes', zoo: false, review: 'yes', dual: 'nts', tags: ['Non-technical Summary ≤300 词', '图不嵌入正文'] },
-      app: { genres: ['research', 'brief', 'taxonomy'], taxonomy: 'strong', newTaxa: 'yes', zoo: true, review: 'no', tags: ['ZooBank 强制注册', '图件参数最精确', 'CC BY'] },
-      pe: { genres: ['research', 'taxonomy'], taxonomy: 'strong', newTaxa: 'yes', zoo: false, review: 'no', dual: 'plain', tags: ['无页限无版面费', '必给通俗摘要'] },
-      jm: { genres: ['methods', 'research'], taxonomy: 'weak', newTaxa: 'no', zoo: false, review: 'no', tags: ['方法学对口', '须过 Coblis 色觉检查'] },
-      palz: { genres: ['research', 'review'], taxonomy: 'strong', newTaxa: 'yes', zoo: false, review: 'yes', tags: ['分类单元名粗体 + authority 加逗号', '三体裁'] },
-      micropaleontology: { genres: ['research', 'taxonomy'], taxonomy: 'strong', newTaxa: 'yes', zoo: false, review: 'no', tags: ['TEXT-FIGURE 标签', '地质图用黑白花纹'] },
-      esr: { genres: ['review'], taxonomy: 'no', newTaxa: 'no', zoo: false, review: 'only', tags: ['🔴 只发综述', '🔴 文献计量不收'] },
+    const SEVERITIES = [
+      { id: 'hard', label: '🔴 hard', tone: 'bad' },
+      { id: 'soft', label: '🟡 soft', tone: 'warn' },
+      { id: 'info', label: '🔵 info', tone: 'info' },
+    ];
+
+    const DOMAIN_LABELS = {
+      writing: '写作 writing',
+      figures: '图表 figures',
+      submission: '投稿 submission',
     };
 
-    const GENRES = [
-      { id: 'research', label: '研究论文' },
-      { id: 'review', label: '综述' },
-      { id: 'taxonomy', label: '系统分类 / 新种描述' },
-      { id: 'methods', label: '方法学论文' },
+    const SEVERITY_TONE = { hard: 'bad', soft: 'warn', info: 'info' };
+    const SEVERITY_ICON = { hard: '🔴', soft: '🟡', info: '🔵' };
+    const SEVERITY_TEXT = { hard: '硬性', soft: '建议', info: '提示' };
+
+    /** Section vocabulary — mirrors data/SCHEMA.md. Used for the auto-detect
+     *  dropdown when the host has not published /api/meta yet. */
+    const SECTIONS = [
+      { id: 'title', label: '题目 title' },
+      { id: 'abstract', label: '摘要 abstract' },
+      { id: 'keywords', label: '关键词 keywords' },
+      { id: 'introduction', label: '引言 introduction' },
+      { id: 'literature', label: '文献综述 literature' },
+      { id: 'methods', label: '方法 methods' },
+      { id: 'geological-setting', label: '地质背景 geological-setting' },
+      { id: 'systematic', label: '系统描述 systematic' },
+      { id: 'results', label: '结果 results' },
+      { id: 'discussion', label: '讨论 discussion' },
+      { id: 'conclusion', label: '结论 conclusion' },
+      { id: 'acknowledgements', label: '致谢 acknowledgements' },
+      { id: 'references', label: '参考文献 references' },
+      { id: 'figures', label: '图件 figures' },
+      { id: 'tables', label: '表格 tables' },
+      { id: 'declarations', label: '声明 declarations' },
+      { id: 'cover-letter', label: '投稿信 cover-letter' },
+      { id: 'response', label: '审稿回复 response' },
+      { id: 'review', label: '综述 review' },
     ];
+
+    /** Ordered section probes — the first hit wins, so the more specific
+     *  labels must come first. */
+    const SECTION_PROBES = [
+      { id: 'abstract', words: ['abstract', '摘要'] },
+      { id: 'cover-letter', words: ['cover letter', '投稿信'] },
+      { id: 'response', words: ['response to reviewer', 'response to reviewers', '审稿回复'] },
+      { id: 'geological-setting', words: ['geological setting', 'geological background', '地质背景'] },
+      { id: 'systematic', words: ['systematic palaeontology', 'systematic description', '系统描述', '系统分类'] },
+      { id: 'acknowledgements', words: ['acknowledgement', 'acknowledgment', '致谢'] },
+      { id: 'declarations', words: ['competing interest', 'declaration of', '利益冲突', '声明'] },
+      { id: 'references', words: ['reference', '参考文献'] },
+      { id: 'introduction', words: ['introduction', '引言', '绪论'] },
+      { id: 'literature', words: ['literature review', 'related work', '文献综述'] },
+      { id: 'methods', words: ['materials and methods', 'method', '方法'] },
+      { id: 'results', words: ['result', '结果'] },
+      { id: 'discussion', words: ['discussion', '讨论'] },
+      { id: 'conclusion', words: ['conclusion', '结论'] },
+      { id: 'figures', words: ['figure', '图件', '图注'] },
+      { id: 'tables', words: ['table', '表格'] },
+      { id: 'keywords', words: ['keyword', '关键词'] },
+      { id: 'review', words: ['review', '综述'] },
+    ];
+
+    // ── the live skill index (手册) ──────────────────────────────────────
+
+    /** Live skill index fetched from the host's same-origin route (zero
+     *  tokens); falls back to the bundled copy when the route is absent. */
+    let liveIndex = null;
+    // 'bundled' | 'live' | 'failed' | 'unauthorized' | 'notImplemented'
+    let liveIndexState = 'bundled';
+    const indexListeners = new Set();
+
+    /** Classifies a failed route call: an auth rejection, a missing route and
+     *  an unreachable host are three different problems, and the panel says
+     *  which one it hit. */
+    const statusForError = (error) => {
+      const status = error && error.status;
+      if (status === 401 || status === 403) return 'unauthorized';
+      if (status === 404 || status === 405) return 'notImplemented';
+      return 'failed';
+    };
+
+    function refreshLiveIndex() {
+      try {
+        fetch('/dsh-academic-paper-polish/skill-index', {
+          cache: 'no-store',
+          credentials: 'same-origin',
+        })
+          .then((response) => {
+            if (!response.ok) {
+              const error = new Error(`HTTP ${response.status}`);
+              error.status = response.status;
+              throw error;
+            }
+            return response.json();
+          })
+          .then((index) => {
+            if (Array.isArray(index) && index.length > 0) {
+              liveIndex = index;
+              liveIndexState = 'live';
+              for (const listener of indexListeners) listener();
+            }
+          })
+          .catch((error) => {
+            liveIndexState = statusForError(error);
+            for (const listener of indexListeners) listener();
+          });
+      } catch {
+        liveIndexState = 'failed';
+        for (const listener of indexListeners) listener();
+      }
+    }
+
+    // ── helpers ─────────────────────────────────────────────────────────
+
+    const STORE_PREFIX = 'dsh-academic-paper-polish.';
+
+    function readStore(key, fallback) {
+      try {
+        const raw = window.localStorage.getItem(STORE_PREFIX + key);
+        if (!raw) return fallback;
+        const parsed = JSON.parse(raw);
+        return parsed === null || parsed === undefined ? fallback : parsed;
+      } catch {
+        return fallback;
+      }
+    }
+
+    function writeStore(key, value) {
+      try {
+        window.localStorage.setItem(STORE_PREFIX + key, JSON.stringify(value));
+      } catch {
+        /* storage unavailable */
+      }
+    }
+
+    async function copyToClipboard(text) {
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(text);
+          return true;
+        }
+      } catch {
+        /* fall through to the legacy path */
+      }
+      try {
+        const area = document.createElement('textarea');
+        area.value = text;
+        area.setAttribute('readonly', '');
+        area.style.position = 'fixed';
+        area.style.opacity = '0';
+        document.body.appendChild(area);
+        area.select();
+        const ok = document.execCommand('copy');
+        document.body.removeChild(area);
+        return ok;
+      } catch {
+        return false;
+      }
+    }
+
+    /** Query-string builder — empty values are dropped so the host route
+     *  never sees `?section=`. */
+    function qs(params) {
+      const parts = [];
+      for (const key of Object.keys(params)) {
+        const value = params[key];
+        if (value === undefined || value === null || value === '') continue;
+        parts.push(`${key}=${encodeURIComponent(String(value))}`);
+      }
+      return parts.length > 0 ? `?${parts.join('&')}` : '';
+    }
+
+    /** Reads a JSON body and turns a non-2xx answer into a typed error. */
+    async function readJson(response) {
+      if (!response.ok) {
+        const error = new Error(`HTTP ${response.status}`);
+        error.status = response.status;
+        throw error;
+      }
+      return response.json();
+    }
+
+    /** First defined number among the candidates. */
+    function num(...values) {
+      for (const value of values) {
+        if (typeof value === 'number' && Number.isFinite(value)) return value;
+      }
+      return 0;
+    }
+
+    /** First non-empty string (or finite number) among the candidates. */
+    function str(...values) {
+      for (const value of values) {
+        if (typeof value === 'string' && value.trim().length > 0) return value;
+        if (typeof value === 'number' && Number.isFinite(value)) return String(value);
+      }
+      return '';
+    }
+
+    /** Prose helper: the first non-empty candidate, with the markdown
+     *  emphasis the rule database carries removed. */
+    function prose(...values) {
+      return plain(str(...values));
+    }
+
+    /** Strips the markdown emphasis the rule database carries (`**bold**`,
+     *  `` `code` ``) so a card reads as prose. */
+    function plain(text) {
+      return String(text || '')
+        .replace(/\*\*([^*]+)\*\*/g, '$1')
+        .replace(/`([^`]+)`/g, '$1')
+        .replace(/(^|\s)\*([^*\n]+)\*/g, '$1$2');
+    }
+
+    /** Detects the section of a pasted paragraph from its heading. */
+    function detectSection(text) {
+      const head = String(text || '')
+        .split(/\n/)
+        .slice(0, 8)
+        .join('\n')
+        .toLowerCase();
+      for (const probe of SECTION_PROBES) {
+        for (const word of probe.words) {
+          if (head.includes(word.toLowerCase())) return probe.id;
+        }
+      }
+      return '';
+    }
+
+    /** `references/checklist.md:30` — the rule's provenance. */
+    function sourceLabel(source) {
+      if (!source) return '';
+      if (typeof source === 'string') return source;
+      const file = str(source.file, source.path, source.ref);
+      if (!file) return '';
+      const line = source.line || source.lineNo || source.row;
+      return line ? `${file}:${line}` : file;
+    }
+
+    // ── reactive helpers ────────────────────────────────────────────────
+
+    /** Loads a resource and exposes the panel's five states:
+     *  'loading' | 'ok' | 'unauthorized' | 'notImplemented' | 'failed'. */
+    function useResource(loader, deps) {
+      const [state, setState] = useState({ status: 'loading', data: null, error: null });
+      useEffect(() => {
+        let cancelled = false;
+        setState((prev) => (prev.status === 'loading' ? prev : { status: 'loading', data: null, error: null }));
+        Promise.resolve()
+          .then(loader)
+          .then((data) => {
+            if (!cancelled) setState({ status: 'ok', data, error: null });
+          })
+          .catch((error) => {
+            if (!cancelled) setState({ status: statusForError(error), data: null, error });
+          });
+        return () => {
+          cancelled = true;
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+      }, deps);
+      return state;
+    }
+
+    /** Debounces a value — every search box settles before it hits the host. */
+    function useDebounced(value, delay) {
+      const [debounced, setDebounced] = useState(value);
+      useEffect(() => {
+        const timer = window.setTimeout(() => setDebounced(value), delay);
+        return () => window.clearTimeout(timer);
+      }, [value, delay]);
+      return debounced;
+    }
+
+    // ── panel chrome ────────────────────────────────────────────────────
+
+    function SeverityBadge(props) {
+      const severity = String(props.severity || 'info');
+      const tone = SEVERITY_TONE[severity] || 'info';
+      return h(
+        'span',
+        { className: 'dapp-sev', 'data-tone': tone },
+        `${SEVERITY_ICON[severity] || '🔵'} ${severity}`,
+      );
+    }
+
+    /** The three failure modes the panel can hit, spelled out so the user
+     *  knows whether to log in, to wait, or to update the plugin. */
+    function StateNotice(props) {
+      const status = props.status;
+      const map = {
+        unauthorized: {
+          tone: 'bad',
+          title: '未授权：宿主拒绝了请求',
+          body: '面板请求缺少登录态（HTTP 401）。请在 DeepSeek Harness 里重新登录后刷新。',
+        },
+        notImplemented: {
+          tone: 'warn',
+          title: '宿主尚未提供该接口',
+          body: '这个能力（HTTP 404）还没有在宿主侧上线：面板不会伪造内容，等接口上线后自动可用。',
+        },
+        failed: {
+          tone: 'warn',
+          title: '宿主路由不可达',
+          body: '请求没有拿到响应。宿主进程可能正在重启，或该插件没有启用。',
+        },
+      };
+      const info = map[status] || map.failed;
+      return h(
+        'div',
+        { className: 'dapp-state', 'data-tone': info.tone },
+        h('div', { className: 'dapp-state-title' }, info.title),
+        h('div', null, info.body),
+        props.detail ? h('div', { className: 'dapp-rid' }, props.detail) : null,
+      );
+    }
+
+    function ProgressRing(props) {
+      const ratio = Math.max(0, Math.min(1, props.ratio || 0));
+      const radius = 11;
+      const circumference = 2 * Math.PI * radius;
+      return h(
+        'div',
+        { className: 'dapp-ringp' },
+        h(
+          'svg',
+          { width: 28, height: 28, viewBox: '0 0 28 28', 'aria-hidden': true },
+          h('circle', {
+            cx: 14,
+            cy: 14,
+            r: radius,
+            fill: 'none',
+            stroke: 'var(--dapp-line-strong)',
+            strokeWidth: 3,
+          }),
+          h('circle', {
+            cx: 14,
+            cy: 14,
+            r: radius,
+            fill: 'none',
+            stroke: 'var(--dapp-accent)',
+            strokeWidth: 3,
+            strokeLinecap: 'round',
+            strokeDasharray: circumference,
+            strokeDashoffset: circumference * (1 - ratio),
+            transform: 'rotate(-90 14 14)',
+          }),
+        ),
+        h('span', { className: 'dapp-ringp-label' }, props.label),
+      );
+    }
+
+    // ── the panel ───────────────────────────────────────────────────────
+
+    function Panel(props) {
+      const t = translate;
+
+      const [expanded, setExpanded] = useState(true);
+      const [viewRaw, setView] = useState(readStore('view', 'rules'));
+      const view = VIEWS.some((item) => item.id === viewRaw) ? viewRaw : 'rules';
+
+      // 速查
+      const [rulesQuery, setRulesQuery] = useState('');
+      const [rulesSection, setRulesSection] = useState('');
+      const [rulesSeverity, setRulesSeverity] = useState('');
+      const [rulesDomain, setRulesDomain] = useState('');
+
+      // 期刊
+      const [journalsQuery, setJournalsQuery] = useState('');
+      const [journalField, setJournalField] = useState('');
+      const [journalOpenOnly, setJournalOpenOnly] = useState(false);
+      const [journalMaxApc, setJournalMaxApc] = useState('');
+      const [journalSort, setJournalSort] = useState({ key: 'impactFactor', dir: -1 });
+      const [openJournal, setOpenJournal] = useState('');
+
+      // 检查
+      const [checkText, setCheckText] = useState('');
+      const [checkSection, setCheckSection] = useState('');
+      const [checkTouched, setCheckTouched] = useState(false);
+
+      // 去 AI
+      const [deaiText, setDeaiText] = useState('');
+      const [sentencesQuery, setSentencesQuery] = useState('');
+
+      // 清单
+      const [stageId, setStageId] = useState('');
+
+      // shared
+      const [journalKey, setJournalKey] = useState(readStore('journal', ''));
+      const [checked, setChecked] = useState(readStore('checklist', {}));
+      const [toast, setToast] = useState(null);
+      const [sending, setSending] = useState(false);
+
+      const searchRef = useRef(null);
+      const toastTimer = useRef(null);
+      const debounceTimer = useRef(null);
+
+      useEffect(
+        () => () => {
+          if (toastTimer.current) window.clearTimeout(toastTimer.current);
+          if (debounceTimer.current) window.clearTimeout(debounceTimer.current);
+        },
+        [],
+      );
+
+      useEffect(() => writeStore('view', view), [view]);
+      useEffect(() => writeStore('journal', journalKey), [journalKey]);
+      useEffect(() => writeStore('checklist', checked), [checked]);
+
+      // ── toast ─────────────────────────────────────────────────────────
+      const flash = (text, kind) => {
+        setToast({ text, kind: kind || 'info' });
+        if (toastTimer.current) window.clearTimeout(toastTimer.current);
+        toastTimer.current = window.setTimeout(() => setToast(null), 2600);
+      };
+
+      // ── resources ─────────────────────────────────────────────────────
+      const metaState = useResource(
+        () =>
+          fetch('/dsh-academic-paper-polish/api/meta', { cache: 'no-store', credentials: 'same-origin' })
+            .then(readJson)
+            .catch((error) => {
+              throw error;
+            }),
+        [],
+      );
+
+      const rulesQueryDebounced = useDebounced(rulesQuery, 250);
+      const rulesState = useResource(
+        () =>
+          fetch(
+            '/dsh-academic-paper-polish/api/rules' +
+              qs({
+                query: rulesQueryDebounced.trim(),
+                section: rulesSection,
+                severity: rulesSeverity,
+              }),
+            { cache: 'no-store', credentials: 'same-origin' },
+          )
+            .then(readJson)
+            .catch((error) => {
+              throw error;
+            }),
+        [rulesQueryDebounced, rulesSection, rulesSeverity],
+      );
+
+      const journalsQueryDebounced = useDebounced(journalsQuery, 250);
+      const journalsState = useResource(
+        () =>
+          fetch(
+            '/dsh-academic-paper-polish/api/journals' +
+              qs({
+                query: journalsQueryDebounced.trim(),
+                field: journalField,
+                openAccess: journalOpenOnly ? 'true' : '',
+                maxApc: journalMaxApc,
+              }),
+            { cache: 'no-store', credentials: 'same-origin' },
+          )
+            .then(readJson)
+            .catch((error) => {
+              throw error;
+            }),
+        [journalsQueryDebounced, journalField, journalOpenOnly, journalMaxApc],
+      );
+
+      // The unfiltered list feeds the 领域 chips and the 目标期刊 selector.
+      const journalsAllState = useResource(
+        () =>
+          fetch('/dsh-academic-paper-polish/api/journals', { cache: 'no-store', credentials: 'same-origin' })
+            .then(readJson)
+            .catch((error) => {
+              throw error;
+            }),
+        [],
+      );
+
+      const checklistState = useResource(
+        () =>
+          fetch('/dsh-academic-paper-polish/api/checklists', { cache: 'no-store', credentials: 'same-origin' })
+            .then(readJson)
+            .catch((error) => {
+              throw error;
+            }),
+        [],
+      );
+
+      const sentencesQueryDebounced = useDebounced(sentencesQuery, 250);
+      const sentencesState = useResource(
+        () => {
+          // The sentence bank only matters for the 去AI view — do not spend a
+          // request on it while another tab is open.
+          if (view !== 'deai') return Promise.resolve({ patterns: [] });
+          return fetch('/dsh-academic-paper-polish/api/sentences' + qs({ query: sentencesQueryDebounced.trim() }), {
+            cache: 'no-store',
+            credentials: 'same-origin',
+          })
+            .then(readJson)
+            .catch((error) => {
+              throw error;
+            });
+        },
+        [sentencesQueryDebounced, view === 'deai'],
+      );
+
+      // 手册 — the remote full-text search over the skill files.
+      const [indexRev, setIndexRev] = useState(0);
+      const [manualQuery, setManualQuery] = useState('');
+      const [remoteHits, setRemoteHits] = useState(null);
+      const [remotePending, setRemotePending] = useState(false);
+
+      useEffect(() => {
+        const listener = () => setIndexRev((rev) => rev + 1);
+        indexListeners.add(listener);
+        return () => {
+          indexListeners.delete(listener);
+        };
+      }, []);
+
+      useEffect(() => {
+        const needle = manualQuery.trim();
+        if (!needle || liveIndexState !== 'live') {
+          setRemoteHits(null);
+          setRemotePending(false);
+          return undefined;
+        }
+        let cancelled = false;
+        const timer = window.setTimeout(() => {
+          setRemotePending(true);
+          fetch(`/dsh-academic-paper-polish/skill-index?q=${encodeURIComponent(needle)}`, {
+            cache: 'no-store',
+            credentials: 'same-origin',
+          })
+            .then(readJson)
+            .then((list) => {
+              if (cancelled) return;
+              setRemoteHits(Array.isArray(list) ? list : []);
+              setRemotePending(false);
+            })
+            .catch(() => {
+              if (cancelled) return;
+              setRemoteHits(null);
+              setRemotePending(false);
+            });
+        }, 250);
+        return () => {
+          cancelled = true;
+          window.clearTimeout(timer);
+        };
+      }, [manualQuery, liveIndexState, indexRev]);
+
+      const manualResults = useMemo(() => {
+        const needle = manualQuery.trim().toLowerCase();
+        if (!needle) return [];
+        if (remoteHits) return remoteHits.slice(0, 40);
+        const index = liveIndex || SKILL_INDEX;
+        return index
+          .filter((entry) => {
+            const haystack = [
+              entry.title,
+              entry.subtitle,
+              entry.path,
+              (entry.keywords || []).join(' '),
+              (entry.headings || []).join(' '),
+            ]
+              .join(' ')
+              .toLowerCase();
+            return haystack.includes(needle);
+          })
+          .slice(0, 40);
+      }, [manualQuery, indexRev, remoteHits]);
+
+      // ── derived data ──────────────────────────────────────────────────
+
+      const meta = metaState.data || {};
+      const sectionOptions = useMemo(() => {
+        const fromHost = Array.isArray(meta.sections) ? meta.sections : [];
+        if (fromHost.length > 0) {
+          return fromHost.map((id) => {
+            const known = SECTIONS.find((item) => item.id === id);
+            return known ? known : { id, label: id };
+          });
+        }
+        return SECTIONS;
+      }, [meta.sections]);
+
+      const domainOptions = useMemo(() => {
+        const fromHost = Array.isArray(meta.domains) ? meta.domains : [];
+        if (fromHost.length > 0) {
+          return fromHost.map((id) => ({ id, label: DOMAIN_LABELS[id] || id }));
+        }
+        return Object.keys(DOMAIN_LABELS).map((id) => ({ id, label: DOMAIN_LABELS[id] }));
+      }, [meta.domains]);
+
+      const rules = useMemo(() => {
+        const payload = rulesState.data;
+        if (!payload) return [];
+        const list = Array.isArray(payload.rules) ? payload.rules : [];
+        // The host filters by query / section / severity; the category chip is
+        // applied here so the panel never sends a parameter the route ignores.
+        if (!rulesDomain) return list;
+        return list.filter((rule) => str(rule.domain) === rulesDomain);
+      }, [rulesState.data, rulesDomain]);
+
+      const journalsAll = useMemo(() => {
+        const payload = journalsAllState.data;
+        if (!payload) return [];
+        return Array.isArray(payload.journals) ? payload.journals : [];
+      }, [journalsAllState.data]);
+
+      const journals = useMemo(() => {
+        const payload = journalsState.data;
+        if (!payload) return [];
+        const list = Array.isArray(payload.journals) ? payload.journals : [];
+        const key = journalSort.key;
+        const dir = journalSort.dir;
+        return [...list].sort((a, b) => {
+          const left = sortValue(a, key);
+          const right = sortValue(b, key);
+          if (left === right) return 0;
+          return (left < right ? -1 : 1) * dir;
+        });
+      }, [journalsState.data, journalSort]);
+
+      const fieldOptions = useMemo(() => {
+        const fields = new Set();
+        for (const journal of journalsAll) {
+          for (const field of journal.field || []) fields.add(field);
+        }
+        return [...fields];
+      }, [journalsAll]);
+
+      const stages = useMemo(() => {
+        const payload = checklistState.data;
+        if (!payload) return [];
+        return Array.isArray(payload.stages) ? payload.stages : [];
+      }, [checklistState.data]);
+
+      const visibleStages = useMemo(
+        () => (stageId ? stages.filter((stage) => stage.id === stageId) : stages),
+        [stages, stageId],
+      );
+
+      const checklistItems = useMemo(() => {
+        const items = [];
+        for (const stage of stages) {
+          for (const item of stage.items || []) {
+            items.push({ ...item, stageId: stage.id, stageTitle: stage.title });
+          }
+        }
+        return items;
+      }, [stages]);
+
+      const doneCount = useMemo(
+        () => checklistItems.filter((item) => checked[`${item.stageId}:${item.id}`]).length,
+        [checklistItems, checked],
+      );
+
+      const detected = useMemo(() => detectSection(checkText), [checkText]);
+      useEffect(() => {
+        if (!checkTouched) setCheckSection(detected);
+      }, [detected, checkTouched]);
+
+      const targetJournal = useMemo(
+        () => journalsAll.find((journal) => journal.key === journalKey) || null,
+        [journalsAll, journalKey],
+      );
+
+      // ── actions ───────────────────────────────────────────────────────
+
+      /** The conversation package exposes `inputActions` as a standard prop.
+       *  When the slot hands it over, the text lands in the composer — the
+       *  client-side half of 「发送到会话」. */
+      const insertIntoComposer = (text) => {
+        try {
+          const actions = props.inputActions;
+          if (!actions || typeof actions.insertText !== 'function') return false;
+          const span = typeof actions.captureInsertion === 'function' ? actions.captureInsertion() : undefined;
+          return Boolean(actions.insertText(text, span));
+        } catch {
+          return false;
+        }
+      };
+
+      const sendToSession = async (text) => {
+        if (sending) return false;
+        setSending(true);
+        try {
+          const response = await fetch('/dsh-academic-paper-polish/api/send', {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ text }),
+          });
+          await readJson(response);
+          setSending(false);
+          // The host queues the text as a plugin-authored message (its source
+          // marker is not "user"), so the harness renders it as an inject row.
+          flash(t('panel.sent'), 'ok');
+          return true;
+        } catch (error) {
+          setSending(false);
+          const status = statusForError(error);
+          if (status === 'unauthorized') {
+            flash(t('panel.sendUnauthorized'), 'bad');
+            return false;
+          }
+          if (status === 'notImplemented') {
+            // The host has no conversation-injection route (yet). Fall back to
+            // the composer standard prop, and only then give up.
+            const inserted = insertIntoComposer(text);
+            if (inserted) {
+              flash('已插入输入框（宿主未提供 /api/send）', 'ok');
+              return true;
+            }
+            flash(t('panel.sendMissing'), 'warn');
+            return false;
+          }
+          const code = error && error.status;
+          if (code === 409) {
+            flash(t('panel.sendNoSession'), 'warn');
+            return false;
+          }
+          if (code === 503) {
+            flash(t('panel.sendNoChannel'), 'warn');
+            return false;
+          }
+          flash(`${t('panel.sendFailed')}：${(error && error.message) || '未知错误'}`, 'bad');
+          return false;
+        }
+      };
+
+      const copyText = async (text) => {
+        const ok = await copyToClipboard(text);
+        flash(ok ? t('panel.copied') : '复制失败', ok ? 'ok' : 'bad');
+      };
+
+      const toggleChecked = (key) => {
+        setChecked((state) => {
+          const next = { ...state };
+          if (next[key]) delete next[key];
+          else next[key] = true;
+          return next;
+        });
+      };
+
+      // ── keyboard ──────────────────────────────────────────────────────
+      useEffect(() => {
+        const onKey = (event) => {
+          const target = event.target;
+          const inField =
+            target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT');
+          if (event.key === 'Escape') {
+            if (inField && target.dataset && target.dataset.search) {
+              const setter = searchSetters[target.dataset.search];
+              if (setter) setter('');
+            }
+            if (inField) target.blur();
+            return;
+          }
+          if (inField) return;
+          if (event.key === '/' && searchRef.current) {
+            event.preventDefault();
+            searchRef.current.focus();
+            return;
+          }
+          const index = Number(event.key);
+          if (Number.isInteger(index) && index >= 1 && index <= VIEWS.length) {
+            setView(VIEWS[index - 1].id);
+          }
+        };
+        window.addEventListener('keydown', onKey);
+        return () => window.removeEventListener('keydown', onKey);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+      }, []);
+
+      const searchSetters = {
+        rules: () => setRulesQuery(''),
+        journals: () => setJournalsQuery(''),
+        manual: () => setManualQuery(''),
+        sentences: () => setSentencesQuery(''),
+      };
+
+      // ── header ────────────────────────────────────────────────────────
+      const head = h(
+        'div',
+        { className: 'dapp-head' },
+        h('div', { className: 'dapp-mark' }, h(Icon, { name: 'mark', size: 16 })),
+        h(
+          'div',
+          { className: 'dapp-grow' },
+          h('div', { className: 'dapp-title' }, t('panel.title')),
+          h(
+            'div',
+            { className: 'dapp-sub' },
+            `${VIEWS.find((item) => item.id === view)?.label || ''} · ${
+              targetJournal ? `目标：${targetJournal.name}` : '未设目标期刊'
+            }`,
+          ),
+        ),
+        h(
+          'button',
+          {
+            type: 'button',
+            className: 'dapp-icon-btn',
+            title: expanded ? t('panel.collapse') : t('panel.expand'),
+            onClick: () => setExpanded((value) => !value),
+          },
+          h(Icon, { name: 'expand', size: 15 }),
+        ),
+      );
+
+      // ── views ─────────────────────────────────────────────────────────
+
+      function searchBox(key, value, setter, placeholder) {
+        return h(
+          'div',
+          { className: 'dapp-search' },
+          h(Icon, { name: 'search', size: 14 }),
+          h('input', {
+            ref: searchRef,
+            type: 'text',
+            value,
+            placeholder,
+            'data-search': key,
+            onChange: (event) => setter(event.target.value),
+          }),
+        );
+      }
+
+      function chipRow(options, active, setter, kind, scroll) {
+        return h(
+          'div',
+          { className: scroll ? 'dapp-chiprow dapp-chiprow-scroll' : 'dapp-chiprow' },
+          h(
+            'button',
+            {
+              type: 'button',
+              className: 'dapp-chipbtn',
+              'data-kind': kind,
+              // "全部" is only the active choice while no filter is set.
+              'data-on': active ? 'false' : 'true',
+              onClick: () => setter(''),
+            },
+            '全部',
+          ),
+          options.map((option) =>
+            h(
+              'button',
+              {
+                key: option.id,
+                type: 'button',
+                className: 'dapp-chipbtn',
+                'data-kind': kind,
+                'data-on': active === option.id ? 'true' : 'false',
+                onClick: () => setter(active === option.id ? '' : option.id),
+              },
+              option.label,
+            ),
+          ),
+        );
+      }
+
+      function ruleText(rule) {
+        const lines = [];
+        const id = str(rule.id, rule.ruleId);
+        if (id) lines.push(`【${id}】${prose(rule.title) || ''}`);
+        else lines.push(prose(rule.title));
+        const statement = prose(rule.statement, rule.body, rule.text);
+        if (statement) lines.push(`规则：${statement}`);
+        const fix = prose(rule.fix, rule.suggestion);
+        if (fix) lines.push(`修复建议：${fix}`);
+        const location = sourceLabel(rule.source);
+        if (location) lines.push(`出处：${location}`);
+        return lines.join('\n');
+      }
+
+      function renderRuleCard(rule) {
+        const severity = str(rule.severity, 'info');
+        const location = sourceLabel(rule.source);
+        const statement = prose(rule.statement, rule.body, rule.text);
+        const fix = prose(rule.fix, rule.suggestion);
+        const sections = Array.isArray(rule.sections) ? rule.sections : [];
+        return h(
+          'div',
+          { className: 'dapp-card', 'data-sev': severity },
+          h(
+            'div',
+            { className: 'dapp-card-title' },
+            h(SeverityBadge, { severity }),
+            h('span', { className: 'dapp-grow dapp-wrap' }, prose(rule.title, rule.id)),
+          ),
+          h('div', { className: 'dapp-rid' }, str(rule.id, rule.ruleId)),
+          statement ? h('div', { className: 'dapp-rule-body dapp-wrap' }, statement) : null,
+          fix ? h('div', { className: 'dapp-fix dapp-wrap' }, h('b', null, '修复建议：'), fix) : null,
+          location ? h('div', { className: 'dapp-src' }, location) : null,
+          sections.length > 0
+            ? h(
+                'div',
+                { className: 'dapp-chiprow' },
+                sections.map((section) => h('span', { key: section, className: 'dapp-badge' }, section)),
+              )
+            : null,
+          h(
+            'div',
+            { className: 'dapp-actions' },
+            h(
+              'button',
+              { type: 'button', className: 'dapp-btn', onClick: () => copyText(ruleText(rule)) },
+              h(Icon, { name: 'copy', size: 12 }),
+              t('panel.copy'),
+            ),
+            h(
+              'button',
+              {
+                type: 'button',
+                className: 'dapp-btn dapp-btn-primary',
+                disabled: sending,
+                onClick: () => sendToSession(ruleText(rule)),
+              },
+              h(Icon, { name: 'send', size: 12 }),
+              t('panel.send'),
+            ),
+          ),
+        );
+      }
+
+      function renderRules() {
+        const state = rulesState;
+        const filters = [
+          rulesSection ? `段落「${rulesSection}」` : null,
+          rulesSeverity ? `严重度「${rulesSeverity}」` : null,
+          rulesDomain ? `分类「${rulesDomain}」` : null,
+        ].filter(Boolean);
+        return h(
+          'div',
+          { className: 'dapp-view', style: { display: 'grid', gap: '10px' } },
+          h(
+            'div',
+            { className: 'dapp-toolbar' },
+            searchBox('rules', rulesQuery, setRulesQuery, '搜规则标题 / 条款 / 修复建议（按 / 聚焦）'),
+            h('div', { className: 'dapp-label' }, '分类'),
+            chipRow(domainOptions, rulesDomain, setRulesDomain, 'domain'),
+            h('div', { className: 'dapp-label' }, '段落'),
+            chipRow(sectionOptions, rulesSection, setRulesSection, 'section', true),
+            h('div', { className: 'dapp-label' }, '严重度'),
+            chipRow(SEVERITIES, rulesSeverity, setRulesSeverity, 'severity'),
+          ),
+          state.status === 'loading'
+            ? h('div', { className: 'dapp-loading' }, '正在读取规则库…')
+            : null,
+          state.status !== 'loading' && state.status !== 'ok'
+            ? h(StateNotice, { status: state.status, detail: state.error && state.error.message })
+            : null,
+          state.status === 'ok' && rules.length === 0
+            ? h(
+                'div',
+                { className: 'dapp-empty' },
+                h('div', null, '暂无匹配规则'),
+                h(
+                  'div',
+                  { className: 'dapp-hint' },
+                  filters.length > 0
+                    ? `试着放宽：清除 ${filters.join('、')}，或换一个关键词。`
+                    : '换一个关键词，或清空搜索框。',
+                ),
+              )
+            : null,
+          state.status === 'ok' && rules.length > 0
+            ? h(
+                'div',
+                { className: 'dapp-hintline' },
+                `命中 ${rules.length} 条${state.data && typeof state.data.total === 'number' ? ` / 共 ${state.data.total} 条` : ''}`,
+              )
+            : null,
+          rules.map((rule) => h('div', { key: str(rule.id, rule.ruleId) }, renderRuleCard(rule))),
+        );
+      }
+
+      function sortValue(journal, key) {
+        const raw = journal[key];
+        if (typeof raw === 'number') return raw;
+        if (typeof raw === 'string') return raw;
+        return -Infinity;
+      }
+
+      function renderJournalRow(journal) {
+        const cells = [
+          { key: 'name', label: '期刊', render: (item) => str(item.name, item.key) },
+          { key: 'publisher', label: '出版社', render: (item) => str(item.publisher) || '—' },
+          {
+            key: 'impactFactor',
+            label: 'IF',
+            render: (item) => (typeof item.impactFactor === 'number' ? item.impactFactor.toFixed(1) : '—'),
+          },
+          {
+            key: 'openAccess',
+            label: 'OA',
+            render: (item) => (item.openAccess ? '✓' : '—'),
+          },
+          {
+            key: 'reviewDays',
+            label: '审稿',
+            render: (item) => (typeof item.reviewDays === 'number' ? `${item.reviewDays} 天` : '—'),
+          },
+          { key: 'apc', label: 'APC', render: (item) => (item.apc === null || item.apc === undefined ? '—' : String(item.apc)) },
+          {
+            key: 'structure',
+            label: '段结构',
+            render: (item) => (Array.isArray(item.structure) ? item.structure.slice(0, 3).join(' → ') : '—'),
+          },
+        ];
+        return h(
+          'tr',
+          {
+            key: str(journal.key, journal.name),
+            'data-key': str(journal.key, journal.name),
+            'data-on': journal.key === journalKey ? 'true' : 'false',
+            onClick: () => setOpenJournal(str(journal.key, journal.name)),
+          },
+          cells.map((cell) =>
+            h(
+              'td',
+              { key: cell.key, 'data-sort': cell.key },
+              cell.render(journal),
+            ),
+          ),
+        );
+      }
+
+      function renderJournalDetail(journal) {
+        const limits = journal.limits || {};
+        const limitKeys = Object.keys(limits);
+        const structure = Array.isArray(journal.structure) ? journal.structure : [];
+        const rulesOfJournal = Array.isArray(journal.rules) ? journal.rules : [];
+        const location = sourceLabel(journal.source);
+        const isTarget = journal.key === journalKey;
+        return h(
+          'div',
+          { className: 'dapp-view', style: { display: 'grid', gap: '10px' } },
+          h(
+            'div',
+            { className: 'dapp-actions' },
+            h(
+              'button',
+              { type: 'button', className: 'dapp-btn', onClick: () => setOpenJournal('') },
+              '← 返回列表',
+            ),
+            h(
+              'button',
+              {
+                type: 'button',
+                className: isTarget ? 'dapp-btn' : 'dapp-btn dapp-btn-primary',
+                onClick: () => {
+                  setJournalKey(str(journal.key));
+                  writeStore('journal', str(journal.key));
+                  flash(`已设为目标期刊：${str(journal.name, journal.key)}`, 'ok');
+                },
+              },
+              isTarget ? '✓ 目标期刊' : '设为目标期刊',
+            ),
+          ),
+          h(
+            'div',
+            { className: 'dapp-card' },
+            h('div', { className: 'dapp-card-title' }, str(journal.name, journal.key)),
+            h('div', { className: 'dapp-rid' }, str(journal.publisher), journal.issn ? ` · ${journal.issn}` : ''),
+            h('div', { className: 'dapp-rule-body dapp-wrap' }, prose(journal.scope)),
+            h(
+              'div',
+              { className: 'dapp-facts' },
+              [
+                ['IF', typeof journal.impactFactor === 'number' ? journal.impactFactor.toFixed(1) : '—'],
+                ['APC', journal.apc === null || journal.apc === undefined ? '—' : String(journal.apc)],
+                ['审稿', typeof journal.reviewDays === 'number' ? `${journal.reviewDays} 天` : '—'],
+                ['OA', journal.openAccess ? '是' : '否'],
+              ].map(([k, v]) =>
+                h(
+                  'div',
+                  { key: k, className: 'dapp-fact' },
+                  h('div', { className: 'dapp-fact-k' }, k),
+                  h('div', { className: 'dapp-fact-v' }, v),
+                ),
+              ),
+            ),
+          ),
+          h(
+            'div',
+            { className: 'dapp-card' },
+            h('div', { className: 'dapp-label' }, '硬性参数 limits'),
+            limitKeys.length > 0
+              ? h(
+                  'div',
+                  { className: 'dapp-facts' },
+                  limitKeys.map((key) =>
+                    h(
+                      'div',
+                      { key, className: 'dapp-fact' },
+                      h('div', { className: 'dapp-fact-k' }, key),
+                      h(
+                        'div',
+                        { className: 'dapp-fact-v' },
+                        limits[key] === null || limits[key] === undefined ? '—' : String(limits[key]),
+                      ),
+                    ),
+                  ),
+                )
+              : h('div', { className: 'dapp-hint' }, '宿主没有给出该刊的硬性参数。'),
+          ),
+          h(
+            'div',
+            { className: 'dapp-card' },
+            h('div', { className: 'dapp-label' }, '段结构 structure'),
+            structure.length > 0
+              ? h('ol', { className: 'dapp-list' }, structure.map((item) => h('li', { key: item }, item)))
+              : h('div', { className: 'dapp-hint' }, '宿主没有给出该刊的段结构。'),
+          ),
+          h(
+            'div',
+            { className: 'dapp-card' },
+            h('div', { className: 'dapp-label' }, '该刊要求 rules'),
+            rulesOfJournal.length > 0
+              ? h(
+                  'ul',
+                  { className: 'dapp-list dapp-list-warn' },
+                  rulesOfJournal.map((item, index) => h('li', { key: `${index}-${item}` }, prose(item))),
+                )
+              : h('div', { className: 'dapp-hint' }, '宿主没有给出该刊的专属要求。'),
+          ),
+          location ? h('div', { className: 'dapp-src' }, location) : null,
+          h(
+            'div',
+            { className: 'dapp-actions' },
+            h(
+              'button',
+              {
+                type: 'button',
+                className: 'dapp-btn',
+                onClick: () =>
+                  copyText(
+                    `目标期刊：${str(journal.name, journal.key)}\n段结构：${structure.join(' → ')}\n要求：\n- ${rulesOfJournal.join('\n- ')}`,
+                  ),
+              },
+              h(Icon, { name: 'copy', size: 12 }),
+              t('panel.copy'),
+            ),
+            h(
+              'button',
+              {
+                type: 'button',
+                className: 'dapp-btn dapp-btn-primary',
+                disabled: sending,
+                onClick: () =>
+                  sendToSession(
+                    `我要投 ${str(journal.name, journal.key)}。请按该刊的硬性约束检查我的稿件：段结构 ${structure.join(' → ')}；参数 ${JSON.stringify(limits)}；专属要求：${rulesOfJournal.join('；')}。`,
+                  ),
+              },
+              h(Icon, { name: 'send', size: 12 }),
+              t('panel.send'),
+            ),
+          ),
+        );
+      }
+
+      function renderJournals() {
+        const state = journalsState;
+        const open = journalsAll.find((journal) => str(journal.key) === openJournal) || null;
+        if (open) return renderJournalDetail(open);
+        const columns = [
+          { key: 'name', label: '期刊' },
+          { key: 'publisher', label: '出版社' },
+          { key: 'impactFactor', label: 'IF' },
+          { key: 'openAccess', label: 'OA' },
+          { key: 'reviewDays', label: '审稿' },
+          { key: 'apc', label: 'APC' },
+          { key: 'structure', label: '段结构' },
+        ];
+        return h(
+          'div',
+          { className: 'dapp-view', style: { display: 'grid', gap: '10px' } },
+          h(
+            'div',
+            { className: 'dapp-toolbar' },
+            searchBox('journals', journalsQuery, setJournalsQuery, '搜期刊名 / 出版社 / ISSN（按 / 聚焦）'),
+            h(
+              'div',
+              { className: 'dapp-chiprow' },
+              h(
+                'button',
+                {
+                  type: 'button',
+                  className: 'dapp-chipbtn',
+                  'data-on': journalOpenOnly ? 'true' : 'false',
+                  onClick: () => setJournalOpenOnly((value) => !value),
+                },
+                '仅开放获取',
+              ),
+              h(
+                'button',
+                {
+                  type: 'button',
+                  className: 'dapp-chipbtn',
+                  'data-on': journalMaxApc ? 'true' : 'false',
+                  onClick: () => setJournalMaxApc(journalMaxApc ? '' : '3000'),
+                },
+                'APC ≤ 3000',
+              ),
+            ),
+            fieldOptions.length > 0
+              ? h(
+                  'div',
+                  { className: 'dapp-chiprow dapp-chiprow-scroll' },
+                  fieldOptions.map((field) =>
+                    h(
+                      'button',
+                      {
+                        key: field,
+                        type: 'button',
+                        className: 'dapp-chipbtn',
+                        'data-on': journalField === field ? 'true' : 'false',
+                        onClick: () => setJournalField(journalField === field ? '' : field),
+                      },
+                      field,
+                    ),
+                  ),
+                )
+              : null,
+          ),
+          state.status === 'loading' ? h('div', { className: 'dapp-loading' }, '正在读取期刊库…') : null,
+          state.status !== 'loading' && state.status !== 'ok'
+            ? h(StateNotice, { status: state.status, detail: state.error && state.error.message })
+            : null,
+          state.status === 'ok' && journals.length === 0
+            ? h(
+                'div',
+                { className: 'dapp-empty' },
+                h('div', null, '暂无匹配期刊'),
+                h('div', { className: 'dapp-hint' }, '试着放宽：关闭「仅开放获取」、取消 APC 上限，或清空搜索框。'),
+              )
+            : null,
+          state.status === 'ok' && journals.length > 0
+            ? h(
+                'div',
+                { className: 'dapp-tablewrap' },
+                h(
+                  'table',
+                  { className: 'dapp-jtable' },
+                  h(
+                    'thead',
+                    null,
+                    h(
+                      'tr',
+                      null,
+                      columns.map((column) =>
+                        h(
+                          'th',
+                          {
+                            key: column.key,
+                            onClick: () =>
+                              setJournalSort((state_) =>
+                                state_.key === column.key ? { key: column.key, dir: -state_.dir } : { key: column.key, dir: -1 },
+                              ),
+                          },
+                          column.label,
+                          journalSort.key === column.key ? (journalSort.dir < 0 ? ' ↓' : ' ↑') : '',
+                        ),
+                      ),
+                    ),
+                  ),
+                  h('tbody', null, journals.map(renderJournalRow)),
+                ),
+              )
+            : null,
+          state.status === 'ok' && journals.length > 0
+            ? h('div', { className: 'dapp-hintline' }, `共 ${journals.length} 本期刊 · 点行看详情 · 表格可横向滚动`)
+            : null,
+        );
+      }
+
+      function renderCheck() {
+        const state = checkState;
+        const data = state.data || {};
+        const violations = Array.isArray(data.violations) ? data.violations : [];
+        const advice = Array.isArray(data.advice) ? data.advice : [];
+        const summary = data.summary || {};
+        const hard = num(summary.hard, summary.hardCount, summary.errors, summary.error);
+        const soft = num(summary.soft, summary.softCount, summary.warnings, summary.warning);
+        const info = num(summary.info, summary.infoCount, summary.hints, summary.hint);
+        const total = num(summary.total, summary.count, violations.length);
+        const passed =
+          typeof summary.pass === 'boolean'
+            ? summary.pass
+            : typeof summary.passed === 'boolean'
+              ? summary.passed
+              : violations.length === 0;
+        return h(
+          'div',
+          { className: 'dapp-view', style: { display: 'grid', gap: '10px' } },
+          h(
+            'div',
+            { className: 'dapp-card' },
+            h('div', { className: 'dapp-label' }, '待检段落'),
+            h('textarea', {
+              className: 'dapp-textarea',
+              value: checkText,
+              placeholder: '粘贴要检查的段落（标题 + 正文）…',
+              onChange: (event) => setCheckText(event.target.value),
+            }),
+            h(
+              'div',
+              { className: 'dapp-field' },
+              h('span', { className: 'dapp-k' }, '段落'),
+              h(
+                'select',
+                {
+                  className: 'dapp-select',
+                  value: checkSection,
+                  onChange: (event) => {
+                    setCheckTouched(true);
+                    setCheckSection(event.target.value);
+                  },
+                },
+                h('option', { value: '' }, detected ? `自动（${detected}）` : '自动'),
+                sectionOptions.map((section) =>
+                  h('option', { key: section.id, value: section.id }, section.label),
+                ),
+              ),
+            ),
+            h(
+              'div',
+              { className: 'dapp-field' },
+              h('span', { className: 'dapp-k' }, '目标期刊'),
+              h(
+                'select',
+                {
+                  className: 'dapp-select',
+                  value: journalKey,
+                  onChange: (event) => {
+                    setJournalKey(event.target.value);
+                    writeStore('journal', event.target.value);
+                  },
+                },
+                h('option', { value: '' }, '不限'),
+                journalsAll.map((journal) =>
+                  h('option', { key: str(journal.key), value: str(journal.key) }, str(journal.name, journal.key)),
+                ),
+              ),
+            ),
+            h(
+              'div',
+              { className: 'dapp-actions' },
+              h(
+                'button',
+                {
+                  type: 'button',
+                  className: 'dapp-btn dapp-btn-primary',
+                  disabled: checkPending || !checkText.trim(),
+                  onClick: runCheck,
+                },
+                checkPending ? '检查中…' : '开始检查',
+              ),
+              h(
+                'button',
+                {
+                  type: 'button',
+                  className: 'dapp-btn',
+                  onClick: () => {
+                    setCheckText('');
+                    setCheckTouched(false);
+                    setCheckState({ status: 'idle', data: null, error: null });
+                  },
+                },
+                '清空',
+              ),
+            ),
+          ),
+          state.status === 'unauthorized' ||
+          state.status === 'notImplemented' ||
+          state.status === 'failed'
+            ? h(StateNotice, { status: state.status, detail: state.error && state.error.message })
+            : null,
+          state.status === 'ok'
+            ? h(
+                'div',
+                { className: 'dapp-card' },
+                h(
+                  'div',
+                  { className: 'dapp-verdictbar', 'data-state': passed ? 'ok' : 'bad' },
+                  h('span', { className: 'dapp-verdict-dot' }),
+                  h(
+                    'span',
+                    { className: 'dapp-grow' },
+                    passed ? '✓ 未发现违规' : `✗ 发现 ${violations.length} 条违规`,
+                  ),
+                  h('span', { className: 'dapp-hintline' }, `共 ${total} 项检查`),
+                ),
+                h(
+                  'div',
+                  { className: 'dapp-summary' },
+                  h(
+                    'div',
+                    { className: 'dapp-summary-cell' },
+                    h('div', { className: 'dapp-summary-num', 'data-tone': 'bad' }, String(hard)),
+                    h('div', { className: 'dapp-summary-k' }, '🔴 hard'),
+                  ),
+                  h(
+                    'div',
+                    { className: 'dapp-summary-cell' },
+                    h('div', { className: 'dapp-summary-num', 'data-tone': 'warn' }, String(soft)),
+                    h('div', { className: 'dapp-summary-k' }, '🟡 soft'),
+                  ),
+                  h(
+                    'div',
+                    { className: 'dapp-summary-cell' },
+                    h('div', { className: 'dapp-summary-num', 'data-tone': 'info' }, String(info)),
+                    h('div', { className: 'dapp-summary-k' }, '🔵 info'),
+                  ),
+                ),
+              )
+            : null,
+          state.status === 'ok' && violations.length === 0
+            ? h('div', { className: 'dapp-empty' }, '没有发现违规。')
+            : null,
+          violations.map((violation, index) =>
+            h(
+              'div',
+              { key: str(violation.ruleId, violation.id, `v${index}`), className: 'dapp-card' },
+              h(
+                'div',
+                { className: 'dapp-card-title' },
+                h(SeverityBadge, { severity: str(violation.severity, 'hard') }),
+                h('span', { className: 'dapp-grow dapp-wrap' }, str(violation.title, violation.ruleTitle, violation.id)),
+              ),
+              h('div', { className: 'dapp-rid' }, str(violation.ruleId, violation.id)),
+              violation.statement
+                ? h('div', { className: 'dapp-rule-body dapp-wrap' }, prose(violation.statement))
+                : null,
+              violation.expected || violation.expect
+                ? h(
+                    'div',
+                    { className: 'dapp-rule-body dapp-wrap' },
+                    h('b', null, '期望：'),
+                    prose(violation.expected, violation.expect),
+                  )
+                : null,
+              violation.actual || violation.observed
+                ? h(
+                    'div',
+                    { className: 'dapp-rule-body dapp-wrap' },
+                    h('b', null, '实际：'),
+                    prose(violation.actual, violation.observed),
+                  )
+                : null,
+              violation.matched
+                ? h(
+                    'div',
+                    { className: 'dapp-rule-body dapp-wrap' },
+                    h('b', null, '命中：'),
+                    h('span', { className: 'dapp-match' }, prose(violation.matched)),
+                  )
+                : null,
+              violation.detail || violation.message
+                ? h('div', { className: 'dapp-rule-body dapp-wrap' }, prose(violation.detail, violation.message))
+                : null,
+              violation.fix || violation.suggestion
+                ? h(
+                    'div',
+                    { className: 'dapp-fix dapp-wrap' },
+                    h('b', null, '修复建议：'),
+                    prose(violation.fix, violation.suggestion),
+                  )
+                : null,
+              sourceLabel(violation.source) ? h('div', { className: 'dapp-src' }, sourceLabel(violation.source)) : null,
+              h(
+                'div',
+                { className: 'dapp-actions' },
+                h(
+                  'button',
+                  {
+                    type: 'button',
+                    className: 'dapp-btn',
+                    onClick: () => copyText(violationText(violation)),
+                  },
+                  h(Icon, { name: 'copy', size: 12 }),
+                  t('panel.copy'),
+                ),
+                h(
+                  'button',
+                  {
+                    type: 'button',
+                    className: 'dapp-btn dapp-btn-primary',
+                    disabled: sending,
+                    onClick: () => sendToSession(violationText(violation)),
+                  },
+                  h(Icon, { name: 'send', size: 12 }),
+                  t('panel.send'),
+                ),
+              ),
+            ),
+          ),
+          state.status === 'ok' && advice.length > 0
+            ? h(
+                'div',
+                { className: 'dapp-card' },
+                h('div', { className: 'dapp-label' }, '建议 advice'),
+                h(
+                  'ul',
+                  { className: 'dapp-list' },
+                  advice.map((item, index) =>
+                    h('li', { key: index }, typeof item === 'string' ? item : str(item.text, item.title, item.message)),
+                  ),
+                ),
+              )
+            : null,
+        );
+      }
+
+      function violationText(violation) {
+        const lines = [];
+        const id = str(violation.ruleId, violation.id);
+        lines.push(id ? `【${id}】${prose(violation.title, violation.ruleTitle)}` : prose(violation.title));
+        const expected = prose(violation.expected, violation.expect);
+        const actual = prose(violation.actual, violation.observed);
+        if (expected) lines.push(`期望：${expected}`);
+        if (actual) lines.push(`实际：${actual}`);
+        const matched = prose(violation.matched);
+        if (matched) lines.push(`命中：${matched}`);
+        const detail = prose(violation.detail, violation.message);
+        if (detail) lines.push(detail);
+        const fix = prose(violation.fix, violation.suggestion);
+        if (fix) lines.push(`修复建议：${fix}`);
+        const location = sourceLabel(violation.source);
+        if (location) lines.push(`出处：${location}`);
+        return lines.filter(Boolean).join('\n');
+      }
+
+      function renderDeai() {
+        const state = deaiState;
+        const data = state.data || {};
+        const hits = Array.isArray(data.hits) ? data.hits : [];
+        const score = typeof data.score === 'number' ? data.score : null;
+        const patterns = sentencesState.data && Array.isArray(sentencesState.data.patterns)
+          ? sentencesState.data.patterns
+          : [];
+        const suggestions = hits
+          .map((hit) => str(hit.suggestion, hit.replacement, hit.fix))
+          .filter(Boolean);
+        return h(
+          'div',
+          { className: 'dapp-view', style: { display: 'grid', gap: '10px' } },
+          h(
+            'div',
+            { className: 'dapp-card' },
+            h('div', { className: 'dapp-label' }, '待扫描文本'),
+            h('textarea', {
+              className: 'dapp-textarea',
+              value: deaiText,
+              placeholder: '粘贴要扫描 AI 腔的段落…',
+              onChange: (event) => setDeaiText(event.target.value),
+            }),
+            h(
+              'div',
+              { className: 'dapp-actions' },
+              h(
+                'button',
+                {
+                  type: 'button',
+                  className: 'dapp-btn dapp-btn-primary',
+                  disabled: deaiPending || !deaiText.trim(),
+                  onClick: runDeai,
+                },
+                deaiPending ? '扫描中…' : '开始扫描',
+              ),
+              suggestions.length > 0
+                ? h(
+                    'button',
+                    {
+                      type: 'button',
+                      className: 'dapp-btn',
+                      onClick: () => copyText(suggestions.map((item, index) => `${index + 1}. ${item}`).join('\n')),
+                    },
+                    h(Icon, { name: 'copy', size: 12 }),
+                    '复制全部建议',
+                  )
+                : null,
+            ),
+          ),
+          state.status === 'unauthorized' ||
+          state.status === 'notImplemented' ||
+          state.status === 'failed'
+            ? h(StateNotice, { status: state.status, detail: state.error && state.error.message })
+            : null,
+          state.status === 'ok'
+            ? h(
+                'div',
+                { className: 'dapp-card' },
+                h(
+                  'div',
+                  { className: 'dapp-card-title' },
+                  h('span', { className: 'dapp-grow' }, '去 AI 化得分'),
+                  h('span', { className: 'dapp-score-big', 'data-tone': score >= 80 ? 'ok' : score >= 50 ? 'warn' : 'bad' }, score === null ? '—' : String(score)),
+                ),
+                h(
+                  'div',
+                  { className: 'dapp-meter' },
+                  h('span', {
+                    style: {
+                      width: `${Math.max(0, Math.min(100, score === null ? 0 : score))}%`,
+                      background:
+                        score === null
+                          ? 'var(--dapp-muted)'
+                          : score >= 80
+                            ? 'var(--dapp-ok)'
+                            : score >= 50
+                              ? 'var(--dapp-warn)'
+                              : 'var(--dapp-bad)',
+                    },
+                  }),
+                ),
+                h('div', { className: 'dapp-hintline' }, `命中 ${hits.length} 处 AI 句式（满分 100，越高越干净）`),
+              )
+            : null,
+          state.status === 'ok' && hits.length === 0
+            ? h('div', { className: 'dapp-empty' }, '没有命中 AI 句式。')
+            : null,
+          hits.map((hit, index) =>
+            h(
+              'div',
+              { key: str(hit.id, `h${index}`), className: 'dapp-card' },
+              h(
+                'div',
+                { className: 'dapp-card-title' },
+                h(SeverityBadge, { severity: str(hit.severity, 'soft') }),
+                h('span', { className: 'dapp-grow dapp-wrap' }, prose(hit.category, hit.type, 'AI 句式')),
+              ),
+              h('div', { className: 'dapp-match' }, prose(hit.matched, hit.match, hit.text, hit.zh, hit.en, hit.pattern)),
+              typeof hit.count === 'number' && hit.count > 1
+                ? h('div', { className: 'dapp-rid' }, `出现 ${hit.count} 次`)
+                : null,
+              hit.why ? h('div', { className: 'dapp-rule-body dapp-wrap' }, `为什么：${prose(hit.why, hit.reason)}`) : null,
+              hit.suggestion || hit.replacement
+                ? h(
+                    'div',
+                    { className: 'dapp-fix dapp-wrap' },
+                    h('b', null, '建议替换：'),
+                    prose(hit.suggestion, hit.replacement, hit.fix),
+                  )
+                : null,
+              h(
+                'div',
+                { className: 'dapp-actions' },
+                h(
+                  'button',
+                  {
+                    type: 'button',
+                    className: 'dapp-btn',
+                    onClick: () => copyText(str(hit.suggestion, hit.replacement, hit.fix)),
+                  },
+                  h(Icon, { name: 'copy', size: 12 }),
+                  t('panel.copy'),
+                ),
+                h(
+                  'button',
+                  {
+                    type: 'button',
+                    className: 'dapp-btn dapp-btn-primary',
+                    disabled: sending,
+                    onClick: () =>
+                      sendToSession(
+                        `请改写下面这句 AI 腔表达：${str(hit.match, hit.text)}\n原因：${str(hit.why, hit.reason)}\n建议：${str(hit.suggestion, hit.replacement)}`,
+                      ),
+                  },
+                  h(Icon, { name: 'send', size: 12 }),
+                  t('panel.send'),
+                ),
+              ),
+            ),
+          ),
+          h(
+            'details',
+            { className: 'dapp-fold' },
+            h(
+              'summary',
+              null,
+              h(Icon, { name: 'chevron', size: 13, className: 'dapp-chevron' }),
+              '句式库',
+              h('span', { className: 'dapp-fold-count' }, String(patterns.length)),
+            ),
+            h(
+              'div',
+              { className: 'dapp-fold-body', style: { display: 'grid', gap: '7px' } },
+              searchBox('sentences', sentencesQuery, setSentencesQuery, '搜句式（按 / 聚焦）'),
+              sentencesState.status === 'loading'
+                ? h('div', { className: 'dapp-loading' }, '正在读取句式库…')
+                : null,
+              sentencesState.status !== 'loading' && sentencesState.status !== 'ok'
+                ? h(StateNotice, { status: sentencesState.status })
+                : null,
+              patterns.map((pattern, index) =>
+                h(
+                  'div',
+                  { key: str(pattern.id, `p${index}`), className: 'dapp-rule' },
+                  h(
+                    'div',
+                    { className: 'dapp-grow' },
+                    h('div', { className: 'dapp-rule-title' }, prose(pattern.zh, pattern.en)),
+                    h('div', { className: 'dapp-rule-body' }, prose(pattern.why, pattern.category)),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      }
+
+      function renderChecklist() {
+        const state = checklistState;
+        const totalItems = checklistItems.length;
+        const ratio = totalItems > 0 ? doneCount / totalItems : 0;
+        return h(
+          'div',
+          { className: 'dapp-view', style: { display: 'grid', gap: '10px' } },
+          h(
+            'div',
+            { className: 'dapp-card' },
+            h(
+              'div',
+              { className: 'dapp-check-head' },
+              h(ProgressRing, { ratio, label: `${Math.round(ratio * 100)}%` }),
+              h('span', { className: 'dapp-grow' }, `${t('panel.progress')} ${doneCount}/${totalItems}`),
+              h(
+                'button',
+                {
+                  type: 'button',
+                  className: 'dapp-icon-btn',
+                  title: '清空勾选',
+                  onClick: () => setChecked({}),
+                },
+                h(Icon, { name: 'close', size: 13 }),
+              ),
+            ),
+            h(
+              'div',
+              { className: 'dapp-track' },
+              h('span', { className: 'dapp-fill', style: { width: `${Math.round(ratio * 100)}%` } }),
+            ),
+          ),
+          state.status === 'loading' ? h('div', { className: 'dapp-loading' }, '正在读取投稿清单…') : null,
+          state.status !== 'loading' && state.status !== 'ok'
+            ? h(StateNotice, { status: state.status, detail: state.error && state.error.message })
+            : null,
+          state.status === 'ok' && stages.length === 0
+            ? h('div', { className: 'dapp-empty' }, '宿主没有提供清单。')
+            : null,
+          stages.length > 0
+            ? h(
+                'div',
+                { className: 'dapp-chiprow dapp-chiprow-scroll' },
+                h(
+                  'button',
+                  {
+                    type: 'button',
+                    className: 'dapp-chipbtn',
+                    'data-on': stageId ? 'false' : 'true',
+                    onClick: () => setStageId(''),
+                  },
+                  '全部',
+                ),
+                stages.map((stage) => {
+                  const stageItems = (stage.items || []).filter(
+                    (item) => checked[`${stage.id}:${item.id}`],
+                  ).length;
+                  return h(
+                    'button',
+                    {
+                      key: stage.id,
+                      type: 'button',
+                      className: 'dapp-chipbtn',
+                      'data-on': stageId === stage.id ? 'true' : 'false',
+                      onClick: () => setStageId(stageId === stage.id ? '' : stage.id),
+                    },
+                    `${str(stage.title, stage.id)} ${stageItems}/${(stage.items || []).length}`,
+                  );
+                }),
+              )
+            : null,
+          visibleStages.map((stage) =>
+            h(
+              'div',
+              { key: stage.id, className: 'dapp-group', 'data-open': 'true' },
+              h(
+                'div',
+                { className: 'dapp-group-head' },
+                h('span', { className: 'dapp-group-key' }, h(Icon, { name: 'check', size: 11 })),
+                h('span', { className: 'dapp-group-name' }, str(stage.title, stage.id)),
+                h(
+                  'span',
+                  { className: 'dapp-group-count' },
+                  `${(stage.items || []).filter((item) => checked[`${stage.id}:${item.id}`]).length}/${
+                    (stage.items || []).length
+                  }`,
+                ),
+              ),
+              h(
+                'div',
+                { className: 'dapp-items' },
+                (stage.items || []).map((item) => {
+                  const key = `${stage.id}:${item.id}`;
+                  const on = Boolean(checked[key]);
+                  return h(
+                    'div',
+                    { key, className: 'dapp-item', 'data-checked': on ? 'true' : 'false' },
+                    h(
+                      'button',
+                      {
+                        type: 'button',
+                        className: 'dapp-box',
+                        'aria-label': str(item.text),
+                        onClick: () => toggleChecked(key),
+                      },
+                      h(Icon, { name: 'check', size: 11, strokeWidth: 2 }),
+                    ),
+                    h(
+                      'div',
+                      { className: 'dapp-grow' },
+                      h('div', { className: 'dapp-item-text dapp-wrap' }, prose(item.text)),
+                      item.severity
+                        ? h(
+                            'div',
+                            { className: 'dapp-rid' },
+                            `${SEVERITY_ICON[item.severity] || '🔵'} ${SEVERITY_TEXT[item.severity] || item.severity}${
+                              item.ruleId ? ` · ${item.ruleId}` : ''
+                            }`,
+                          )
+                        : null,
+                    ),
+                    h(
+                      'button',
+                      {
+                        type: 'button',
+                        className: 'dapp-icon-btn',
+                        title: t('panel.send'),
+                        disabled: sending,
+                        onClick: () =>
+                          sendToSession(
+                            `投稿清单（${str(stage.title, stage.id)}）待办：${str(item.text)}${
+                              item.ruleId ? `（规则 ${item.ruleId}）` : ''
+                            }`,
+                          ),
+                      },
+                      h(Icon, { name: 'send', size: 13 }),
+                    ),
+                  );
+                }),
+              ),
+            ),
+          ),
+        );
+      }
+
+      function renderManual() {
+        return h(
+          'div',
+          { className: 'dapp-view', style: { display: 'grid', gap: '10px' } },
+          searchBox('manual', manualQuery, setManualQuery, '全文检索手册文件（按 / 聚焦）'),
+          h(
+            'div',
+            { className: 'dapp-hint' },
+            liveIndexState === 'live'
+              ? remotePending && manualQuery.trim()
+                ? '🟢 实时索引：正在全文检索当前文件…'
+                : '🟢 实时索引：全文检索宿主路由读取的当前文件，不消耗任何 token。'
+              : liveIndexState === 'unauthorized'
+                ? '🟠 宿主路由拒绝了本次请求（缺登录态），正在使用打包时的内置索引（仅标题级匹配）。'
+                : liveIndexState === 'notImplemented'
+                  ? '🟡 宿主没有提供 skill-index 路由，正在使用打包时的内置索引（仅标题级匹配）。'
+                  : '🟡 宿主路由不可达，正在使用打包时的内置索引（仅标题级匹配）。',
+          ),
+          manualQuery.trim() && manualResults.length === 0
+            ? h('div', { className: 'dapp-empty' }, '没有命中任何文件。')
+            : null,
+          manualResults.map((entry) =>
+            h(
+              'div',
+              { key: entry.path, className: 'dapp-file' },
+              h(
+                'div',
+                { className: 'dapp-file-top' },
+                h('span', { className: 'dapp-badge' }, entry.kind),
+                h('span', { style: { fontWeight: 600, fontSize: '12px' } }, entry.title),
+              ),
+              h('div', { className: 'dapp-file-path' }, entry.path),
+              h('div', { className: 'dapp-file-sub' }, entry.subtitle),
+              entry.snippet
+                ? h(
+                    'div',
+                    { className: 'dapp-file-snip' },
+                    h('span', { className: 'dapp-file-snip-no' }, `L${entry.line || 0}`),
+                    entry.snippet,
+                  )
+                : null,
+              (entry.keywords || []).length > 0
+                ? h(
+                    'div',
+                    { className: 'dapp-chips' },
+                    entry.keywords.map((word) => h('span', { key: word, className: 'dapp-badge' }, word)),
+                  )
+                : null,
+              h(
+                'div',
+                { className: 'dapp-actions' },
+                h(
+                  'button',
+                  {
+                    type: 'button',
+                    className: 'dapp-btn',
+                    onClick: () => copyText(`使用 academic-paper-polish 技能：读取 ${entry.path}，按其中的规则处理我的稿件。`),
+                  },
+                  h(Icon, { name: 'copy', size: 12 }),
+                  t('panel.copy'),
+                ),
+                h(
+                  'button',
+                  {
+                    type: 'button',
+                    className: 'dapp-btn dapp-btn-primary',
+                    disabled: sending,
+                    onClick: () =>
+                      sendToSession(`使用 academic-paper-polish 技能：读取 ${entry.path}，按其中的规则处理我的稿件。`),
+                  },
+                  h(Icon, { name: 'send', size: 12 }),
+                  t('panel.send'),
+                ),
+              ),
+            ),
+          ),
+          manualQuery.trim() ? null : h('div', { className: 'dapp-hint' }, '输入关键词即可全文检索技能手册；点「发给会话」把文件交给智能体。'),
+        );
+      }
+
+      // ── check / de-AI actions ─────────────────────────────────────────
+
+      const [checkState, setCheckState] = useState({ status: 'idle', data: null, error: null });
+      const [checkPending, setCheckPending] = useState(false);
+      const [deaiState, setDeaiState] = useState({ status: 'idle', data: null, error: null });
+      const [deaiPending, setDeaiPending] = useState(false);
+
+      async function runCheck() {
+        setCheckPending(true);
+        setCheckState({ status: 'loading', data: null, error: null });
+        try {
+          const response = await fetch('/dsh-academic-paper-polish/api/check', {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({
+              text: checkText,
+              section: checkSection || detected || undefined,
+              journal: journalKey || undefined,
+            }),
+          });
+          const data = await readJson(response);
+          setCheckState({ status: 'ok', data, error: null });
+        } catch (error) {
+          setCheckState({ status: statusForError(error), data: null, error });
+        } finally {
+          setCheckPending(false);
+        }
+      }
+
+      async function runDeai() {
+        setDeaiPending(true);
+        setDeaiState({ status: 'loading', data: null, error: null });
+        try {
+          const response = await fetch('/dsh-academic-paper-polish/api/deai', {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ text: deaiText }),
+          });
+          const data = await readJson(response);
+          setDeaiState({ status: 'ok', data, error: null });
+        } catch (error) {
+          setDeaiState({ status: statusForError(error), data: null, error });
+        } finally {
+          setDeaiPending(false);
+        }
+      }
+
+      // ── assembly ──────────────────────────────────────────────────────
+
+      const tabBar = h(
+        'div',
+        { className: 'dapp-tabs' },
+        VIEWS.map((item, index) =>
+          h(
+            'button',
+            {
+              key: item.id,
+              type: 'button',
+              className: 'dapp-tab',
+              'data-active': view === item.id ? 'true' : 'false',
+              'data-view': item.id,
+              title: `${item.label}（快捷键 ${index + 1}）`,
+              onClick: () => setView(item.id),
+            },
+            item.label,
+          ),
+        ),
+      );
+
+      let content;
+      if (view === 'rules') content = renderRules();
+      else if (view === 'journals') content = renderJournals();
+      else if (view === 'check') content = renderCheck();
+      else if (view === 'deai') content = renderDeai();
+      else if (view === 'checklist') content = renderChecklist();
+      else content = renderManual();
+
+      const toastNode = toast
+        ? h('div', { className: 'dapp-toast', 'data-tone': toast.kind }, toast.text)
+        : null;
+
+      return h(
+        'div',
+        {
+          className: 'dapp',
+          style: { display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0 },
+        },
+        h('style', { dangerouslySetInnerHTML: { __html: CSS } }),
+        head,
+        expanded
+          ? h(
+              'div',
+              { className: 'dapp-body' },
+              tabBar,
+              h('div', { className: 'dapp-scroll' }, content),
+            )
+          : null,
+        toastNode,
+      );
+    }
+
+    // ── styles ──────────────────────────────────────────────────────────
 
     const CSS = `
 .dapp{
@@ -2111,6 +3411,7 @@ window.__ModuleLoader__.load({
 .dapp-tab:focus-visible{outline:2px solid var(--dapp-accent);outline-offset:1px}
 .dapp-tab-key{font-size:9px;opacity:.55;font-variant-numeric:tabular-nums}
 .dapp-scroll{padding:10px 12px 14px;display:grid;gap:10px;overflow-y:auto;flex:1 1 auto;min-height:0}
+.dapp-body{display:flex;flex-direction:column;flex:1 1 auto;min-height:0;min-width:0}
 .dapp-scroll::-webkit-scrollbar{width:9px}
 .dapp-scroll::-webkit-scrollbar-thumb{background:var(--dapp-line-strong);border-radius:5px;border:2px solid transparent;background-clip:content-box}
 .dapp-scroll::-webkit-scrollbar-thumb:hover{background:var(--dapp-muted);background-clip:content-box}
@@ -2272,1387 +3573,72 @@ window.__ModuleLoader__.load({
 .dapp-badge-accent{color:var(--dapp-accent);border-color:var(--dapp-accent-line);background:var(--dapp-accent-soft)}
 .dapp-mods{grid-template-columns:1fr 1fr}
 .dapp-kv{grid-template-columns:84px 1fr;font-size:12px}
+
+
+/* ── capability dashboard ─────────────────────────────── */
+.dapp{--dapp-info:var(--dsw-alias-state-info-primary,#3b82f6);--dapp-info-soft:color-mix(in srgb,var(--dapp-info) 12%,transparent)}
+.dapp-scroll>*{min-width:0}
+.dapp-wrap{overflow-wrap:anywhere;word-break:break-word}
+.dapp-toolbar{display:grid;gap:7px}
+.dapp-chiprow{display:flex;flex-wrap:wrap;gap:5px}
+.dapp-chiprow-scroll{flex-wrap:nowrap;overflow-x:auto;padding-bottom:3px;scrollbar-width:none}
+.dapp-chiprow-scroll::-webkit-scrollbar{display:none}
+.dapp-chiprow-scroll>*{flex:0 0 auto}
+.dapp-label+.dapp-chiprow{margin-top:-2px}
+.dapp-hintline{font-size:10.5px;color:var(--dapp-muted);line-height:1.5}
+.dapp-sev{display:inline-flex;align-items:center;gap:4px;font-size:10px;padding:2px 7px;border-radius:999px;border:1px solid var(--dapp-line-strong);white-space:nowrap;flex:0 0 auto}
+.dapp-sev[data-tone=bad]{color:var(--dapp-bad);border-color:color-mix(in srgb,var(--dapp-bad) 45%,transparent);background:var(--dapp-bad-soft)}
+.dapp-sev[data-tone=warn]{color:var(--dapp-warn);border-color:color-mix(in srgb,var(--dapp-warn) 45%,transparent);background:var(--dapp-warn-soft)}
+.dapp-sev[data-tone=info]{color:var(--dapp-info);border-color:color-mix(in srgb,var(--dapp-info) 45%,transparent);background:var(--dapp-info-soft)}
+.dapp-rid{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10px;color:var(--dapp-muted);word-break:break-all}
+.dapp-fix{font-size:11.5px;line-height:1.55;border-left:2px solid var(--dapp-accent-line);padding:2px 0 2px 8px;color:var(--dapp-text)}
+.dapp-src{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10px;color:var(--dapp-muted);word-break:break-all}
+.dapp-actions{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.dapp-btn[disabled]{opacity:.55;cursor:default}
+.dapp-icon-btn[disabled]{opacity:.55;cursor:default}
+.dapp-tablewrap{width:100%;max-width:100%;overflow-x:auto;border:1px solid var(--dapp-line);border-radius:var(--dapp-r);background:var(--dapp-surface)}
+.dapp-jtable{width:100%;min-width:520px;border-collapse:separate;border-spacing:0;font-size:11px}
+.dapp-jtable th,.dapp-jtable td{padding:6px 8px;text-align:left;border-bottom:1px solid var(--dapp-line);white-space:nowrap}
+.dapp-jtable th:first-child,.dapp-jtable td:first-child{max-width:158px;overflow:hidden;text-overflow:ellipsis}
+.dapp-jtable thead th{position:sticky;top:0;background:var(--dapp-surface);z-index:1;font-size:10px;color:var(--dapp-muted);font-weight:600;cursor:pointer;user-select:none}
+.dapp-jtable tbody tr{cursor:pointer;transition:background .13s ease}
+.dapp-jtable tbody tr:hover{background:var(--dapp-surface-2)}
+.dapp-jtable tbody tr[data-on=true]{background:var(--dapp-accent-soft)}
+.dapp-textarea{width:100%;min-height:150px;resize:vertical;font:inherit;font-size:12px;line-height:1.6;padding:8px 9px;border-radius:9px;border:1px solid var(--dapp-line-strong);background:var(--dapp-surface);color:var(--dapp-text)}
+.dapp-textarea:focus{outline:none;border-color:var(--dapp-accent)}
+.dapp-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.dapp-summary-cell{border:1px solid var(--dapp-line);border-radius:9px;padding:7px 9px;background:var(--dapp-surface);display:grid;gap:2px}
+.dapp-summary-num{font-size:17px;font-weight:700;font-variant-numeric:tabular-nums}
+.dapp-summary-num[data-tone=bad]{color:var(--dapp-bad)}
+.dapp-summary-num[data-tone=warn]{color:var(--dapp-warn)}
+.dapp-summary-num[data-tone=info]{color:var(--dapp-info)}
+.dapp-summary-k{font-size:10px;color:var(--dapp-muted)}
+.dapp-verdictbar{display:flex;gap:8px;align-items:center;padding:8px 10px;border-radius:9px;border:1px solid var(--dapp-line);background:var(--dapp-surface);font-size:12px}
+.dapp-verdictbar[data-state=ok]{border-color:color-mix(in srgb,var(--dapp-ok) 45%,transparent)}
+.dapp-verdictbar[data-state=bad]{border-color:color-mix(in srgb,var(--dapp-bad) 45%,transparent)}
+.dapp-verdictbar .dapp-grow{min-width:0}
+.dapp-state{border:1px solid var(--dapp-line);border-radius:var(--dapp-r);background:var(--dapp-surface);padding:10px 11px;font-size:11.5px;line-height:1.6;color:var(--dapp-muted);display:grid;gap:5px}
+.dapp-state[data-tone=bad]{border-color:color-mix(in srgb,var(--dapp-bad) 45%,transparent)}
+.dapp-state[data-tone=warn]{border-color:color-mix(in srgb,var(--dapp-warn) 45%,transparent)}
+.dapp-state-title{font-size:12px;font-weight:600;color:var(--dapp-text)}
+.dapp-loading{font-size:11.5px;color:var(--dapp-muted);padding:4px 2px}
+.dapp-ringp{position:relative;width:28px;height:28px;flex:0 0 auto}
+.dapp-ringp-label{position:absolute;inset:0;display:grid;place-items:center;font-size:8.5px;font-variant-numeric:tabular-nums;color:var(--dapp-muted)}
+.dapp-score-big{font-size:30px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1}
+.dapp-score-big[data-tone=ok]{color:var(--dapp-ok)}
+.dapp-score-big[data-tone=warn]{color:var(--dapp-warn)}
+.dapp-score-big[data-tone=bad]{color:var(--dapp-bad)}
+.dapp-match{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;background:var(--dapp-surface-2);border-radius:5px;padding:2px 6px;display:inline-block;word-break:break-word}
+.dapp-toast{flex:0 0 auto;padding:7px 10px;border-radius:9px;font-size:11.5px;line-height:1.5;border:1px solid var(--dapp-line-strong);background:var(--dapp-surface-2);color:var(--dapp-text)}
+.dapp-toast[data-tone=bad]{border-color:color-mix(in srgb,var(--dapp-bad) 50%,transparent)}
+.dapp-toast[data-tone=warn]{border-color:color-mix(in srgb,var(--dapp-warn) 50%,transparent)}
+.dapp-toast[data-tone=ok]{border-color:color-mix(in srgb,var(--dapp-ok) 50%,transparent)}
+.dapp-group[data-open=true] .dapp-box{align-self:flex-start}
+.dapp .dapp-box{color:transparent}
+@media (prefers-reduced-motion:reduce){.dapp-jtable tbody tr{transition:none}}
 `;
 
-    function Icon(props) {
-      const size = props.size || 16;
-      const parts = ICONS[props.name] || [];
-      return h(
-        'svg',
-        {
-          viewBox: '0 0 20 20',
-          width: size,
-          height: size,
-          fill: 'none',
-          stroke: 'currentColor',
-          strokeWidth: props.strokeWidth || 1.5,
-          strokeLinecap: 'round',
-          strokeLinejoin: 'round',
-          className: props.className,
-          'aria-hidden': true,
-        },
-        parts.map((part, index) => {
-          const { t, ...rest } = part;
-          return h(t, { ...rest, key: index });
-        }),
-      );
-    }
-
-    // ── helpers: numbers, colour maths ────────────────────────────────
-
-    function firstNumber(text) {
-      if (!text) return null;
-      const match = /(\d+(?:\.\d+)?)/.exec(String(text));
-      return match ? Number(match[1]) : null;
-    }
-
-    function figureRow(journal, pattern) {
-      const row = journal.figure.find(([label]) => pattern.test(label));
-      return row ? row[1] : null;
-    }
-
-    function toMillimetres(text) {
-      if (!text) return null;
-      const value = firstNumber(text);
-      if (value === null) return null;
-      if (/cm/i.test(text)) return value * 10;
-      return value;
-    }
-
-    function hexToRgb(hex) {
-      const clean = String(hex).trim().replace('#', '');
-      const full = clean.length === 3 ? clean.split('').map((c) => c + c).join('') : clean;
-      if (!/^[0-9a-f]{6}$/i.test(full)) return null;
-      return {
-        r: parseInt(full.slice(0, 2), 16),
-        g: parseInt(full.slice(2, 4), 16),
-        b: parseInt(full.slice(4, 6), 16),
-      };
-    }
-
-    function relativeLuminance(rgb) {
-      const channel = (value) => {
-        const c = value / 255;
-        return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
-      };
-      return 0.2126 * channel(rgb.r) + 0.7152 * channel(rgb.g) + 0.0722 * channel(rgb.b);
-    }
-
-    function contrastRatio(a, b) {
-      const la = relativeLuminance(a);
-      const lb = relativeLuminance(b);
-      const light = Math.max(la, lb);
-      const dark = Math.min(la, lb);
-      return (light + 0.05) / (dark + 0.05);
-    }
-
-    /** Machado et al. (2009) CVD simulation matrices, severity 1. */
-    const CVD_MATRIX = {
-      protan: [0.152286, 1.052583, -0.204868, 0.114503, 0.786281, 0.099216, -0.003882, -0.048116, 1.051998],
-      deutan: [0.367322, 0.860646, -0.227968, 0.280085, 0.672501, 0.047413, -0.01182, 0.04294, 0.968881],
-      tritan: [1.255528, -0.076749, -0.178779, -0.078411, 0.930809, 0.147602, 0.004733, 0.691367, 0.3039],
-    };
-
-    function simulateCvd(rgb, kind) {
-      const m = CVD_MATRIX[kind];
-      if (!m) return rgb;
-      const { r, g, b } = rgb;
-      const clamp = (v) => Math.max(0, Math.min(255, Math.round(v)));
-      return {
-        r: clamp(m[0] * r + m[1] * g + m[2] * b),
-        g: clamp(m[3] * r + m[4] * g + m[5] * b),
-        b: clamp(m[6] * r + m[7] * g + m[8] * b),
-      };
-    }
-
-    function rgbToHex(rgb) {
-      const part = (v) => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2, '0');
-      return `#${part(rgb.r)}${part(rgb.g)}${part(rgb.b)}`.toUpperCase();
-    }
-
-    // ── persistent state ───────────────────────────────────────────────
-
-    const STORE_PREFIX = 'dsh-academic-paper-polish.';
-
-    function readStore(key, fallback) {
-      try {
-        const raw = window.localStorage.getItem(STORE_PREFIX + key);
-        if (!raw) return fallback;
-        const parsed = JSON.parse(raw);
-        return parsed === null || parsed === undefined ? fallback : parsed;
-      } catch {
-        return fallback;
-      }
-    }
-
-    function writeStore(key, value) {
-      try {
-        window.localStorage.setItem(STORE_PREFIX + key, JSON.stringify(value));
-      } catch {
-        /* storage unavailable */
-      }
-    }
-
-    function Panel(props) {
-      const t = translate;
-      const [expanded, setExpanded] = useState(true);
-      const [viewRaw, setView] = useState(readStore('view', 'journal'));
-      const view = VIEWS.some((item) => item.id === viewRaw) ? viewRaw : 'journal';
-      const [journalId, setJournalId] = useState(readStore('journal', 'paleobiology'));
-      const [checked, setChecked] = useState(readChecked);
-      const [openGroups, setOpenGroups] = useState({ A: true });
-      const [dimId, setDimId] = useState('structure');
-      const [indexRev, setIndexRev] = useState(0);
-
-      useEffect(() => {
-        const listener = () => setIndexRev((rev) => rev + 1);
-        indexListeners.add(listener);
-        return () => {
-          indexListeners.delete(listener);
-        };
-      }, []);
-      const [feedback, setFeedback] = useState(null);
-      const [query, setQuery] = useState('');
-      const [genres, setGenres] = useState(readStore('genres', []));
-      const [needTaxa, setNeedTaxa] = useState(readStore('needTaxa', false));
-      const [needDual, setNeedDual] = useState(readStore('needDual', false));
-      const [paletteText, setPaletteText] = useState(readStore('palette', ''));
-      const [fig, setFig] = useState(readStore('figure', { dpi: '600', width: '90', height: '120', size: '4' }));
-      const [matrixCell, setMatrixCell] = useState(null);
-      const timer = useRef(null);
-      const searchRef = useRef(null);
-
-      useEffect(
-        () => () => {
-          if (timer.current) window.clearTimeout(timer.current);
-        },
-        [],
-      );
-
-      useEffect(() => writeStore('view', view), [view]);
-      useEffect(() => writeStore('journal', journalId), [journalId]);
-      useEffect(() => writeStore('genres', genres), [genres]);
-      useEffect(() => writeStore('needTaxa', needTaxa), [needTaxa]);
-      useEffect(() => writeStore('needDual', needDual), [needDual]);
-      useEffect(() => writeStore('palette', paletteText), [paletteText]);
-      useEffect(() => writeStore('figure', fig), [fig]);
-
-      // keyboard: 1-8 switch views, "/" focuses the search box
-      useEffect(() => {
-        const onKey = (event) => {
-          const target = event.target;
-          if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT')) {
-            if (event.key !== 'Escape') return;
-            target.blur();
-            return;
-          }
-          if (event.key === '/' && searchRef.current) {
-            event.preventDefault();
-            searchRef.current.focus();
-            return;
-          }
-          const index = Number(event.key);
-          if (Number.isInteger(index) && index >= 1 && index <= VIEWS.length) {
-            setView(VIEWS[index - 1].id);
-          }
-        };
-        window.addEventListener('keydown', onKey);
-        return () => window.removeEventListener('keydown', onKey);
-      }, []);
-
-      const journal = useMemo(
-        () => JOURNALS.find((item) => item.id === journalId) || JOURNALS[0],
-        [journalId],
-      );
-
-      const total = useMemo(
-        () => CHECKLIST.reduce((sum, group) => sum + group.items.length, 0),
-        [],
-      );
-      const done = useMemo(
-        () => Object.keys(checked).filter((key) => checked[key]).length,
-        [checked],
-      );
-
-      const flash = (token, kind) => {
-        setFeedback({ token, kind });
-        if (timer.current) window.clearTimeout(timer.current);
-        timer.current = window.setTimeout(() => setFeedback(null), 1800);
-      };
-
-      const feedbackLabel = (kind) => {
-        if (kind === 'inserted') return t('panel.inserted');
-        if (kind === 'failed') return t('panel.failed');
-        return t('panel.copied');
-      };
-
-      const deliver = async (token, text) => {
-        const actions = props.inputActions;
-        try {
-          if (actions && typeof actions.insertText === 'function') {
-            const span =
-              typeof actions.captureInsertion === 'function' ? actions.captureInsertion() : undefined;
-            if (actions.insertText(text, span)) {
-              flash(token, 'inserted');
-              return;
-            }
-          }
-        } catch {
-          /* the editor refused the edit — fall back to the clipboard */
-        }
-        const ok = await copyToClipboard(text);
-        flash(token, ok ? 'copied' : 'failed');
-      };
-
-      const copyHex = async (token, text) => {
-        const ok = await copyToClipboard(text);
-        flash(token, ok ? 'copied' : 'failed');
-      };
-
-      const modulePrompt = (item) =>
-        `使用 academic-paper-polish 技能：读取 ${item.file}，按其中的规则帮我${item.hint}：`;
-
-      const journalPrompt = () =>
-        `我要投 ${journal.name}（${journal.full}）。请先按该刊的结构与格式硬约束给我建议：Results 与 Discussion ${journal.structure === '—' ? '按该刊惯例' : journal.structure}；结论段${journal.conclusion === '—' ? '按该刊惯例' : journal.conclusion}；篇幅${journal.length}。再读 ${journal.ref} 确认条款原文。`;
-
-      const toggle = (groupId, index) => {
-        const key = `${groupId}.${index}`;
-        const next = { ...checked };
-        if (next[key]) delete next[key];
-        else next[key] = true;
-        setChecked(next);
-        writeChecked(next);
-      };
-
-      const reset = () => {
-        setChecked({});
-        writeChecked({});
-      };
-
-      const toggleGroup = (id) =>
-        setOpenGroups((state) => {
-          const next = { ...state };
-          if (next[id]) delete next[id];
-          else next[id] = true;
-          return next;
-        });
-
-      const allOpen = CHECKLIST.every((group) => openGroups[group.id]);
-      const toggleAll = () => {
-        const next = {};
-        if (!allOpen) for (const group of CHECKLIST) next[group.id] = true;
-        setOpenGroups(next);
-      };
-
-      const toggleGenre = (id) =>
-        setGenres((state) => (state.includes(id) ? state.filter((item) => item !== id) : [...state, id]));
-
-      // ── derived data for the analysis views ──────────────────────────
-
-      const matrix = useMemo(() => {
-        const dims = [
-          {
-            id: 'structure',
-            label: '结构',
-            cell: (j) => ({
-              value: j.structure.includes('必须分离')
-                ? '分离'
-                : j.structure.includes('合并')
-                  ? '合并'
-                  : j.structure === '—'
-                    ? '—'
-                    : '按刊惯例',
-              tone: j.structure.includes('必须分离') ? 'warn' : j.structure.includes('合并') ? 'brand' : 'plain',
-              detail: j.structure,
-            }),
-          },
-          {
-            id: 'conclusion',
-            label: '结论段',
-            cell: (j) => ({
-              value: j.conclusion.includes('禁用') ? '禁用' : j.conclusion.includes('允许') ? '允许' : '—',
-              tone: j.conclusion.includes('禁用') ? 'bad' : j.conclusion.includes('允许') ? 'ok' : 'plain',
-              detail: j.conclusion,
-            }),
-          },
-          {
-            id: 'length',
-            label: '篇幅',
-            cell: (j) => ({
-              value: j.length === '—' ? '—' : String(j.length).split('｜')[0].slice(0, 14),
-              tone: 'plain',
-              detail: j.length,
-            }),
-          },
-          {
-            id: 'abstract',
-            label: '摘要',
-            cell: (j) => {
-              const line = j.front.find((item) => /abstract|摘要/i.test(item));
-              const words = line ? firstNumber(line) : null;
-              return {
-                value: words ? `≤${words} 词` : line ? '见原文' : '—',
-                tone: words && words <= 200 ? 'ok' : 'plain',
-                detail: line || '未在档案中单列摘要条款',
-              };
-            },
-          },
-          {
-            id: 'photo',
-            label: '照片 dpi',
-            cell: (j) => {
-              const raw = figureRow(j, /照片|分辨率/) || '';
-              const value = firstNumber(raw);
-              return {
-                value: value ? String(value) : '—',
-                tone: value && value >= 600 ? 'ok' : value && value >= 300 ? 'warn' : value ? 'bad' : 'plain',
-                detail: raw || '未单列',
-              };
-            },
-          },
-          {
-            id: 'line',
-            label: '线绘 dpi',
-            cell: (j) => {
-              const raw = figureRow(j, /线绘|线条图/) || '';
-              const value = firstNumber(raw);
-              return {
-                value: value ? String(value) : '—',
-                tone: value && value >= 1000 ? 'ok' : value && value >= 300 ? 'warn' : value ? 'bad' : 'plain',
-                detail: raw || '未单列',
-              };
-            },
-          },
-          {
-            id: 'width',
-            label: '单/双栏宽',
-            cell: (j) => {
-              const single = toMillimetres(figureRow(j, /单栏/));
-              const wide = toMillimetres(figureRow(j, /双栏/));
-              return {
-                value: single && wide ? `${single}/${wide}` : single ? String(single) : wide ? String(wide) : '—',
-                tone: 'plain',
-                detail: `单栏 ${figureRow(j, /单栏/) || '未单列'} ｜ 双栏 ${figureRow(j, /双栏/) || '未单列'}`,
-              };
-            },
-          },
-          {
-            id: 'submit',
-            label: '交稿方式',
-            cell: (j) => ({
-              value: j.submit.some((item) => /不得嵌入|不嵌入|不置于文末/.test(item))
-                ? '不嵌入'
-                : j.submit.some((item) => /合并成单文件/.test(item))
-                  ? '合并单文件'
-                  : j.submit.length > 0
-                    ? '单独文件'
-                    : '—',
-              tone: j.submit.some((item) => /不得嵌入|不嵌入/.test(item)) ? 'warn' : 'plain',
-              detail: j.submit.join('；') || '未单列',
-            }),
-          },
-          {
-            id: 'refs',
-            label: '引用制式',
-            cell: (j) => ({
-              value: /author-date|作者-年份/.test(j.refs) ? 'author-date' : j.refs === '—' ? '—' : '见原文',
-              tone: 'plain',
-              detail: j.refs,
-            }),
-          },
-          {
-            id: 'scope',
-            label: '收录边界',
-            cell: (j) => ({
-              value: j.redlines.length > 0 ? `${j.redlines.length} 条红线` : '未列',
-              tone: j.redlines.length > 2 ? 'bad' : j.redlines.length > 0 ? 'warn' : 'plain',
-              detail: j.redlines.join('；') || '未单列',
-            }),
-          },
-        ];
-        return dims;
-      }, []);
-
-      const ranked = useMemo(() => {
-        const scored = JOURNALS.map((item) => {
-          const rules = MATCH[item.id];
-          if (!rules) return { id: item.id, name: item.name, score: 0, reasons: [], tags: [] };
-          let score = 0;
-          const reasons = [];
-          for (const genre of genres) {
-            if (rules.genres.includes(genre)) {
-              score += 30;
-              reasons.push(`体裁匹配：${GENRES.find((g) => g.id === genre).label}`);
-            } else if (rules.review === 'only' || rules.genres.length === 1) {
-              reasons.push(`不收该体裁（仅 ${rules.genres.join('/')}）`);
-            }
-          }
-          if (needTaxa) {
-            if (rules.taxonomy === 'strong') {
-              score += 25;
-              reasons.push('系统分类 / 新种描述友好');
-            } else if (rules.taxonomy === 'ok') {
-              score += 12;
-            } else {
-              reasons.push('不收分类学论文');
-            }
-            if (rules.zoo) {
-              score += 10;
-              reasons.push('ZooBank 强制注册流程成熟');
-            }
-          }
-          if (needDual) {
-            if (rules.dual) {
-              score += 15;
-              reasons.push(rules.dual === 'nts' ? '需 Non-technical Summary' : '需 plain language summary');
-            } else {
-              reasons.push('无双摘要要求');
-            }
-          }
-          if (genres.length === 0 && !needTaxa && !needDual) score += 20;
-          return { id: item.id, name: item.name, full: item.full, score, reasons, tags: rules.tags };
-        });
-        return scored.sort((a, b) => b.score - a.score);
-      }, [genres, needTaxa, needDual]);
-
-      const palette = useMemo(() => {
-        const hexes = paletteText
-          .split(/[\s,;、]+/)
-          .map((token) => token.trim())
-          .filter((token) => token.length > 0);
-        const entries = [];
-        for (const hex of hexes) {
-          const rgb = hexToRgb(hex);
-          if (!rgb) continue;
-          const white = { r: 255, g: 255, b: 255 };
-          const black = { r: 0, g: 0, b: 0 };
-          const gray = Math.round(relativeLuminance(rgb) * 255);
-          entries.push({
-            hex: rgbToHex(rgb),
-            rgb,
-            onWhite: contrastRatio(rgb, white),
-            onBlack: contrastRatio(rgb, black),
-            gray,
-            deutan: rgbToHex(simulateCvd(rgb, 'deutan')),
-            protan: rgbToHex(simulateCvd(rgb, 'protan')),
-            tritan: rgbToHex(simulateCvd(rgb, 'tritan')),
-          });
-        }
-        const pairs = [];
-        for (let i = 0; i < entries.length; i += 1) {
-          for (let j = i + 1; j < entries.length; j += 1) {
-            const delta = Math.abs(entries[i].gray - entries[j].gray);
-            pairs.push({ a: entries[i].hex, b: entries[j].hex, delta, ok: delta >= 28 });
-          }
-        }
-        return { entries, pairs };
-      }, [paletteText]);
-
-      const figureReport = useMemo(() => {
-        const rules = [];
-        const dpi = Number(fig.dpi);
-        const width = Number(fig.width);
-        const height = Number(fig.height);
-        const size = Number(fig.size);
-        const photoDpi = firstNumber(figureRow(journal, /照片|分辨率/) || '');
-        const lineDpi = firstNumber(figureRow(journal, /线绘|线条图/) || '');
-        const single = toMillimetres(figureRow(journal, /单栏/));
-        const wide = toMillimetres(figureRow(journal, /双栏/));
-        const maxHeight = toMillimetres(figureRow(journal, /最大高|最大长/));
-        const minFont = firstNumber(figureRow(journal, /字号/) || '');
-        const maxFile = firstNumber(figureRow(journal, /体积|单图体积/) || '');
-
-        const push = (name, state, text, note) => rules.push({ name, state, text, note });
-
-        if (photoDpi) {
-          push(
-            '照片分辨率',
-            dpi >= photoDpi ? 'ok' : 'bad',
-            `你的 ${dpi || '—'} dpi / 要求 ≥ ${photoDpi} dpi`,
-            dpi >= photoDpi ? '达标' : `还差 ${Math.max(0, photoDpi - dpi)} dpi`,
-          );
-        }
-        if (lineDpi) {
-          push(
-            '线绘分辨率',
-            dpi >= lineDpi ? 'ok' : 'bad',
-            `你的 ${dpi || '—'} dpi / 要求 ≥ ${lineDpi} dpi`,
-            dpi >= lineDpi ? '达标' : `线绘比照片更严，差 ${Math.max(0, lineDpi - dpi)} dpi`,
-          );
-        }
-        if (single && wide) {
-          const ok = width <= single || width <= wide;
-          push(
-            '版面宽度',
-            ok ? 'ok' : 'bad',
-            `你的 ${width || '—'} mm / 单栏 ≤ ${single} mm，双栏 ≤ ${wide} mm`,
-            ok ? '在允许宽度内' : '超出该刊版心，需缩图或改版式',
-          );
-        }
-        if (maxHeight) {
-          push(
-            '图高上限',
-            height && height <= maxHeight ? 'ok' : 'bad',
-            `你的 ${height || '—'} mm / 上限 ${maxHeight} mm`,
-            height && height <= maxHeight ? '达标' : '超高，需纵向排版',
-          );
-        }
-        if (maxFile) {
-          push(
-            '单图体积',
-            size && size <= maxFile ? 'ok' : 'warn',
-            `你的 ${size || '—'} MB / 上限 ${maxFile} MB`,
-            size && size <= maxFile ? '达标' : '超出，可能被要求重新导出',
-          );
-        }
-        if (minFont) {
-          push(
-            '图内字号',
-            'warn',
-            `图内最小字号需 ≥ ${minFont} pt（按印刷尺寸）`,
-            '这项要你自己量，量完回填到「模块」看规则',
-          );
-        }
-        let redlineIndex = 0;
-        for (const redline of journal.redlines) {
-          if (/RGB|CMYK|比例尺|嵌入|合并|Plates|ZooBank|AI|放大倍数/.test(redline)) {
-            redlineIndex += 1;
-            push(`红线 ${redlineIndex}`, 'note', redline, '人工确认这条是否触发');
-          }
-        }
-        return rules;
-      }, [fig, journal]);
-
-      /** Remote full-text hits (host route, `?q=`). `null` means "not
-       *  available" — the panel then falls back to the local metadata filter. */
-      const [remoteHits, setRemoteHits] = useState(null);
-      const [remotePending, setRemotePending] = useState(false);
-
-      useEffect(() => {
-        const q = query.trim();
-        if (!q || liveIndexState !== 'live') {
-          setRemoteHits(null);
-          setRemotePending(false);
-          return undefined;
-        }
-        let cancelled = false;
-        const timer = setTimeout(() => {
-          setRemotePending(true);
-          fetch(`/dsh-academic-paper-polish/skill-index?q=${encodeURIComponent(q)}`, {
-            cache: 'no-store',
-            credentials: 'same-origin',
-          })
-            .then((response) => {
-              if (!response.ok) throw new Error(`HTTP ${response.status}`);
-              return response.json();
-            })
-            .then((list) => {
-              if (cancelled) return;
-              setRemoteHits(Array.isArray(list) ? list : []);
-              setRemotePending(false);
-            })
-            .catch(() => {
-              if (cancelled) return;
-              setRemoteHits(null);
-              setRemotePending(false);
-            });
-        }, 180);
-        return () => {
-          cancelled = true;
-          clearTimeout(timer);
-        };
-      }, [query, liveIndexState, indexRev]);
-
-      const searchResults = useMemo(() => {
-        const q = query.trim().toLowerCase();
-        if (!q) return [];
-        // The host route searched the file bodies, so its answer is final.
-        if (remoteHits) return remoteHits.slice(0, 40);
-        const index = liveIndex || SKILL_INDEX;
-        return index
-          .filter((entry) => {
-            const haystack = [
-              entry.title,
-              entry.subtitle,
-              entry.path,
-              (entry.keywords || []).join(' '),
-              (entry.headings || []).join(' '),
-            ]
-              .join(' ')
-              .toLowerCase();
-            return haystack.includes(q);
-          })
-          .slice(0, 40);
-      }, [query, indexRev, remoteHits]);
-
-      const structureBadge = journal.structure.includes('必须分离')
-        ? 'R / D 分离'
-        : journal.structure.includes('合并')
-          ? 'R & D 合并'
-          : '结构按刊惯例';
-
-      const mark = (name, size) => h('span', { className: 'dapp-mark' }, h(Icon, { name, size: size || 16 }));
-
-      const head = h(
-        'div',
-        { className: 'dapp-head' },
-        mark('mark'),
-        h(
-          'div',
-          { className: 'dapp-grow' },
-          h('div', { className: 'dapp-title' }, t('panel.title')),
-          h('div', { className: 'dapp-sub' }, `${journal.name} · ${t('panel.progress')} ${done}/${total}`),
-        ),
-        h(
-          'button',
-          {
-            type: 'button',
-            className: 'dapp-icon-btn',
-            title: expanded ? t('panel.collapse') : t('panel.expand'),
-            onClick: () => setExpanded((value) => !value),
-          },
-          h(Icon, { name: 'expand', size: 15 }),
-        ),
-      );
-
-      function renderBody() {
-        const tabBar = h(
-          'div',
-          { className: 'dapp-tabs' },
-          VIEWS.map((item, index) =>
-            h(
-              'button',
-              {
-                key: item.id,
-                type: 'button',
-                className: 'dapp-tab',
-                'data-active': view === item.id ? 'true' : 'false',
-                title: `${item.label}（快捷键 ${index + 1}）`,
-                onClick: () => setView(item.id),
-              },
-              item.label,
-            ),
-          ),
-        );
-
-        let content;
-        if (view === 'journal') {
-          const rows = (pairs) =>
-            h(
-              'div',
-              { className: 'dapp-kv' },
-              pairs.map(([k, v]) =>
-                h(
-                  React.Fragment,
-                  { key: k },
-                  h('span', { className: 'dapp-k' }, k),
-                  h('span', { className: 'dapp-v' }, v),
-                ),
-              ),
-            );
-          const bullets = (items) =>
-            h('ul', { className: 'dapp-list' }, items.map((item) => h('li', { key: item }, item)));
-          const fold = (label, body, count) =>
-            h(
-              'details',
-              { className: 'dapp-fold' },
-              h(
-                'summary',
-                null,
-                h(Icon, { name: 'chevron', size: 13, className: 'dapp-chevron' }),
-                label,
-                count ? h('span', { className: 'dapp-fold-count' }, count) : null,
-              ),
-              h('div', { className: 'dapp-fold-body' }, body),
-            );
-          const fact = (k, v, tone) =>
-            h(
-              'div',
-              { className: 'dapp-fact' },
-              h('div', { className: 'dapp-fact-k' }, k),
-              h('div', { className: 'dapp-fact-v', 'data-tone': tone || undefined }, v),
-            );
-
-          const photoDpi = firstNumber(figureRow(journal, /照片|分辨率/) || '');
-          const structureValue =
-            journal.structure === '—'
-              ? '按刊惯例'
-              : journal.structure.includes('必须分离')
-                ? '分离'
-                : journal.structure.includes('合并')
-                  ? '合并'
-                  : '按刊惯例';
-          const structureTone = journal.structure.includes('必须分离')
-            ? 'warn'
-            : journal.structure.includes('合并')
-              ? 'accent'
-              : null;
-          const conclusionValue =
-            journal.conclusion === '—'
-              ? '—'
-              : journal.conclusion.includes('禁用')
-                ? '禁用'
-                : journal.conclusion.includes('允许')
-                  ? '允许'
-                  : '按刊惯例';
-          const conclusionTone = journal.conclusion.includes('禁用')
-            ? 'bad'
-            : journal.conclusion.includes('允许')
-              ? 'ok'
-              : null;
-
-          content = h(
-            'div',
-            { className: 'dapp-view' },
-            h(
-              'select',
-              {
-                className: 'dapp-select',
-                value: journalId,
-                onChange: (event) => setJournalId(event.target.value),
-              },
-              JOURNALS.map((item) =>
-                h('option', { key: item.id, value: item.id }, `${item.name} · ${item.full}`),
-              ),
-            ),
-            h(
-              'div',
-              { className: 'dapp-card' },
-              h(
-                'div',
-                { className: 'dapp-title-row' },
-                h('span', { className: 'dapp-title-name' }, journal.name),
-                h('span', { className: 'dapp-title-full' }, journal.full),
-              ),
-              h(
-                'div',
-                { className: 'dapp-badges' },
-                journal.meta.map((item) => h('span', { key: item, className: 'dapp-badge' }, item)),
-              ),
-              h('div', { className: 'dapp-lead' }, journal.scope),
-              h(
-                'div',
-                { className: 'dapp-facts' },
-                fact('Results / Discussion', structureValue, structureTone),
-                fact('结论段', conclusionValue, conclusionTone),
-                fact(
-                  '篇幅',
-                  journal.length === '—'
-                    ? '—'
-                    : journal.length.split('｜')[0].length > 22
-                      ? `${journal.length.split('｜')[0].slice(0, 22)}…`
-                      : journal.length.split('｜')[0],
-                  null,
-                ),
-                fact(
-                  '照片 dpi',
-                  photoDpi ? String(photoDpi) : '—',
-                  photoDpi >= 600 ? 'ok' : photoDpi >= 300 ? 'warn' : null,
-                ),
-              ),
-            ),
-            journal.front.length > 0 ? fold('前置要素', bullets(journal.front), String(journal.front.length)) : null,
-            journal.figure.length > 0 ? fold('图表规格', rows(journal.figure), String(journal.figure.length)) : null,
-            journal.submit.length > 0 ? fold('交稿方式', bullets(journal.submit), String(journal.submit.length)) : null,
-            journal.refs && journal.refs !== '—'
-              ? fold('引用制式', h('div', { className: 'dapp-hint' }, journal.refs))
-              : null,
-            journal.redlines.length > 0
-              ? fold('收录边界 / 红线', bullets(journal.redlines), String(journal.redlines.length))
-              : null,
-            journal.quotes.length > 0
-              ? fold(
-                  '官方原文',
-                  h(
-                    'div',
-                    null,
-                    journal.quotes.map((quote) => h('p', { key: quote, className: 'dapp-quote' }, quote)),
-                  ),
-                  String(journal.quotes.length),
-                )
-              : null,
-            h(
-              'button',
-              {
-                type: 'button',
-                className: 'dapp-btn dapp-btn-primary dapp-btn-block',
-                onClick: () => deliver('journal', journalPrompt()),
-              },
-              h(Icon, { name: 'copy', size: 13 }),
-              feedback && feedback.token === 'journal'
-                ? feedbackLabel(feedback.kind)
-                : `插入「投 ${journal.name}」指令`,
-            ),
-          );
-        } else if (view === 'matrix') {
-          const dim = matrix.find((item) => item.id === dimId) || matrix[0];
-          content = h(
-            'div',
-            { className: 'dapp-view' },
-            h('div', { className: 'dapp-hint' }, '选一个维度，看 10 本刊在这一项上的差别；点任一行跳到该刊档案。'),
-            h(
-              'div',
-              { className: 'dapp-dims' },
-              matrix.map((item) =>
-                h(
-                  'button',
-                  {
-                    key: item.id,
-                    type: 'button',
-                    className: 'dapp-dim',
-                    'data-on': item.id === dim.id ? 'true' : 'false',
-                    onClick: () => setDimId(item.id),
-                  },
-                  item.label,
-                ),
-              ),
-            ),
-            h(
-              'div',
-              { className: 'dapp-compare' },
-              JOURNALS.map((item) => {
-                const value = dim.cell(item);
-                return h(
-                  'button',
-                  {
-                    key: item.id,
-                    type: 'button',
-                    className: 'dapp-compare-row',
-                    onClick: () => {
-                      setJournalId(item.id);
-                      setView('journal');
-                    },
-                  },
-                  h('span', { className: 'dapp-compare-name' }, item.name),
-                  h(
-                    'span',
-                    { className: 'dapp-grow' },
-                    h(
-                      'span',
-                      {
-                        className: 'dapp-compare-value',
-                        'data-tone': value.tone === 'plain' ? undefined : value.tone,
-                      },
-                      value.value,
-                    ),
-                    value.detail && value.detail !== value.value
-                      ? h('span', { className: 'dapp-hint', style: { display: 'block', marginTop: '2px' } }, value.detail)
-                      : null,
-                  ),
-                );
-              }),
-            ),
-          );
-        } else if (view === 'match') {
-          const picked = genres.length > 0 || needTaxa || needDual;
-          content = h(
-            'div',
-            { className: 'dapp-view' },
-            h(
-              'div',
-              { className: 'dapp-card' },
-              h('div', { className: 'dapp-label' }, '稿件体裁'),
-              h(
-                'div',
-                { className: 'dapp-dims' },
-                GENRES.map((genre) =>
-                  h(
-                    'button',
-                    {
-                      key: genre.id,
-                      type: 'button',
-                      className: 'dapp-dim',
-                      'data-on': genres.includes(genre.id) ? 'true' : 'false',
-                      onClick: () => toggleGenre(genre.id),
-                    },
-                    genre.label,
-                  ),
-                ),
-              ),
-              h(
-                'div',
-                { className: 'dapp-dims' },
-                h(
-                  'button',
-                  {
-                    type: 'button',
-                    className: 'dapp-dim',
-                    'data-on': needTaxa ? 'true' : 'false',
-                    onClick: () => setNeedTaxa((value) => !value),
-                  },
-                  '含新分类单元',
-                ),
-                h(
-                  'button',
-                  {
-                    type: 'button',
-                    className: 'dapp-dim',
-                    'data-on': needDual ? 'true' : 'false',
-                    onClick: () => setNeedDual((value) => !value),
-                  },
-                  '需要双摘要',
-                ),
-              ),
-              h(
-                'div',
-                { className: 'dapp-hint' },
-                picked
-                  ? '按各刊已归档的收录边界排序；分数只反映硬条款命中，不是主观印象。'
-                  : '先选体裁或附加条件，排序才有意义。',
-              ),
-            ),
-            h(
-              'div',
-              { className: 'dapp-compare' },
-              ranked.map((entry) =>
-                h(
-                  'button',
-                  {
-                    key: entry.id,
-                    type: 'button',
-                    className: 'dapp-score',
-                    style: { display: 'flex' },
-                    onClick: () => {
-                      setJournalId(entry.id);
-                      setView('journal');
-                    },
-                  },
-                  h('span', { className: 'dapp-score-num' }, picked ? String(entry.score) : '—'),
-                  h(
-                    'span',
-                    { className: 'dapp-grow' },
-                    h('span', { className: 'dapp-score-name', style: { display: 'block' } }, entry.name),
-                    h(
-                      'span',
-                      { className: 'dapp-score-tags', style: { display: 'block' } },
-                      entry.tags.join(' · '),
-                    ),
-                    entry.reasons.length > 0
-                      ? h(
-                          'span',
-                          { className: 'dapp-score-tags', style: { display: 'block', marginTop: '3px' } },
-                          entry.reasons.join('；'),
-                        )
-                      : null,
-                    picked
-                      ? h(
-                          'span',
-                          { className: 'dapp-score-bar', style: { display: 'block' } },
-                          h('span', { style: { width: `${Math.min(100, entry.score)}%` } }),
-                        )
-                      : null,
-                  ),
-                ),
-              ),
-            ),
-          );
-        } else if (view === 'figure') {
-          const field = (label, key, props) =>
-            h(
-              'div',
-              { className: 'dapp-field' },
-              h('span', null, label),
-              h(
-                'input',
-                {
-                  key,
-                  type: 'number',
-                  value: fig[key],
-                  onChange: (event) => setFig({ ...fig, [key]: event.target.value }),
-                  ...props,
-                },
-              ),
-            );
-          const okCount = figureReport.filter((rule) => rule.state === 'ok').length;
-          const badCount = figureReport.filter((rule) => rule.state === 'bad').length;
-          const noteCount = figureReport.filter((rule) => rule.state === 'note' || rule.state === 'warn').length;
-          content = h(
-            'div',
-            { className: 'dapp-view' },
-            h(
-              'div',
-              { className: 'dapp-card' },
-              h(
-                'div',
-                { className: 'dapp-title-row' },
-                h('span', { className: 'dapp-title-name', style: { fontSize: '13.5px' } }, journal.name),
-                h('span', { className: 'dapp-title-full' }, '的图件硬参数'),
-              ),
-              field('照片 dpi', 'dpi', { min: '0', step: '50' }),
-              field('宽度 mm', 'width', { min: '0' }),
-              field('高度 mm', 'height', { min: '0' }),
-              field('单图 MB', 'size', { min: '0', step: '0.5' }),
-              h(
-                'div',
-                { className: 'dapp-badges' },
-                h('span', { className: 'dapp-badge dapp-badge-ok' }, `达标 ${okCount}`),
-                badCount > 0 ? h('span', { className: 'dapp-badge dapp-badge-bad' }, `超标 ${badCount}`) : null,
-                noteCount > 0 ? h('span', { className: 'dapp-badge' }, `待人工 ${noteCount}`) : null,
-              ),
-            ),
-            h(
-              'div',
-              { style: { display: 'grid', gap: '6px' } },
-              figureReport.length > 0
-                ? figureReport.map((rule) =>
-                    h(
-                      'div',
-                      { key: rule.name, className: 'dapp-verdict', 'data-state': rule.state },
-                      h('span', { className: 'dapp-verdict-dot' }),
-                      h('span', { className: 'dapp-verdict-name' }, rule.name),
-                      h(
-                        'span',
-                        { className: 'dapp-verdict-text' },
-                        rule.text,
-                        h('span', { className: 'dapp-verdict-note' }, rule.note),
-                      ),
-                    ),
-                  )
-                : h('div', { className: 'dapp-empty' }, '该刊档案里没有可自动检查的数值条款'),
-            ),
-          );
-        } else if (view === 'color') {
-          content = h(
-            'div',
-            { className: 'dapp-view', style: { display: 'grid', gap: '10px' } },
-            h(
-              'div',
-              { className: 'dapp-search' },
-              h(Icon, { name: 'search', size: 14 }),
-              h('input', {
-                type: 'text',
-                value: paletteText,
-                placeholder: '粘贴若干 HEX，例如 #D30203 #75489A #F6A100',
-                onChange: (event) => setPaletteText(event.target.value),
-              }),
-            ),
-            palette.entries.length > 0
-              ? h(
-                  'div',
-                  { className: 'dapp-swatch-grid' },
-                  palette.entries.map((entry) =>
-                    h(
-                      'div',
-                      { key: entry.hex, className: 'dapp-swatch-card' },
-                      h(
-                        'div',
-                        { className: 'dapp-swatch-strip' },
-                        h('span', { style: { background: entry.hex } }),
-                        h('span', { style: { background: entry.deutan } }),
-                        h('span', { style: { background: entry.protan } }),
-                        h('span', { style: { background: entry.tritan } }),
-                      ),
-                      h(
-                        'div',
-                        { className: 'dapp-swatch-meta' },
-                        h('span', { className: 'dapp-hex' }, entry.hex),
-                        h(
-                          'span',
-                          { className: 'dapp-role' },
-                          `对比度 ${entry.onWhite.toFixed(1)}:1 / ${entry.onBlack.toFixed(1)}:1 · 灰度 ${entry.gray}`,
-                        ),
-                      ),
-                    ),
-                  ),
-                )
-              : h(
-                  'div',
-                  { className: 'dapp-empty' },
-                  '输入 HEX 后，这里会给出对比度、灰度值与三种色觉障碍（deutan / protan / tritan）模拟。',
-                ),
-            palette.pairs.length > 0
-              ? h(
-                  'div',
-                  { className: 'dapp-card' },
-                  h('div', { className: 'dapp-label' }, '灰度可分辨性（两两配对）'),
-                  h(
-                    'div',
-                    { style: { display: 'grid', gap: '5px' } },
-                    palette.pairs.map((pair) =>
-                      h(
-                        'div',
-                        { key: `${pair.a}-${pair.b}`, className: 'dapp-verdict', 'data-state': pair.ok ? 'ok' : 'bad' },
-                        h('span', { className: 'dapp-verdict-dot' }),
-                        h(
-                          'span',
-                          { className: 'dapp-verdict-name' },
-                          `${pair.a} / ${pair.b}`,
-                        ),
-                        h(
-                          'span',
-                          { className: 'dapp-verdict-text' },
-                          `灰度差 ${pair.delta}`,
-                          h(
-                            'span',
-                            { className: 'dapp-verdict-note' },
-                            pair.ok ? '灰度下仍可区分' : '灰度下几乎重合 —— 改用形状 / 纹理 / 标注区分',
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                )
-              : null,
-            h(
-              'div',
-              { className: 'dapp-card' },
-              h('div', { className: 'dapp-label' }, '技能自带语义色字典'),
-              h(
-                'div',
-                { className: 'dapp-chips' },
-                COLORS.map((item) =>
-                  h(
-                    'button',
-                    {
-                      key: item.hex,
-                      type: 'button',
-                      className: 'dapp-chipbtn',
-                      onClick: () => copyHex(item.hex, item.hex),
-                    },
-                    h('span', {
-                      style: {
-                        display: 'inline-block',
-                        width: '10px',
-                        height: '10px',
-                        borderRadius: '3px',
-                        background: item.hex,
-                        marginRight: '5px',
-                        verticalAlign: '-1px',
-                      },
-                    }),
-                    `${item.hex} ${item.role}`,
-                  ),
-                ),
-              ),
-            ),
-          );
-        } else if (view === 'modules') {
-          content = h(
-            'div',
-            { className: 'dapp-view', style: { display: 'grid', gap: '10px' } },
-            h(
-              'div',
-              { className: 'dapp-search' },
-              h(Icon, { name: 'search', size: 14 }),
-              h('input', {
-                ref: searchRef,
-                type: 'text',
-                value: query,
-                placeholder: '搜模块与全部参考文件（按 / 聚焦）',
-                onChange: (event) => setQuery(event.target.value),
-              }),
-            ),
-            h(
-              'div',
-              { className: 'dapp-hint' },
-              liveIndexState === 'live'
-                ? remotePending && query.trim()
-                  ? '🟢 实时索引：正在全文检索当前文件…'
-                  : '🟢 实时索引：全文检索宿主路由读取的当前文件，不消耗任何 token。'
-                : liveIndexState === 'unauthorized'
-                  ? '🟠 宿主路由拒绝了本次请求（缺登录态），正在使用打包时的内置索引（仅标题级匹配）。'
-                  : liveIndexState === 'failed'
-                    ? '🟡 宿主路由不可达，正在使用打包时的内置索引（仅标题级匹配）。'
-                    : null,
-            ),
-            query.trim()
-              ? h(
-                  'div',
-                  { style: { display: 'grid', gap: '6px' } },
-                  searchResults.length > 0
-                    ? searchResults.map((entry) =>
-                        h(
-                          'button',
-                          {
-                            key: entry.path,
-                            type: 'button',
-                            className: 'dapp-file',
-                            onClick: () =>
-                              deliver(
-                                entry.path,
-                                `使用 academic-paper-polish 技能：读取 ${entry.path}，按其中的规则处理我的稿件。`,
-                              ),
-                          },
-                          h(
-                            'div',
-                            { className: 'dapp-file-top' },
-                            h('span', { className: 'dapp-badge' }, entry.kind),
-                            h('span', { style: { fontWeight: 600, fontSize: '12px' } }, entry.title),
-                          ),
-                          h('div', { className: 'dapp-file-path' }, entry.path),
-                          h('div', { className: 'dapp-file-sub' }, entry.subtitle),
-                          entry.snippet
-                            ? h(
-                                'div',
-                                { className: 'dapp-file-snip' },
-                                h('span', { className: 'dapp-file-snip-no' }, `L${entry.line || 0}`),
-                                entry.snippet,
-                              )
-                            : null,
-                          (entry.keywords || []).length > 0
-                            ? h(
-                                'div',
-                                { className: 'dapp-chips' },
-                                entry.keywords.map((word) =>
-                                  h('span', { key: word, className: 'dapp-chip' }, word),
-                                ),
-                              )
-                            : null,
-                        ),
-                      )
-                    : h('div', { className: 'dapp-empty' }, `没有命中「${query.trim()}」`),
-                )
-              : h(
-                  'div',
-                  { className: 'dapp-mods' },
-                  MODULES.map((item) =>
-                    h(
-                      'button',
-                      {
-                        key: item.no,
-                        type: 'button',
-                        className: 'dapp-mod',
-                        title: item.hint,
-                        'data-done': feedback && feedback.token === item.no ? 'true' : 'false',
-                        onClick: () => deliver(item.no, modulePrompt(item)),
-                      },
-                      h(
-                        'span',
-                        { className: 'dapp-mod-icon' },
-                        h(Icon, { name: MODULE_ICON[item.no] || 'mark', size: 15 }),
-                      ),
-                      h('span', { className: 'dapp-mod-name' }, item.name),
-                      h('span', { className: 'dapp-mod-hint' }, item.hint),
-                      h('span', { className: 'dapp-mod-no' }, item.no),
-                      feedback && feedback.token === item.no
-                        ? h('span', { className: 'dapp-mod-done' }, feedbackLabel(feedback.kind))
-                        : null,
-                    ),
-                  ),
-                ),
-          );
-        } else if (view === 'checklist') {
-          content = h(
-            'div',
-            { className: 'dapp-view', style: { display: 'grid', gap: '10px' } },
-            h(
-              'div',
-              { className: 'dapp-card' },
-              h(
-                'div',
-                { className: 'dapp-check-head' },
-                h('span', null, `${t('panel.progress')} ${done}/${total}`),
-                h(
-                  'span',
-                  { className: 'dapp-track' },
-                  h('span', {
-                    className: 'dapp-fill',
-                    style: { width: `${total === 0 ? 0 : Math.round((done / total) * 100)}%` },
-                  }),
-                ),
-                h(
-                  'button',
-                  { type: 'button', className: 'dapp-btn dapp-btn-ghost', onClick: toggleAll },
-                  allOpen ? '全部收起' : '全部展开',
-                ),
-                h(
-                  'button',
-                  { type: 'button', className: 'dapp-btn dapp-btn-ghost', onClick: reset },
-                  t('panel.reset'),
-                ),
-              ),
-            ),
-            h(
-              'div',
-              { className: 'dapp-groups' },
-              CHECKLIST.map((group) => {
-                const groupDone = group.items.filter((_, index) => checked[`${group.id}.${index}`]).length;
-                const open = Boolean(openGroups[group.id]);
-                const pct = group.items.length === 0 ? 0 : Math.round((groupDone / group.items.length) * 100);
-                return h(
-                  'div',
-                  { key: group.id, className: 'dapp-group', 'data-open': open ? 'true' : 'false' },
-                  h(
-                    'button',
-                    { type: 'button', className: 'dapp-group-head', onClick: () => toggleGroup(group.id) },
-                    h(Icon, { name: 'chevron', size: 13, className: 'dapp-chevron' }),
-                    h('span', { className: 'dapp-group-key' }, group.id),
-                    h('span', { className: 'dapp-group-name' }, group.name),
-                    h('span', { className: 'dapp-group-count' }, `${groupDone}/${group.items.length}`),
-                  ),
-                  h(
-                    'div',
-                    { className: 'dapp-meter', style: { margin: '0 10px 8px' } },
-                    h('span', {
-                      style: {
-                        width: `${pct}%`,
-                        background: pct === 100 ? 'var(--dsw-alias-state-success-primary)' : 'var(--dsw-alias-brand-primary)',
-                      },
-                    }),
-                  ),
-                  open
-                    ? h(
-                        'div',
-                        { className: 'dapp-items' },
-                        group.items.map((text, index) => {
-                          const key = `${group.id}.${index}`;
-                          const on = Boolean(checked[key]);
-                          return h(
-                            'div',
-                            {
-                              key,
-                              className: 'dapp-item',
-                              'data-checked': on ? 'true' : 'false',
-                              onClick: () => toggle(group.id, index),
-                            },
-                            h(
-                              'span',
-                              { className: 'dapp-box' },
-                              h(Icon, { name: 'check', size: 11, strokeWidth: 2 }),
-                            ),
-                            h('span', { className: 'dapp-item-text' }, text),
-                          );
-                        }),
-                      )
-                    : null,
-                );
-              }),
-            ),
-          );
-        } else {
-          content = h(
-            'div',
-            { className: 'dapp-view', style: { display: 'grid', gap: '7px' } },
-            RULES.map(([no, title, body]) =>
-              h(
-                'div',
-                { key: no, className: 'dapp-rule' },
-                h('span', { className: 'dapp-rule-no' }, no),
-                h(
-                  'div',
-                  { className: 'dapp-grow' },
-                  h('div', { className: 'dapp-rule-title' }, title),
-                  h('div', { className: 'dapp-rule-body' }, body),
-                ),
-              ),
-            ),
-          );
-        }
-
-        return h('div', null, tabBar, h('div', { className: 'dapp-scroll' }, content));
-      }
-
-      return h(
-        'div',
-        {
-          className: 'dapp',
-          style: { display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0 },
-        },
-        h('style', { dangerouslySetInnerHTML: { __html: CSS } }),
-        head,
-        expanded ? renderBody() : null,
-      );
-    }
+    // ── registration ────────────────────────────────────────────────────
 
     return {
       inject: ['slots', 'locale'],

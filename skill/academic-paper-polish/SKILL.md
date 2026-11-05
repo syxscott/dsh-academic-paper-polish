@@ -400,5 +400,6 @@ Further research should focus on [方向].
 | `references/论文写作方法论骨架.md` | 写作方法论全篇：章节写法、综述流程、投稿与返修 |
 | `references/格式硬参数与文献检索实操.md` | 格式硬参数全篇 + 文献检索实操 |
 | `references/sentence-bank.md` | 句式库（引出不足 / 讨论动词 / 局限句式 / 回复审稿人） |
+| `references/AGENTS.md` | ★ **跨工具规则单一来源**（上游仓库级规则）—— 引文密度表（Introduction/Results/Discussion/Abstract 分章要求）、结构铁律（倒金字塔 / 段落 5–8 句 / 讨论六步 / 综述 18 步）、期刊差异速查、措辞禁区、内容红线与维护约定。**需要"哪一段该有多少引用"这类硬参数时读这里。** |
 | `docs/COMPATIBILITY.md` | 各 AI 工具兼容性矩阵与安装路径 |
 | `docs/PROMPTS-EN.md` | 英文版 prompt（English version of the 10 modules） |
