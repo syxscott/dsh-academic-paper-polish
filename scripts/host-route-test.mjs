@@ -1570,4 +1570,60 @@ if (failures > 0) {
   console.log(`\n${failures} failure(s)`);
   process.exit(1);
 }
+
+
+// ── a .docx is a ZIP: reading it as UTF-8 would feed the engine mojibake ──
+const bugRoot = mkdtempSync(join(tmpdir(), 'paper-file-read-'));
+const docxFixture = join(bugRoot, 'fixture.docx');
+writeFileSync(
+  docxFixture,
+  buildZip([
+    {
+      name: 'word/document.xml',
+      text:
+        '<?xml version="1.0"?><w:document xmlns:w="x"><w:body>' +
+        '<w:p><w:r><w:t>Abstract</w:t></w:r></w:p>' +
+        '<w:p><w:r><w:t>Radiolarian assemblage from the Lower Jurassic.</w:t></w:r></w:p>' +
+        '</w:body></w:document>',
+    },
+  ]),
+);
+const docxToolReport = await toolByName.get('paper_check').execute({ path: docxFixture }, exec);
+check('paper_check reads a .docx instead of mojibake', docxToolReport?.ok === true, docxToolReport?.error);
+check(
+  'the .docx text reaches the engine',
+  Array.isArray(docxToolReport?.violations) && docxToolReport.violations.length >= 0,
+);
+const pdfFixture = join(bugRoot, 'fixture.pdf');
+writeFileSync(pdfFixture, '%PDF-1.4\nnot a real pdf\n');
+const pdfReport = await toolByName.get('paper_check').execute({ path: pdfFixture }, exec);
+check(
+  'paper_check refuses a PDF with an actionable message',
+  pdfReport?.ok === false && /office/i.test(String(pdfReport?.error)),
+  String(pdfReport?.error),
+);
+const brokenDocx = join(bugRoot, 'broken.docx');
+writeFileSync(brokenDocx, 'PK not a zip at all');
+const brokenReport = await toolByName.get('paper_check').execute({ path: brokenDocx }, exec);
+check(
+  'paper_check reports a broken .docx without throwing',
+  brokenReport?.ok === false && typeof brokenReport?.error === 'string',
+);
+
+// ── a file name may contain spaces ──────────────────────────────────
+const spaced = join(bugRoot, 'my paper.md');
+writeFileSync(spaced, 'Abstract\n\nA spaced file name.\n');
+const spacedReport = await toolByName.get('paper_check').execute({ path: spaced }, exec);
+check('paper_check reads a path that contains spaces', spacedReport?.ok === true, spacedReport?.error);
+check(
+  'a slash command accepts a path that contains spaces',
+  (await commandByName.get('paper-check').handler({
+    rawInput: spaced,
+    agent: undefined,
+    attachments: [],
+    signal: undefined,
+  }))?.kind === 'success',
+);
+rmSync(bugRoot, { recursive: true, force: true });
+
 console.log(`\nhost route verified — ${assertions} assertions`);

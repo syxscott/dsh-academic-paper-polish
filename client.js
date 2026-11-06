@@ -2453,6 +2453,10 @@ window.__ModuleLoader__.load({
       // panel never guesses one — every session-scoped call carries it, so a
       // message can never land in a neighbouring conversation.
       const sessionId = typeof props.sessionId === 'string' ? props.sessionId : '';
+      // …and the id as of NOW: an answer that arrives late must be compared
+      // with it, or a report from the previous session lands in this one.
+      const sessionIdRef = useRef(sessionId);
+      sessionIdRef.current = sessionId;
       const sessionCwd = useSessionCwd(props);
 
       const [expanded, setExpanded] = useState(true);
@@ -2541,7 +2545,7 @@ window.__ModuleLoader__.load({
         return () => {
           // … and one when it goes away. The page may be unloading, so this
           // ping has to survive it.
-          pingBeacon({ event: 'unmount' }, true);
+          pingBeacon({ event: 'unmount' }, { keepalive: true });
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
       }, []);
@@ -2967,6 +2971,7 @@ window.__ModuleLoader__.load({
           flash('未绑定会话：无法分析', 'warn');
           return false;
         }
+        const requestSession = sessionId;
         setAnalyzePending(true);
         setAnalyzeState({ status: 'loading', data: null, error: null });
         try {
@@ -2981,14 +2986,18 @@ window.__ModuleLoader__.load({
             }),
           });
           const data = await readJson(response);
+          // The session moved on while the host was reading the file: the
+          // answer belongs to a conversation that is no longer here.
+          if (sessionIdRef.current !== requestSession) return false;
           setAnalyzeState({ status: 'ok', data, error: null });
           setActiveSection('');
           return true;
         } catch (error) {
+          if (sessionIdRef.current !== requestSession) return false;
           setAnalyzeState({ status: statusForError(error), data: null, error });
           return false;
         } finally {
-          setAnalyzePending(false);
+          if (sessionIdRef.current === requestSession) setAnalyzePending(false);
         }
       };
 

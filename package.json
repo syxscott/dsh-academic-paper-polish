@@ -1,6 +1,6 @@
 {
   "name": "dsh-academic-paper-polish",
-  "version": "3.2.0",
+  "version": "3.2.1",
   "private": true,
   "type": "module",
   "description": "Academic paper polish skill for DeepSeek Harness: writing, polishing, journal matching, submission and reviewer response.",
