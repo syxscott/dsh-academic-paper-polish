@@ -177,8 +177,8 @@ const libFiles = existsSync('lib') ? readdirSync('lib').filter((f) => f.endsWith
 const libSource = libFiles.map((f) => readFileSync(join('lib', f), 'utf8')).join('\n');
 const hostAll = `${host}\n${libSource}`;
 
-const TOOLS = ['paper_check', 'paper_rules', 'paper_journals', 'paper_outline', 'paper_deai'];
-const COMMANDS = ['paper-check', 'paper-rules', 'paper-journals', 'paper-outline', 'paper-deai'];
+const TOOLS = ['paper_check', 'paper_rules', 'paper_journals', 'paper_outline', 'paper_deai', 'paper_analyze'];
+const COMMANDS = ['paper-check', 'paper-rules', 'paper-journals', 'paper-outline', 'paper-deai', 'paper-analyze'];
 const API_ROUTES = [
   '/api/meta', '/api/rules', '/api/journals', '/api/checklists', '/api/sentences',
   '/api/check', '/api/deai', '/api/outline', '/api/send',

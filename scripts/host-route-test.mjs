@@ -298,8 +298,15 @@ const makeCapabilityCtx = () => {
 const capability = makeCapabilityCtx();
 apply(capability.ctx, {});
 
-check('five tools registered', capability.state.tools.length === 5, `${capability.state.tools.length}`);
-const TOOL_NAMES = ['paper_check', 'paper_rules', 'paper_journals', 'paper_outline', 'paper_deai'];
+check('six tools registered', capability.state.tools.length === 6, `${capability.state.tools.length}`);
+const TOOL_NAMES = [
+  'paper_check',
+  'paper_rules',
+  'paper_journals',
+  'paper_outline',
+  'paper_deai',
+  'paper_analyze',
+];
 check(
   'tool names are exactly the paper_* set',
   TOOL_NAMES.every((name) => capability.state.tools.some((tool) => tool.name === name)) &&
@@ -314,8 +321,15 @@ for (const tool of capability.state.tools) {
   check(`tool ${tool.name} can execute`, typeof tool.execute === 'function');
 }
 
-check('five commands registered', capability.state.commands.length === 5, `${capability.state.commands.length}`);
-const COMMAND_NAMES = ['paper-check', 'paper-rules', 'paper-journals', 'paper-outline', 'paper-deai'];
+check('six commands registered', capability.state.commands.length === 6, `${capability.state.commands.length}`);
+const COMMAND_NAMES = [
+  'paper-check',
+  'paper-rules',
+  'paper-journals',
+  'paper-outline',
+  'paper-deai',
+  'paper-analyze',
+];
 check(
   'command names are exactly the paper-* set',
   COMMAND_NAMES.every((name) => capability.state.commands.some((command) => command.name === name)) &&
@@ -337,6 +351,10 @@ check(
   commandByName.get('paper-deai')?.input?.attachments === true,
 );
 check(
+  'paper-analyze accepts a file attachment',
+  commandByName.get('paper-analyze')?.input?.attachments === true,
+);
+check(
   'command names carry no leading slash',
   capability.state.commands.every((command) => !command.name.startsWith('/')),
 );
@@ -347,7 +365,9 @@ check('prompt section is named', section?.name === 'plugin:academic-paper-polish
 check('prompt section lands after the tool sections', section?.order === 2950, String(section?.order));
 check(
   'prompt section stays short enough for every request',
-  typeof section?.text === 'string' && section.text.length <= 130,
+  // The section is injected into EVERY request, so it must stay tiny — but it
+  // has to name all six tools, and the names alone cost ~120 characters.
+  typeof section?.text === 'string' && section.text.length <= 150,
   `${section?.text?.length}`,
 );
 check(
@@ -397,6 +417,35 @@ check('paper_outline returns a skeleton', Array.isArray(outlineReport?.sections)
 const deaiReport = await toolByName.get('paper_deai').execute({ text: 'delve into' }, exec);
 check('paper_deai returns hits and a score', Array.isArray(deaiReport?.hits) && deaiReport.score >= 0 && deaiReport.score <= 100);
 
+// paper_analyze — the per-section manuscript analysis the panel uses.
+const analyzeInline = await toolByName
+  .get('paper_analyze')
+  .execute(
+    {
+      text: 'Abstract\n\nThis delves into the fascinating world of radiolarians.\n\nIntroduction\n\nRadiolarians are fascinating.',
+    },
+    exec,
+  );
+check('paper_analyze analyses inline text', analyzeInline?.ok === true && Array.isArray(analyzeInline?.report));
+check(
+  'paper_analyze reports one entry per section',
+  analyzeInline.report.length >= 2,
+  `${analyzeInline.report.length} sections`,
+);
+check(
+  'paper_analyze names the sections',
+  analyzeInline.report.every((entry) => typeof entry.title === 'string' && entry.title.length > 0),
+);
+check('paper_analyze returns a de-AI score', analyzeInline?.deai?.score >= 0 && analyzeInline.deai.score <= 100);
+check(
+  'paper_analyze refuses an empty input',
+  (await toolByName.get('paper_analyze').execute({}, exec))?.ok === false,
+);
+check(
+  'paper_analyze reports a missing file without throwing',
+  (await toolByName.get('paper_analyze').execute({ path: 'no-such-file.md' }, exec))?.ok === false,
+);
+
 // ── the commands actually run ────────────────────────────────────────
 const invocation = { rawInput: '', agent: undefined, attachments: [], signal: undefined };
 const rulesCommand = await commandByName.get('paper-rules').handler({ ...invocation, rawInput: 'dpi' });
@@ -409,6 +458,20 @@ const emptyCommand = await commandByName.get('paper-check').handler({ ...invocat
 check('paper-check without input reports an error, never a crash', emptyCommand?.kind === 'error' && typeof emptyCommand.text === 'string');
 const deaiCommand = await commandByName.get('paper-deai').handler({ ...invocation, rawInput: 'delve into' });
 check('paper-deai answers with a report', deaiCommand?.kind === 'success');
+const analyzeCommand = await commandByName
+  .get('paper-analyze')
+  .handler({ ...invocation, rawInput: 'Abstract\n\nA short abstract.' });
+check('paper-analyze answers with a per-section report', analyzeCommand?.kind === 'success' && analyzeCommand.text.length > 0);
+check(
+  'paper-analyze reports the section headings',
+  analyzeCommand.text.includes('摘要') || analyzeCommand.text.includes('Abstract'),
+  analyzeCommand.text.slice(0, 120),
+);
+const analyzeEmpty = await commandByName.get('paper-analyze').handler({ ...invocation, rawInput: '' });
+check(
+  'paper-analyze without input reports an error, never a crash',
+  analyzeEmpty?.kind === 'error' && typeof analyzeEmpty.text === 'string',
+);
 
 // ══ the panel API ═════════════════════════════════════════════════════
 

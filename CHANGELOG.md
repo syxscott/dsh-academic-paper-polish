@@ -3,6 +3,45 @@
 All notable changes to this project are documented here. Format based on
 [Keep a Changelog](https://keepachangelog.com/); versions follow semver.
 
+## [3.2.0] - 2026-11-06
+
+### Added
+- **`paper_analyze` 工具 + `/paper-analyze` 命令**：模型自己也能逐段审稿了。
+  解析 `.docx`/`.tex`/`.md`/`.txt`/`.rtf`，切出摘要/引言/方法/结果/讨论/结论，
+  对**每一段单独**跑规则库，返回该段各自的违规、修复建议与出处，外加整篇的去 AI 化得分。
+  此前这条能力只有右栏面板能用，模型只能拿到「整篇一锅端」的结果。
+  - 新增 `lib/manuscript.mjs`（读文件 + 解析 + 分析，面板路由与工具共用）、
+    `lib/tool-analyze.mjs`（工具定义）。
+  - 提示段改为 145 字符（原来 126），因为要点名六个工具。
+
+### Fixed
+- 🔴 **数值检查读错数**：`numeric` 规则原先只取正文里**第一个**正则匹配来判定，
+  于是「字号下限 8 pt」拿到的是线宽 `0.05`、`线条粗细 0.25–0.5 mm」拿到的是 `220 mm` 里的 `20`。
+  现在判定**全部**匹配：
+  - 全部越界 → 报**最严重**的那个值，并带上命中的原文；
+  - 一部分越界 → 降一级严重度（hard → soft）并说明「3 个值超界」；
+  - `forbidden` / `required` 现在报**命中次数**，面板能显示「命中 3 次」。
+- 🔴 **多捕获组只判第一个**：`180 mm × 230 mm` 这类**成对**的尺寸里，第二个数（高度）
+  原本完全不参与判定 —— `180 mm × 260 mm` 会「通过」。现在每个含数字的捕获组都判一次，
+  报最差的那个。
+- 🔴 **「最小 531×1328 px」被当成上限**：`max` 现在允许为 `null`（该侧无界），
+  于是更大的合法画布不再被误报，而低于最小值的仍会被抓出来。
+- 🔴 **制图宽度上限形同虚设**：`F-24` 只判到 230 mm，宽度 220 mm 也能过。
+  新增 `F-146`「制图设计尺寸宽度 ≤180 mm」。
+- 🔴 **切会话后仍显示上一篇会话的稿件报告**：右栏槽位是 session scope，但内容可能跨会话存活。
+  现在 `sessionId` 或会话目录一变就重置稿件视图的状态；没有会话 id 时主按钮禁用并说明原因，
+  **绝不显示不属于当前会话的结果**。
+
+### Added（可观测性）
+- **面板活动信标**：面板把「挂载了 / 切到哪个视图 / 报了什么错 / 面板有多宽」告诉宿主，
+  宿主写进 `<DSH_PROFILE_DIR>/.plugin-runtime/dsh-academic-paper-polish/panel-activity.json`
+  （原子写、留最近 50 条）。
+  官方 `references/verification.md` 明写「A screenshot of a mock page is not verification of the running plugin」
+  且**禁止**为拿截图去找认证令牌 —— 本机没有 browser-use provider、Electron 也没开调试端口，
+  所以这是**唯一**能在不碰登录态的前提下确认「真面板确实活着、没报错」的通道。
+  新路由 `GET/POST /api/ping`；读它用 `node scripts/read-panel-activity.mjs`。
+- 稿件视图新增「复制报告」（整篇分析导出 Markdown）与「整篇交给 Agent」（一次把全部段落送进会话）。
+
 ## [3.1.1] - 2026-11-06
 
 ### Added

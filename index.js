@@ -15,7 +15,7 @@ import { readFile } from "node:fs/promises";
 import { readFileSync, statSync, readdirSync } from "node:fs";
 import { randomUUID } from "node:crypto";
 import { fileURLToPath } from "node:url";
-import { basename, extname, join, relative, sep } from "node:path";
+import { basename, join, relative, sep } from "node:path";
 
 import { createCommandDefinitions } from "./lib/commands.mjs";
 import { allChecklists, allSentences, meta } from "./lib/data.mjs";
@@ -37,8 +37,8 @@ import {
   resolveSession,
   toPosix,
 } from "./lib/session.mjs";
-import { extractText, formatOf, isExtractable, unsupportedMessage } from "./lib/docx.mjs";
-import { analyzeManuscript } from "./lib/analyze.mjs";
+import { analyzeFile } from "./lib/manuscript.mjs";
+import { createAnalyzeToolDefinitions } from "./lib/tool-analyze.mjs";
 import { appendActivity, readActivity } from "./lib/runtime.mjs";
 
 /** Cordis plugin identity. */
@@ -157,15 +157,17 @@ export function apply(ctx, config = {}) {
   // them is optional: a composition without `tools`, `commands` or
   // `systemPrompt` simply keeps the skill provider.
 
-  // 1. Five model-facing tools: paper_check / paper_rules / paper_journals /
-  //    paper_outline / paper_deai. Registered GLOBALLY — this is a capability
-  //    plugin, not a per-agent one.
+  // 1. Six model-facing tools: paper_check / paper_rules / paper_journals /
+  //    paper_outline / paper_deai / paper_analyze. Registered GLOBALLY — this is
+  //    a capability plugin, not a per-agent one.
   try {
     ctx.inject(["tools"], (scope) => {
       if (!scope.tools || typeof scope.tools.register !== "function") return;
-      const definitions = createToolDefinitions({
-        resolveCwd: (agent) => resolveWorkingDirectory(scope, agent),
-      });
+      const resolveCwd = (agent) => resolveWorkingDirectory(scope, agent);
+      const definitions = [
+        ...createToolDefinitions({ resolveCwd }),
+        ...createAnalyzeToolDefinitions({ resolveCwd }),
+      ];
       scope.effect(() => {
         const disposers = definitions.map((definition) => scope.tools.register(definition));
         return () => {
@@ -210,7 +212,7 @@ export function apply(ctx, config = {}) {
             name: "plugin:academic-paper-polish",
             order: 2950,
             text:
-              "paper_check 体检、paper_rules 查规则、paper_journals 选刊、paper_outline 拟结构、paper_deai 去AI化；写改稿请调用，勿凭记忆套规则。手册：academic-paper-polish 技能。",
+              "paper_check 体检、paper_rules 查规则、paper_journals 选刊、paper_outline 拟结构、paper_deai 去AI化、paper_analyze 逐段审稿；写改稿请调用，勿凭记忆套规则。手册：academic-paper-polish 技能。",
           }),
         "dsh-academic-paper-polish: system prompt section",
       );
@@ -795,35 +797,7 @@ const API_ROUTES = {
       const resolved = await resolveSession(context.scope, sessionId);
       // Only files INSIDE the session's working directory may be read.
       const target = assertInsideCwd(resolved.cwd, resolvePath(rawPath, resolved.cwd));
-      let stats;
-      try {
-        stats = statSync(target);
-      } catch {
-        throw httpError(404, "file-not-found", `找不到文件：${rawPath}`);
-      }
-      if (!stats.isFile()) throw httpError(400, "bad-request", "目标不是文件");
-      if (stats.size > MAX_ANALYZE_BYTES) {
-        throw httpError(413, "payload-too-large", "文件超过 8 MB 上限");
-      }
-      const format = formatOf(target);
-      if (format === null) {
-        throw httpError(415, "unsupported-format", `暂不支持的文件格式：${extname(target)}`);
-      }
-      if (!isExtractable(format)) {
-        throw httpError(415, "unsupported-format", unsupportedMessage(format));
-      }
-      let extracted;
-      try {
-        extracted = extractText(target);
-      } catch (error) {
-        throw httpError(415, "unsupported-format", `无法读取正文：${error?.message ?? error}`);
-      }
-      return analyzeManuscript({
-        text: extracted.text,
-        format,
-        path: toPosix(target),
-        name: basename(target),
-        bytes: stats.size,
+      return analyzeFile(target, {
         journal: typeof body.journal === "string" ? body.journal : undefined,
         section: typeof body.section === "string" ? body.section : undefined,
       });

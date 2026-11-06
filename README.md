@@ -25,12 +25,14 @@
 |---|---|
 | 写完一节，不确定合不合规范 | 模型直接调 `paper_check` 工具，或敲 `/paper-check` |
 | 稿子就在会话目录里 | 面板「稿件」视图 → **一键扫描当前会话目录**，自动挑出论文文件，逐段给意见 |
+| 想让**模型**逐段审一篇稿子 | `paper_analyze` 工具 / `/paper-analyze` → 按摘要/引言/方法/结果/讨论/结论逐段体检 |
 | 有好几份稿件不知道哪份是 | 自动挑不出唯一赢家时**弹选择框**让你选 |
 | 想要 AI 味的诊断 | `paper_deai` / `/paper-deai` → 命中句式 + 原因 + 替换建议 + 0–100 分 |
 | 要投哪本刊 | `paper_journals` / `/paper-journals` → 28 本刊按主题排序，带 APC / 审稿周期 / 段结构 |
 | 这本刊要什么结构 | `paper_outline` / `/paper-outline` → 该刊官方段结构 + 篇幅上限 |
 | 想让 Agent 逐段精读 | 面板「交给 Agent 深读」→ 带绝对路径 + 期刊 + 规则 id 的指令进当前会话 |
 | 要一条条核对投稿清单 | 面板「清单」16 阶段 / 112 项，带进度环与落盘 |
+| 想知道面板在真机里是否活着 | `node scripts/read-panel-activity.mjs` → 读面板写的活动信标 |
 
 ---
 
@@ -42,7 +44,7 @@
               │ /paper-outline · /paper-deai                   │  ctx.commands
               └──────────────────────────────────────────────┘
   模型 ──────▶│ paper_check · paper_rules · paper_journals      │  工具
-              │ paper_outline · paper_deai                     │  ctx.tools
+              │ paper_outline · paper_deai · paper_analyze      │  ctx.tools
               └──────────────────────────────────────────────┘
   每次请求 ──▶│ "…有 paper_* 工具，写改稿请调用，勿凭记忆套规则" │  提示段
               └──────────────────────────────────────────────┘  ctx.systemPrompt.section
@@ -53,12 +55,12 @@
 | 面 | 官方接口 | 代价 |
 |---|---|---|
 | 技能 | `ctx.skills.registerProvider(() => provider)` | 模型可能不读 |
-| **工具** | `ctx.tools.register(definition)` | 每次请求 +5 个 tool schema |
+| **工具** | `ctx.tools.register(definition)` | 每次请求 +6 个 tool schema |
 | **命令** | `ctx.commands.register(definition)` | 0 |
-| **提示段** | `ctx.systemPrompt.section({ name, order: 2950, text })` | 每次请求 +126 字符 |
+| **提示段** | `ctx.systemPrompt.section({ name, order: 2950, text })` | 每次请求 +145 字符 |
 | **面板通道** | `ctx.webServer.register({ kind: 'prefix', path })` | 0 |
 
-提示段只有 126 个字符（29 个汉字），因为它**每次请求都会注入**。
+提示段只有 145 个字符（39 个汉字），因为它**每次请求都会注入**。
 它只做一件事：告诉模型「有这些工具，别凭记忆」。
 
 ---
@@ -126,13 +128,14 @@ PDF/`.doc`/`.odt` 返回 `415 unsupported-format`。
 
 ---
 
-## 5. 五个工具
+## 5. 六个工具
 
 模型可以直接调用。描述里写清了**何时调用**——这是模型发现它们的唯一途径。
 
 | 工具 | 参数 | 做什么 |
 |---|---|---|
 | `paper_check` | `text?` `path?` `section?` `journal?` | 把正文按段落切开，逐条跑规则库，返回违规清单 + 未能自动判定的指导条目 |
+| `paper_analyze` | `path?` `text?` `journal?` | **把一篇稿子按段落拆开，逐段体检**：解析 `.docx`/`.tex`/`.md`/`.txt`/`.rtf`，切出摘要/引言/方法/结果/讨论/结论，对每段单独跑规则，返回每段各自的违规、修复建议、出处 + 整篇去 AI 得分 |
 | `paper_rules` | `query?` `section?` `severity?` `journal?` `limit?` | 按关键词 / 段落 / 严重度 / 目标期刊切规则库 |
 | `paper_journals` | `query?` `field?` `openAccess?` `maxApc?` | 主题 → 期刊排序（精确名 > 领域 > 范围匹配） |
 | `paper_outline` | `journal?` `section?` | 目标期刊的官方段结构 + 篇幅/图数上限；未识别期刊时回退到通用骨架 |
@@ -159,17 +162,18 @@ PDF/`.doc`/`.odt` 返回 `415 unsupported-format`。
 
 ---
 
-## 6. 五个斜杠命令
+## 6. 六个斜杠命令
 
 | 命令 | 用法 | 作用 |
 |---|---|---|
 | `/paper-check` | `路径` 或直接粘贴正文，可加 `journal=Palaeontology` | 跑体检，输出违规表格 |
+| `/paper-analyze` | `路径` 或直接粘贴正文，可加 `journal=` | **逐段**体检：按段落输出各自的违规、修复建议与出处 |
 | `/paper-rules` | `关键词`，可加 `section=` `journal=` `severity=` | 查规则表 |
 | `/paper-journals` | `主题`，如 `三叠纪 牙形石 系统分类` | 选刊排序表 |
 | `/paper-outline` | `期刊名`，可加 `section=abstract` | 段结构骨架 |
 | `/paper-deai` | `路径` 或粘贴正文 | 去 AI 化扫描 |
 
-`/paper-check` 与 `/paper-deai` 声明了 `input.attachments`，可以直接带文件。
+`/paper-check`、`/paper-analyze` 与 `/paper-deai` 声明了 `input.attachments`，可以直接带文件。
 
 ---
 
@@ -186,11 +190,13 @@ GET  /api/journals?query&field&openAccess&maxApc&limit
 GET  /api/sentences?query
 GET  /api/checklists?stage
 GET  /api/session/files?sessionId=            会话目录里的论文候选与打分
+GET  /api/ping                               面板活动信标（挂载/切视图/报错/宽度）
 POST /api/check   { text, section?, journal? }   → { violations, advice, summary }
 POST /api/deai    { text }                       → { hits, score, total }
 POST /api/outline { journal?, section? }         → { journal, sections, limits, notes }
 POST /api/analyze { path, sessionId?, journal? } → { file, report[], deai, summary }
 POST /api/send    { text, sessionId? }           → 200 / 400 / 409 / 503
+POST /api/ping    { sessionId?, view?, event?, width?, error? } → { ok, recorded }
 ```
 
 - **零 token**：面板查规则、查期刊、跑体检、扫稿件都不经过模型。
@@ -300,13 +306,15 @@ DSH 的 `dsh-skill-filesystem` 会自动发现（rank 500）。注意：文件�
 ```bash
 node scripts/audit.mjs                 # 静态审计 36 条：语法 / 外链 / fetch 面 / CSS 变量 / 能力层一致性
 node scripts/eval-conformance.mjs      # 手册完整性 171 条（上游评测集反查）
-node scripts/host-route-test.mjs       # 宿主路由 + 工具 + 命令 248 条
+node scripts/host-route-test.mjs       # 宿主路由 + 工具 + 命令 295 条
+node scripts/checker-test.mjs          # 规则判定器 80 条（数值判定 / 边界 / 降级）
 node scripts/run-interaction-test.mjs  # 浏览器内交互 76 条
 node scripts/layout-probe.mjs          # 7 视图 × 5 宽度布局体检 35 条
 node scripts/render-test.mjs           # 7 视图 × 1 槽位渲染无崩溃
 node scripts/smoke-test.mjs            # 技能 provider 离线自检
 node scripts/check-inline-scripts.mjs  # 预览台内联脚本语法
 node scripts/code-metrics.mjs          # 代码量统计
+node scripts/read-panel-activity.mjs   # 读真机面板的活动信标
 node scripts/build-preview-fixtures.mjs # 预览夹具（真实引擎输出）
 node scripts/build-preview-data.mjs    # 预览台的离线数据
 node scripts/sync-skill-index.mjs      # 重新生成索引并同步进 client.js
@@ -316,8 +324,8 @@ node scripts/extract-host-css.mjs plugin-manager preview/host-plugin-manager.css
 node scripts/asar-ls.mjs <path-regex> --grep <pattern>  # 读 app.asar 里的真实实现
 ```
 
-**395 条断言**（audit 36 · eval-conformance 171 · host-route 248 · interaction 76 · layout 35）
-全部通过，另有渲染与冒烟自检。
+**693 条断言**全部通过：audit 36 · eval-conformance 171 · host-route 295 · checker 80 ·
+interaction 76 · layout 35（另有渲染与冒烟自检）。
 
 ### ⚠️ `preview/` 只是布局回归网，**不是**运行中插件的验证
 
@@ -355,16 +363,16 @@ node scripts/shoot-views.mjs --sweep   # 宽度扫描
 
 | 层 | 文件 | 代码行 | 体积 |
 |---|---|---|---|
-| 宿主 `index.js` | 1 | 695 | 30.8 KB |
-| 宿主 `lib/` | 9 | 2,615 | 113.9 KB |
-| 客户端 `client.js` | 1 | 4,566（JS 3,326 + CSS + 内置索引） | 193.0 KB |
-| **规则库** `data/` | 7 | 15,605 行 JSON | 523.6 KB |
-| 脚本 `scripts/` | 26 | 3,970 | 197.4 KB |
+| 宿主 `index.js` | 1 | 691 | 31.0 KB |
+| 宿主 `lib/` | 12 | 3,142 | 141.1 KB |
+| 客户端 `client.js` | 1 | 4,811（JS 3,571 + CSS + 内置索引） | 206.7 KB |
+| **规则库** `data/` | 7 | 15,633 行 JSON | 524.6 KB |
+| 脚本 `scripts/` | 28 | 4,397 | 226.1 KB |
 | 预览台 `preview/` | 18 + 53 张图 | 1,492 | 3.7 MB |
 | **手册内容** `skill/` | 40 | 7,333 行 / **61,093 词** | 613.1 KB |
-| **合计** | 167 | **38,232 行** | 5.3 MB |
+| **合计** | 172 | **39,532 行** | 5.4 MB |
 
-运行时代码（宿主 + 客户端）≈ **7,876 行**。
+运行时代码（宿主 + 客户端）≈ **8,644 行**。
 
 ---
 
