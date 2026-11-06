@@ -106,7 +106,7 @@ Earth-Science Reviews 的要求。规则可以带一个可选的 `journals` 数�
 | `required` | `{ "patterns": ["\\bBackground\\b"], "flags": "i" }` | 每个 pattern 至少命中一次，缺一个 = 违规 |
 | `count` | `{ "pattern": "\\bhowever\\b", "min": 1, "max": 4, "flags": "i" }` | 命中次数须落在 `[min, max]` |
 | `wordCount` | `{ "min": 150, "max": 300 }` | 被检段落字数（CJK 按字、拉丁按词）须落在 `[min, max]` |
-| `numeric` | `{ "pattern": "dpi\\s*[:=]\\s*(\\d+)", "min": 300, "max": 1200, "flags": "i" }` | 捕获组数字须落在 `[min, max]` |
+| `numeric` | `{ "pattern": "dpi\\s*[:=]\\s*(\\d+)", "min": 300, "max": 1200, "flags": "i" }` | 捕获组数字须落在 `[min, max]`；**`min` 或 `max` 可为 `null`** = 该侧无界（`max: null` = 只要 ≥ min） |
 | `citationDensity` | `{ "min": 5, "max": 40 }` | 每千字引用数须落在 `[min, max]` |
 | `sectionOrder` | `{ "order": ["introduction", "methods", "results", "discussion"] }` | 段落标题须存在且按给定顺序出现 |
 

@@ -9,6 +9,10 @@ preview/preview-data.js
 preview/.profile-*
 preview/dump-*.html
 
+# panel-activity beacon fallback directory (when neither DSH_PROFILE_DIR nor
+# DSH_ACADEMIC_PAPER_RUNTIME_DIR is set)
+.runtime/
+
 # OS / editor
 Thumbs.db
 .DS_Store

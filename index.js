@@ -39,6 +39,7 @@ import {
 } from "./lib/session.mjs";
 import { extractText, formatOf, isExtractable, unsupportedMessage } from "./lib/docx.mjs";
 import { analyzeManuscript } from "./lib/analyze.mjs";
+import { appendActivity, readActivity } from "./lib/runtime.mjs";
 
 /** Cordis plugin identity. */
 export const name = "skill-academic-paper-polish";
@@ -745,6 +746,28 @@ const API_ROUTES = {
       return { ok: true, sessionId: String(agent.id ?? sessionId), mode: "followup" };
     },
   },
+  // The panel-activity beacon. The panel reports what it is doing; the host
+  // persists it to a file the developer can read from disk. An empty body is
+  // a valid ping, so the panel can call it without preparing a payload.
+  "/api/ping": [
+    {
+      method: "GET",
+      handler: () => ({
+        ok: true,
+        plugin: "dsh-academic-paper-polish",
+        version: meta().version,
+        entries: readActivity(),
+      }),
+    },
+    {
+      method: "POST",
+      handler: (body) => {
+        const recorded = appendActivity(body);
+        // A failed write is a warning, never a broken panel.
+        return { ok: true, recorded: recorded === false ? 0 : recorded };
+      },
+    },
+  ],
   // The manuscript of the session: the files that could be the paper, the
   // one that was auto-selected and — when the choice is ambiguous — the
   // reason why the human has to choose.
@@ -811,20 +834,25 @@ const API_ROUTES = {
 /** Dispatch one API request. */
 async function handleApiRequest(req, res, tail, requestUrl, scope) {
   const route = tail.replace(/\/+$/u, "") || "/api";
-  const spec = API_ROUTES[route];
-  if (!spec) {
+  const entry = API_ROUTES[route];
+  if (!entry) {
     sendJson(res, 404, { error: "not-found", message: `未知接口 ${route}` });
     return;
   }
+  // A route may serve several methods (the ping route serves GET and POST);
+  // every entry of the table still looks the same: `{ method, handler }`.
+  const specs = Array.isArray(entry) ? entry : [entry];
   const method = String(req.method ?? "GET").toUpperCase();
-  if (method !== spec.method) {
+  const spec = specs.find((candidate) => candidate.method === method);
+  if (!spec) {
+    const allowed = specs.map((candidate) => candidate.method).join(", ");
     res.writeHead(405, {
       "content-type": "application/json; charset=utf-8",
       "cache-control": "no-store",
-      allow: spec.method,
+      allow: allowed,
     });
     res.end(
-      JSON.stringify({ error: "method-not-allowed", message: `${route} 只接受 ${spec.method}` }),
+      JSON.stringify({ error: "method-not-allowed", message: `${route} 只接受 ${allowed}` }),
     );
     return;
   }

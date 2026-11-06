@@ -182,7 +182,7 @@ const COMMANDS = ['paper-check', 'paper-rules', 'paper-journals', 'paper-outline
 const API_ROUTES = [
   '/api/meta', '/api/rules', '/api/journals', '/api/checklists', '/api/sentences',
   '/api/check', '/api/deai', '/api/outline', '/api/send',
-  '/api/session/files', '/api/analyze',
+  '/api/session/files', '/api/analyze', '/api/ping',
 ];
 
 if (libFiles.length === 0) fail('lib/ is missing — the host capability layer has no modules');
@@ -283,7 +283,7 @@ for (const rel of RULE_FILES) {
     continue;
   }
   for (const rule of doc.rules ?? []) {
-    if (rule.journals === undefined) continue;
+    if (rule.journals === undefined || rule.journals === null) continue;
     scopedRules += 1;
     if (!Array.isArray(rule.journals) || rule.journals.length === 0) {
       fail(`rule "${rule.id}" has an empty journals array`);

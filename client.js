@@ -1461,6 +1461,73 @@ window.__ModuleLoader__.load({
       }
     }
 
+    // ── the activity beacon ──────────────────────────────────────────────
+    // The panel tells the host what it is doing; the host writes it to a
+    // file the lead can read from disk. The beacon is INVISIBLE and
+    // harmless: it never shows an error, never blocks the UI, never retries
+    // in a loop, and a failed ping can never become an unhandled rejection
+    // (an unhandled rejection would ping again — an endless loop).
+    const beacon = {
+      sessionId: '',
+      view: '',
+    };
+
+    /** The panel's own width — the sidebar track, NOT the viewport. */
+    function beaconWidth() {
+      try {
+        const root = document.querySelector('.dapp');
+        return root ? Math.round(root.clientWidth) : 0;
+      } catch {
+        return 0;
+      }
+    }
+
+    /**
+     * One ping. Everything about it is defensive: the panel must keep
+     * working when the route does not exist yet, and a broken beacon must
+     * never break the panel.
+     *
+     * @param payload  the event and whatever it carries
+     * @param options  { keepalive, measure } — `measure: false` drops the
+     *                 width numbers, which are unknown before the panel is
+     *                 on screen.
+     */
+    function pingBeacon(payload, options) {
+      const opts = options || {};
+      const keepalive = Boolean(opts.keepalive);
+      const measure = opts.measure !== false;
+      try {
+        const width = measure ? beaconWidth() : 0;
+        const body = JSON.stringify({
+          sessionId: beacon.sessionId || undefined,
+          ...payload,
+          ...(width > 0 ? { width } : {}),
+          ...(measure ? { viewportWidth: window.innerWidth } : {}),
+        });
+        if (keepalive) {
+          try {
+            if (typeof navigator !== 'undefined' && typeof navigator.sendBeacon === 'function') {
+              const blob = new Blob([body], { type: 'application/json' });
+              if (navigator.sendBeacon('/dsh-academic-paper-polish/api/ping', blob)) return;
+            }
+          } catch {
+            /* fall through to the keepalive fetch */
+          }
+        }
+        fetch('/dsh-academic-paper-polish/api/ping', {
+          method: 'POST',
+          credentials: 'same-origin',
+          keepalive: keepalive || undefined,
+          headers: { 'content-type': 'application/json' },
+          body,
+        }).catch(() => {
+          /* the beacon never talks back */
+        });
+      } catch {
+        /* the beacon never talks back */
+      }
+    }
+
     // ── helpers ─────────────────────────────────────────────────────────
 
     const STORE_PREFIX = 'dsh-academic-paper-polish.';
@@ -2442,6 +2509,11 @@ window.__ModuleLoader__.load({
       // The control that opens the file picker — the dialog gives the focus
       // back to it when it closes.
       const scanTriggerRef = useRef(null);
+      // The first run of the view effect is the mount, not a view change.
+      const firstViewPing = useRef(true);
+      // Which session / which folder the 稿件 view currently shows.
+      const manuscriptSessionRef = useRef(sessionId);
+      const manuscriptCwdRef = useRef('');
 
       useEffect(
         () => () => {
@@ -2454,6 +2526,59 @@ window.__ModuleLoader__.load({
       useEffect(() => writeStore('view', view), [view]);
       useEffect(() => writeStore('journal', journalKey), [journalKey]);
       useEffect(() => writeStore('checklist', checked), [checked]);
+
+      // ── the activity beacon ───────────────────────────────────────────
+      // The host writes what the panel did to a file the lead can read. The
+      // panel only has to tell the truth — and to stay silent about it.
+      useEffect(() => {
+        beacon.sessionId = sessionId;
+        beacon.view = view;
+      }, [sessionId, view]);
+
+      useEffect(() => {
+        // one ping when the panel appears …
+        pingBeacon({ event: 'mount', view });
+        return () => {
+          // … and one when it goes away. The page may be unloading, so this
+          // ping has to survive it.
+          pingBeacon({ event: 'unmount' }, true);
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+      }, []);
+
+      useEffect(() => {
+        // A view change, debounced: a fast tab switch must not spam. The
+        // first run is the mount itself — that is the 'mount' ping.
+        if (firstViewPing.current) {
+          firstViewPing.current = false;
+          return undefined;
+        }
+        const timer = window.setTimeout(() => pingBeacon({ event: 'view', view }), 1200);
+        return () => window.clearTimeout(timer);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+      }, [view]);
+
+      useEffect(() => {
+        const onError = (event) => {
+          const error = event && event.error;
+          const message = str((error && error.message) || (event && event.message)) || 'unknown error';
+          const stack = str(error && error.stack).slice(0, 2000);
+          pingBeacon({ event: 'error', error: { message, stack } });
+        };
+        const onReject = (event) => {
+          const reason = event && event.reason;
+          const message =
+            str((reason && reason.message) || (typeof reason === 'string' ? reason : '')) || 'unhandled rejection';
+          const stack = str(reason && reason.stack).slice(0, 2000);
+          pingBeacon({ event: 'error', error: { message, stack } });
+        };
+        window.addEventListener('error', onError);
+        window.addEventListener('unhandledrejection', onReject);
+        return () => {
+          window.removeEventListener('error', onError);
+          window.removeEventListener('unhandledrejection', onReject);
+        };
+      }, []);
 
       // ── toast ─────────────────────────────────────────────────────────
       const flash = (text, kind) => {
@@ -2910,6 +3035,151 @@ window.__ModuleLoader__.load({
         if (!file || unsupportedReason(file)) return;
         setPickerOpen(false);
         runAnalyze(str(file.path));
+      };
+
+      /** The 稿件 view belongs to ONE session.
+       *
+       *  The right-sidebar slot is session scoped, but the Harness keeps
+       *  docked content mounted while the panel is collapsed and the slot
+       *  can be reused by the next session. A report that belongs to another
+       *  conversation is worse than no report at all, so a session change —
+       *  or a change of that session's working directory — drops every
+       *  result and looks at the new folder. */
+      useEffect(() => {
+        const nextSession = sessionId;
+        const nextCwd = str(sessionCwd);
+        const previousCwd = manuscriptCwdRef.current;
+        const sessionChanged = manuscriptSessionRef.current !== nextSession;
+        // The FIRST resolution of the cwd is not a change: nothing was stale
+        // yet, and the panel must not scan on its own.
+        const cwdChanged = Boolean(previousCwd) && previousCwd !== nextCwd;
+        manuscriptSessionRef.current = nextSession;
+        manuscriptCwdRef.current = nextCwd;
+        if (!sessionChanged && !cwdChanged) return;
+        setScanState({ status: 'idle', data: null, error: null });
+        setAnalyzeState({ status: 'idle', data: null, error: null });
+        setScanPending(false);
+        setAnalyzePending(false);
+        setPickerOpen(false);
+        setPickerIndex(0);
+        setActiveSection('');
+        // the folder moved — look at the new one
+        if (nextSession) scanSession();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+      }, [sessionId, sessionCwd]);
+
+      /** The whole analysis as ONE Markdown document.
+       *
+       *  The wording is the panel's own wording: the export is a faithful
+       *  copy of what the user sees, so a report can travel to a chat, a
+       *  file or a reviewer without being re-written. */
+      const reportMarkdown = () => {
+        const data = analyzeState.data || {};
+        const file = data.file || {};
+        const report = Array.isArray(data.report) ? data.report : [];
+        const deai = data.deai || {};
+        const hits = Array.isArray(deai.hits) ? deai.hits : [];
+        const score = typeof deai.score === 'number' ? deai.score : null;
+        const summary = data.summary || {};
+        const hard = num(summary.hard);
+        const soft = num(summary.soft);
+        const info = num(summary.info);
+        const total = num(
+          summary.total,
+          report.reduce((sum, entry) => sum + (Array.isArray(entry.violations) ? entry.violations.length : 0), 0),
+        );
+        const journal = journalKey ? str((targetJournal && targetJournal.name) || journalKey) : '不限';
+        const scope = str(sessionCwd, hostCwd) || '（宿主没有给出这个会话的目录）';
+        const lines = [];
+        lines.push(`# ${str(file.name, '未命名')}`);
+        lines.push(`- 目标期刊：${journal}`);
+        lines.push(`- 扫描范围：${scope}`);
+        lines.push(`- 合计：${total} 条（🔴 ${hard} / 🟡 ${soft} / 🔵 ${info}）`);
+        lines.push(`- 去 AI 化得分：${score === null ? '—' : `${score}/100`}`);
+        lines.push('');
+        for (const entry of report) {
+          const violations = Array.isArray(entry.violations) ? entry.violations : [];
+          const advice = Array.isArray(entry.advice) ? entry.advice : [];
+          lines.push(`## ${sectionTitle(entry)}（${num(entry.words)} 词）`);
+          for (const violation of violations) {
+            const id = str(violation.ruleId, violation.id);
+            const severity = str(violation.severity, 'hard');
+            const title = str(violation.title, violation.ruleTitle, violation.id);
+            lines.push(`### ${SEVERITY_ICON[severity] || '🔵'} ${severity} · ${id ? `${id} ` : ''}${title}`);
+            const statement = prose(violation.statement);
+            if (statement) lines.push(`条款：${statement}`);
+            const expected = prose(violation.expected, violation.expect);
+            const actual = prose(violation.actual, violation.observed);
+            if (expected || actual) lines.push(`期望：${expected || '—'}　实际：${actual || '—'}`);
+            const matched = prose(violation.matched);
+            if (matched) lines.push(`命中：${matched}`);
+            const fix = prose(violation.fix, violation.suggestion);
+            if (fix) lines.push(`修复建议：${fix}`);
+            const location = sourceLabel(violation.source);
+            if (location) lines.push(`出处：${location}`);
+            lines.push('');
+          }
+          if (advice.length > 0) {
+            lines.push(`### 建议（${advice.length} 条）`);
+            for (const item of advice) {
+              if (typeof item === 'string') {
+                lines.push(`- ${item}`);
+                continue;
+              }
+              lines.push(`- ${str(item.title, item.text, item.message)}`);
+              const ruleId = str(item.ruleId, item.id);
+              if (ruleId) lines.push(`  - 规则：${ruleId}`);
+              const statement = prose(item.statement);
+              if (statement) lines.push(`  - 条款：${statement}`);
+              const fix = prose(item.fix, item.suggestion);
+              if (fix) lines.push(`  - 修复建议：${fix}`);
+              const location = sourceLabel(item.source);
+              if (location) lines.push(`  - 出处：${location}`);
+            }
+            lines.push('');
+          }
+        }
+        if (hits.length > 0) {
+          lines.push('## 去 AI 化命中');
+          for (const hit of hits) {
+            const severity = str(hit.severity, 'soft');
+            const matched = prose(hit.matched, hit.match, hit.text, hit.zh, hit.en, hit.pattern);
+            lines.push(`- ${SEVERITY_ICON[severity] || '🟡'} ${prose(hit.category, hit.type, 'AI 句式')}：${matched}`);
+            const why = prose(hit.why, hit.reason);
+            if (why) lines.push(`  - 为什么：${why}`);
+            const suggestion = str(hit.suggestion, hit.replacement, hit.fix);
+            if (suggestion) lines.push(`  - 建议替换：${suggestion}`);
+          }
+          lines.push('');
+        }
+        return `${lines.join('\n').replace(/\n{3,}/g, '\n\n').trim()}\n`;
+      };
+
+      /** Put the whole report on the clipboard. */
+      const copyReport = () => {
+        const markdown = reportMarkdown();
+        if (!markdown.trim()) {
+          flash('还没有可复制的报告', 'warn');
+          return;
+        }
+        copyText(markdown);
+      };
+
+      /** Hand the WHOLE analysis to the agent in ONE instruction. */
+      const handWholeToAgent = () => {
+        const data = analyzeState.data || {};
+        const file = data.file || {};
+        const path = str(file.path);
+        if (!path) {
+          flash('还没有可交给智能体的稿件', 'warn');
+          return;
+        }
+        const journal = journalKey ? str((targetJournal && targetJournal.name) || journalKey) : '不限';
+        const instruction =
+          `请审阅 ${path}（目标期刊 ${journal}）：先读全文，再按「摘要 / 引言 / 方法 / 结果 / 讨论 / 结论」逐段给意见。` +
+          '下面是我用 paper_check 跑出来的机器判定结果，请优先处理 🔴 hard 项，每条注明规则 id 与出处：\n\n' +
+          reportMarkdown();
+        sendToSession(instruction);
       };
 
       /** Hand the manuscript to the agent for a deep read. */
@@ -4065,6 +4335,9 @@ window.__ModuleLoader__.load({
                     type: 'button',
                     className: 'dapp-btn dapp-btn-primary',
                     disabled: scanPending || analyzePending || !sessionId,
+                    title: sessionId
+                      ? '扫描这个会话的工作目录，挑出稿件并逐段检查'
+                      : '未绑定会话：面板拿不到会话 id，无法扫描',
                     onClick: scanSession,
                   },
                   scanPending ? '扫描中…' : '分析会话论文',
@@ -4210,6 +4483,7 @@ window.__ModuleLoader__.load({
                         type: 'button',
                         className: 'dapp-btn dapp-btn-primary',
                         disabled: sending || !sessionId,
+                        title: sessionId ? '让智能体自己读全文并逐段给意见' : '未绑定会话：面板拿不到会话 id',
                         onClick: handToAgent,
                       },
                       h(Icon, { name: 'send', size: 12 }),
@@ -4224,6 +4498,37 @@ window.__ModuleLoader__.load({
                       },
                       h(Icon, { name: 'copy', size: 12 }),
                       '复制路径',
+                    ),
+                  ),
+                  // the whole analysis, as one document or one instruction
+                  h('div', { className: 'dapp-label' }, '整篇报告'),
+                  h(
+                    'div',
+                    { className: 'dapp-actions' },
+                    h(
+                      'button',
+                      {
+                        type: 'button',
+                        className: 'dapp-btn',
+                        title: '把整篇检查结果复制为 Markdown',
+                        onClick: copyReport,
+                      },
+                      h(Icon, { name: 'copy', size: 12 }),
+                      '复制报告',
+                    ),
+                    h(
+                      'button',
+                      {
+                        type: 'button',
+                        className: 'dapp-btn dapp-btn-primary',
+                        disabled: sending || !sessionId,
+                        title: sessionId
+                          ? '把全文路径与机器判定结果一起发给当前会话'
+                          : '未绑定会话：面板拿不到会话 id',
+                        onClick: handWholeToAgent,
+                      },
+                      h(Icon, { name: 'send', size: 12 }),
+                      '整篇交给 Agent',
                     ),
                   ),
                 ),
@@ -4999,6 +5304,11 @@ window.__ModuleLoader__.load({
     return {
       inject: ['slots', 'locale'],
       apply(ctx) {
+        // The client half is alive. This ping fires BEFORE anything else,
+        // so a missing 'load' entry means the bundle never ran — while a
+        // 'load' without a 'register' means it ran but the slot did not
+        // take the tab.
+        pingBeacon({ event: 'load', view: 'boot' }, { measure: false });
         registerLocale(ctx);
         refreshLiveIndex();
 
@@ -5047,16 +5357,20 @@ window.__ModuleLoader__.load({
               /* the host does not offer the title slot — the chip keeps the tab title */
             }
 
-            scope.slots.inject('sidebar.right.pane.tab', () =>
-              scope.slots.register(
+            scope.slots.inject('sidebar.right.pane.tab', () => {
+              const dispose = scope.slots.register(
                 {
                   name: 'sidebar.right.pane.tab',
                   key: TAB_ID,
                   locale: NS,
                 },
                 (props) => h(Panel, { ...props, ctx: scope }),
-              ),
-            );
+              );
+              // The tab body is in the slot now: the host can tell "the
+              // module loaded" from "the tab is really registered".
+              pingBeacon({ event: 'register' }, { measure: false });
+              return dispose;
+            });
           });
         } catch {
           /* the right-Sidebar package is absent — the panel stays unregistered */

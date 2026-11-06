@@ -979,7 +979,7 @@
         "params": {
           "pattern": "(?<![\\d.])(\\d{3,4})(?![\\d.])\\s*(?:×|x)\\s*(?<![\\d.])(\\d{3,4})(?![\\d.])\\s*px",
           "min": 531,
-          "max": 1328,
+          "max": null,
           "flags": ""
         }
       },
@@ -4279,6 +4279,34 @@
       "source": {
         "file": "references/ai-ml-paper-patterns.md",
         "line": 505
+      }
+    },
+    {
+      "id": "F-146",
+      "title": "制图设计尺寸宽度 ≤180 mm",
+      "severity": "hard",
+      "sections": [
+        "figures"
+      ],
+      "statement": "设计尺寸的**宽度**上限 **180 mm**（高度上限 230 mm，见 F-24）：图表版面要求 160–180 mm 宽 × 210–230 mm 高。",
+      "fix": "把图幅宽度压到 180 mm 以内（双栏满版 180 mm / 单栏 85–90 mm），高度不超过 230 mm；不要靠后期缩放解决。",
+      "check": {
+        "type": "numeric",
+        "params": {
+          "pattern": "(?:设计尺寸|图幅|版心|宽度|宽|width)[^\\d]{0,15}(?<![\\d.])(\\d{2,3})(?![\\d.])\\s*mm",
+          "min": 0,
+          "max": 180,
+          "flags": "i"
+        }
+      },
+      "tags": [
+        "figure",
+        "dimension",
+        "width"
+      ],
+      "source": {
+        "file": "references/figure-specs.md",
+        "line": 95
       }
     }
   ]

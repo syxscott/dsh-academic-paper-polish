@@ -8,6 +8,7 @@
 import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
 import { mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { deflateRawSync } from 'node:zlib';
@@ -17,6 +18,11 @@ import { createCommandDefinitions } from '../lib/commands.mjs';
 
 const require_ = createRequire(import.meta.url);
 const { apply } = require_('../index.js');
+
+// The panel-activity beacon must never touch the developer's real profile:
+// point the runtime writer at a temporary directory for this whole run.
+const runtimeRoot = mkdtempSync(join(tmpdir(), 'dsh-academic-paper-polish-runtime-'));
+process.env.DSH_ACADEMIC_PAPER_RUNTIME_DIR = runtimeRoot;
 
 let failures = 0;
 let assertions = 0;
@@ -422,6 +428,11 @@ const makeReq = (method, url, body, headers = {}) => {
   if (body !== undefined) {
     queueMicrotask(() => {
       for (const handler of listeners.data ?? []) handler(Buffer.from(body, 'utf8'));
+      for (const handler of listeners.end ?? []) handler();
+    });
+  } else if (method !== 'GET' && method !== 'HEAD') {
+    // a request without a body still ends its stream
+    queueMicrotask(() => {
       for (const handler of listeners.end ?? []) handler();
     });
   }
@@ -1366,6 +1377,129 @@ check(
     singleSection.payload.report[0].section === 'abstract',
   JSON.stringify((singleSection.payload?.report ?? []).map((entry) => entry.section)),
 );
+
+// ══ the panel-activity beacon ════════════════════════════════════════
+//
+// The panel reports what it is doing; the host persists it to a file. The
+// writer is redirected to a temporary directory (see the top of this file),
+// so the developer's real profile is never touched.
+
+const pingGet = async () => {
+  const res = mockRes();
+  await webRoute.handler(
+    makeReq('GET', '/dsh-academic-paper-polish/api/ping', undefined, {}),
+    res,
+  );
+  return { status: res.statusCode, headers: res.headers, body: res.body, payload: jsonOf(res) };
+};
+
+const pingPost = async (payload) => {
+  const res = mockRes();
+  await webRoute.handler(
+    makeReq(
+      'POST',
+      '/dsh-academic-paper-polish/api/ping',
+      payload === undefined ? undefined : JSON.stringify(payload),
+      {},
+    ),
+    res,
+  );
+  return { status: res.statusCode, headers: res.headers, body: res.body, payload: jsonOf(res) };
+};
+
+const cleanPing = await pingGet();
+check('GET /api/ping returns 200', cleanPing.status === 200, `got ${cleanPing.status}`);
+check('GET /api/ping starts empty', Array.isArray(cleanPing.payload?.entries) && cleanPing.payload.entries.length === 0, JSON.stringify(cleanPing.payload?.entries));
+check('GET /api/ping names the plugin', cleanPing.payload?.plugin === 'dsh-academic-paper-polish', String(cleanPing.payload?.plugin));
+check('GET /api/ping reports the plugin version', typeof cleanPing.payload?.version === 'string' && cleanPing.payload.version.length > 0, String(cleanPing.payload?.version));
+check(
+  'GET /api/ping is JSON and not cached',
+  cleanPing.headers['content-type'] === 'application/json; charset=utf-8' &&
+    cleanPing.headers['cache-control'] === 'no-store',
+);
+
+const pinged = await pingPost({
+  sessionId: 'session-abc',
+  view: 'manuscripts',
+  event: 'view',
+  width: 1280,
+});
+check('POST /api/ping returns 200', pinged.status === 200, `got ${pinged.status}`);
+check('POST /api/ping reports ok', pinged.payload?.ok === true);
+check('POST /api/ping reports how many entries are stored', pinged.payload?.recorded === 1, String(pinged.payload?.recorded));
+
+const afterPing = await pingGet();
+check('the ping is readable back', afterPing.payload?.entries?.length === 1, String(afterPing.payload?.entries?.length));
+const entry = afterPing.payload?.entries?.[0];
+check('the entry carries an ISO timestamp', typeof entry?.at === 'string' && !Number.isNaN(Date.parse(entry.at)), String(entry?.at));
+check('the entry carries the session id', entry?.sessionId === 'session-abc', String(entry?.sessionId));
+check('the entry carries the view', entry?.view === 'manuscripts', String(entry?.view));
+check('the entry carries the event', entry?.event === 'view', String(entry?.event));
+check('the entry carries the width', entry?.width === 1280, String(entry?.width));
+check('the entry drops the fields that were not sent', entry?.error === undefined);
+
+// an error entry keeps a capped message
+const errorPing = await pingPost({
+  event: 'error',
+  error: { message: 'x'.repeat(900), stack: 'y'.repeat(4000) },
+});
+check('an error ping is accepted', errorPing.status === 200 && errorPing.payload?.recorded === 2, String(errorPing.payload?.recorded));
+const errorEntry = (await pingGet()).payload?.entries?.[1];
+check('the error message is capped', errorEntry?.error?.message?.length === 500, String(errorEntry?.error?.message?.length));
+check('the error stack is capped', errorEntry?.error?.stack?.length === 2000, String(errorEntry?.error?.stack?.length));
+
+// an empty body is a valid ping
+const emptyPing = await pingPost(undefined);
+check('an empty body is a valid ping', emptyPing.status === 200 && emptyPing.payload?.recorded === 3, `got ${emptyPing.status} ${emptyPing.payload?.recorded}`);
+check('an empty ping still stores an entry', (await pingGet()).payload?.entries?.length === 3);
+
+// the 50-entry cap
+for (let index = 0; index < 55; index += 1) {
+  await pingPost({ event: 'view', view: `v-${index}` });
+}
+const capped = await pingGet();
+check('the log keeps at most 50 entries', capped.payload?.entries?.length === 50, String(capped.payload?.entries?.length));
+check(
+  'the oldest entries fall off the front',
+  // 3 entries existed before the loop, 55 more were added: the log keeps the
+  // last 50, so the three early ones plus v-0 … v-4 fell off.
+  capped.payload?.entries?.[0]?.view === 'v-5',
+  String(capped.payload?.entries?.[0]?.view),
+);
+check(
+  'the newest entry is last',
+  capped.payload?.entries?.[49]?.view === 'v-54',
+  String(capped.payload?.entries?.[49]?.view),
+);
+
+// a corrupt file on disk must not break the reader — and the writer recovers
+writeFileSync(join(runtimeRoot, 'panel-activity.json'), '{ this is not json', 'utf8');
+const corruptRead = await pingGet();
+check('a corrupt log reads as empty', corruptRead.status === 200 && corruptRead.payload?.entries?.length === 0, `got ${corruptRead.status}`);
+const recovered = await pingPost({ event: 'mount', view: 'after-corruption' });
+check('a ping after a corrupt log still works', recovered.status === 200 && recovered.payload?.recorded === 1, `got ${recovered.status} ${recovered.payload?.recorded}`);
+check(
+  'the recovered log holds only the new entry',
+  (await pingGet()).payload?.entries?.[0]?.view === 'after-corruption',
+);
+
+// the file is really written where the contract says
+check(
+  'the activity file lives in the runtime directory',
+  existsSync(join(runtimeRoot, 'panel-activity.json')),
+  runtimeRoot,
+);
+
+// the wrong method is still rejected
+const pingPut = mockRes();
+await webRoute.handler(
+  makeReq('PUT', '/dsh-academic-paper-polish/api/ping', undefined, {}),
+  pingPut,
+);
+check('PUT on /api/ping returns 405', pingPut.statusCode === 405, `got ${pingPut.statusCode}`);
+check('the 405 names both allowed methods', pingPut.headers.allow === 'GET, POST', String(pingPut.headers.allow));
+
+rmSync(runtimeRoot, { recursive: true, force: true });
 
 rmSync(workRoot, { recursive: true, force: true });
 
