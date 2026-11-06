@@ -3,6 +3,40 @@
 All notable changes to this project are documented here. Format based on
 [Keep a Changelog](https://keepachangelog.com/); versions follow semver.
 
+## [3.2.1] - 2026-11-06
+
+一次针对 v3.0.0 之后全部新代码的**敌意 bug 猎**。修了 7 个真 bug，并新增三套对抗性探针。
+
+### Fixed
+- 🔴 **`.docx` 被当 UTF-8 读**：`paper_check` / `paper_deai` 用 `readFileSync(path,'utf8')`
+  读文件，`.docx` 是 ZIP 容器，于是规则引擎收到的是**乱码**，出来的结论全是噪声。
+  现在走 docx 解包器；`.pdf` / `.doc` / `.odt` 给出可执行的提示（先用 office 技能转 docx），
+  损坏的 `.docx` 报明确错误。斜杠命令的附件/路径分支改用同一个读取器。
+- 🔴 **文件名带空格时斜杠命令把它当散文**：`looksLikePath` 原本见空格就否，
+  于是 `my paper.md` 永远走不了路径分支。现在以扩展名 + 句子标点判断。
+- 🔴 **切会话时旧结果落进新会话**：宿主读文件期间会话切换，旧会话的分析结果会写进新会话的面板。
+  客户端记住发起时的 sessionId，回来时不一致就丢弃。
+- 🔴 **卸载信标没真正用上 keepalive**：`pingBeacon(payload, true)` 的第二参是 options 对象，
+  传 `true` 会让 `opts.keepalive` 变成 `undefined` → 页面卸载时请求可能被浏览器丢掉。
+- 🔴 **F-146 与 APP 的 183 mm 版心冲突**：「制图宽度 ≤180 mm」把 APP 合法��� 183 mm 误报。
+  改为 ≤183 mm（所有已知期刊里最宽的双栏），关键词收紧，severity 降为 soft。
+- **`pickLatestAgent` 在 `agents.list()` 返回非数组时抛异常** —— 现在安全跳过。
+- **`paper_analyze` 没有工作目录护栏**：面板路由用 `assertInsideCwd` 限制在会话目录内，
+  工具却能读任意路径。现在两者一致。
+
+### Added
+- **`scripts/checker-adversarial-test.mjs`**（41 条）：把规则引擎按畸形规则打一遍 ——
+  无捕获组、min > max、单侧 null 边界、零宽正则、空 pattern、非法正则、
+  两个捕获组、count/required/forbidden 空列表、未知 check type。
+- **`scripts/host-adversarial-test.mjs`**：敌意输入下的全 HTTP 面探针 ——
+  畸形查询串、超大 body、目录、9 MB 文件、空文件、带空格的文件名、不是 zip 的 .docx。
+- **`scripts/client-adversarial-test.mjs`**（28 次渲染）：7 个视图 × 4 种错误应答
+  （乱码 / 401 / 404 / 不可达），要求面板**降级而不是崩溃**。
+
+### Test
+- 断言 693 → **762**（新增 checker-adversarial 41 · client-adversarial 28 ·
+  host-route 295 → 301 · 其余不变）。
+
 ## [3.2.0] - 2026-11-06
 
 ### Added

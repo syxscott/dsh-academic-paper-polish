@@ -306,8 +306,11 @@ DSH 的 `dsh-skill-filesystem` 会自动发现（rank 500）。注意：文件�
 ```bash
 node scripts/audit.mjs                 # 静态审计 36 条：语法 / 外链 / fetch 面 / CSS 变量 / 能力层一致性
 node scripts/eval-conformance.mjs      # 手册完整性 171 条（上游评测集反查）
-node scripts/host-route-test.mjs       # 宿主路由 + 工具 + 命令 295 条
+node scripts/host-route-test.mjs       # 宿主路由 + 工具 + 命令 301 条
 node scripts/checker-test.mjs          # 规则判定器 80 条（数值判定 / 边界 / 降级）
+node scripts/checker-adversarial-test.mjs  # 畸形规则 41 条（无捕获组 / min>max / null 边界 / 空 pattern）
+node scripts/host-adversarial-test.mjs     # 敌意输入下的全 HTTP 面探针
+node scripts/client-adversarial-test.mjs   # 面板在乱码 / 401 / 404 / 不可达下不得崩溃（28 次渲染）
 node scripts/run-interaction-test.mjs  # 浏览器内交互 76 条
 node scripts/layout-probe.mjs          # 7 视图 × 5 宽度布局体检 35 条
 node scripts/render-test.mjs           # 7 视图 × 1 槽位渲染无崩溃
@@ -324,8 +327,9 @@ node scripts/extract-host-css.mjs plugin-manager preview/host-plugin-manager.css
 node scripts/asar-ls.mjs <path-regex> --grep <pattern>  # 读 app.asar 里的真实实现
 ```
 
-**693 条断言**全部通过：audit 36 · eval-conformance 171 · host-route 295 · checker 80 ·
-interaction 76 · layout 35（另有渲染与冒烟自检）。
+**762 条断言**全部通过：audit 36 · eval-conformance 171 · host-route 301 · checker 80 ·
+checker-adversarial 41 · client-adversarial 28 · interaction 76 · layout 35
+（另有渲染、冒烟与 HTTP 面探针）。
 
 ### ⚠️ `preview/` 只是布局回归网，**不是**运行中插件的验证
 

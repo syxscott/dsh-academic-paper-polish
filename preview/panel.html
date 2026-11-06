@@ -101,8 +101,16 @@
           const method = (init.method || 'GET').toUpperCase();
 
           // ?api=401 | 404 | down reproduces the three host failure modes.
+          // ?api=garbage makes every route answer with a shape the panel does
+          // NOT expect — the panel must degrade, never crash.
+          if (apiMode === 'down') throw new TypeError('Failed to fetch');
+          if (apiMode === 'garbage') {
+            if (path.includes('/api/')) {
+              return json({ error: 'boom', rules: null, journals: 'not-an-array' });
+            }
+            return json(null);
+          }
           if (apiMode && path.includes('/dsh-academic-paper-polish/')) {
-            if (apiMode === 'down') throw new TypeError('Failed to fetch');
             return new Response(apiMode === '404' ? 'not found' : 'unauthorized', {
               status: apiMode === '404' ? 404 : 401,
             });
